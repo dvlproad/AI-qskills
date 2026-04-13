@@ -74,10 +74,10 @@ qbase -quick 脚本关键字 [具名参数/参数...]
 >
 > ```json
 > {
->     "key": "check_remote_version",
+>     "key": "package_remote_version",
 >     "des": "检查/更新 Homebrew 包的远程版本",
 >     "rel_path": "./package/package_remote_version.sh",
->     "example": "qbase -quick check_remote_version -a check -p qbase"
+>     "example": "qbase -quick package_remote_version -p qbase -v -l ./check.log"
 > }
 > ```
 >
@@ -88,21 +88,67 @@ qbase -quick 脚本关键字 [具名参数/参数...]
 
 **效果**：生成后即可通过 `${path}/qbase -quick 脚本关键字 [具名参数/参数...]` 调用脚本。
 
+**注意**：此步骤需要 AI 执行，AI 会运行：
+```bash
+cd ${path} && sh qbase重新生成.sh
+```
+
 ### 步骤3：提交代码并发布
 
-**脚本仓库操作**：
-1. 提交代码：将修改后的脚本代码提交到仓库（如 script-qbase）
-2. 打标签：创建版本标签（如 0.0.1）并推送到远程
+此步骤由 AI 自动执行：
 
-**准备 rb 更新所需信息**：
-3. 获取 tar.gz：通过 `https://github.com/dvlpCI/script-qbase/archive/{tag}.tar.gz` 获取压缩包
-4. 计算 sha256：`shasum -a 256 {tag}.tar.gz` 获取文件校验和
+**1. 提交修改后的 `qbase.json` 和 二进制文件 `qbase` 到脚本仓库**：
 
-**更新 homebrew 仓库**：
-5. 更新 rb 文件：在 homebrew 对应仓库中更新 .rb 文件的 url 和 sha256
-6. 提交 rb 文件：将更新后的 rb 文件提交到 homebrew 仓库
+```bash
+# 只提交步骤一(qbase.json)和步骤二(qbase二进制)生成的文件
+git add qbase.json qbase
+git commit -m "【Update】添加脚本配置并升级 qbase 二进制"
+
+# 推送到远程
+git push
+```
+
+**2. 创建版本标签并推送到远程**：
+
+标签需由用户输入，不能自己指定。
+
+```bash
+# 创建标签（版本号由用户提供）
+git tag -a {版本号} -m "版本 {版本号}"
+
+# 推送标签
+git push origin {版本号}
+```
+
+**3. 准备 rb 更新所需信息（tar.gz 的 url 和 sha256）**：
+
+```bash
+# 下载 tar.gz 并计算 sha256
+curl -sL https://github.com/dvlpCI/script-qbase/archive/{tag}.tar.gz -o /tmp/script-qbase-{tag}.tar.gz
+shasum -a 256 /tmp/script-qbase-{tag}.tar.gz
+```
+
+**4. 更新 homebrew 仓库**：
+- 更新 qbase.rb 中的 version 和 sha256
+- 将更新的 qbase.rb 提交并推送
 
 ### 步骤4：安装、更新和使用
+
+完成后提示用户：
+
+```bash
+# 步骤1. 刷新 Tap 索引（检测新版本）
+# 方法一：刷新所有 tap
+brew update
+# 方法二：只刷新 qbase tap（更快）
+cd "$(brew --repository)/Library/Taps/dvlpci/homebrew-qbase" && git pull
+
+# 步骤2. 升级 qbase
+brew upgrade qbase
+
+# 步骤3. 验证安装
+qbase -quick 脚本关键字 --help
+```
 
 《安装和更新命令的**更多介绍》**见：[https://dvlproad.github.io/代码管理/库管理/homebrew](https://dvlproad.github.io/%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%BA%93%E7%AE%A1%E7%90%86/homebrew) 中 【安装和更新命令的**更多介绍】**
 
@@ -227,5 +273,9 @@ end
 在终端输入 `qhelloworld` 即可。
 
 
+## 版本记录
+
+- 0.0.1 (2026-04-11): 初始版本
+- 0.0.4 (2026-04-13): 修复AI执行skill中断问题，让AI可以按skill自动执行完整个流程
 
 ## End
