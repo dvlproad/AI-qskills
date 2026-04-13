@@ -16,6 +16,43 @@ description: |
 用户输入"创建脚本"时触发
 
 
+## 脚本结构顺序（最前）
+
+脚本内容应按以下顺序编写：
+
+1. shebang + 头部注释
+
+2. 定义的常量
+
+   - 颜色常量（用于在日志消息中高亮内容）
+
+     ```bash
+     NC="\033[0m"     # No Color 关闭颜色
+     RED="\033[31m"   # 红色
+     GREEN="\033[32m" # 绿色
+     YELLOW="\033[33m" # 黄色
+     BLUE="\033[34m"  # 蓝色
+     PURPLE="\033[0;35m" # 紫色
+     CYAN="\033[0;36m"  # 青色
+     ```
+
+   -   如果需要执行json的，则定义
+
+       ```bash
+       JQ_EXEC=$(which jq)
+       ```
+
+3. 获取脚本目录
+
+   ```bash
+   CurrentDIR_Script_Absolute="$(cd "$(dirname "$0")" && pwd)"
+   project_homedir_abspath="${CurrentDIR_Script_Absolute}"
+   ```
+
+4. 参数解析
+
+5. 业务逻辑
+
 
 ## 脚本要求
 
@@ -31,7 +68,14 @@ description: |
 # @LastEditTime: YYYY-MM-DD HH:MM:SS
 # @FilePath: <相对路径>
 # @Description: <脚本功能描述>
+# @Note: 简要说明或参考链接
 ###
+```
+
+`@Note` 的示例：
+
+```bash
+# @Note: 检查更新原理见 [https://dvlproad.github.io/代码管理/库管理/homebrew](https://dvlproad.github.io/%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%BA%93%E7%AE%A1%E7%90%86/homebrew)
 ```
 
 ### 2. 帮助信息要求
@@ -106,36 +150,77 @@ description: |
 - **日志文件**：
   - 为可选的具名参数 `-l` `-log-file`
   - 所有等级信息都显示
-  
-- **定义**：
-  
-  每个脚本都要定义颜色常量（用于在日志消息中高亮内容）
-  
+
+- **日志函数内部也应使用 `printf`**：避免值含特殊字符时输出异常
   ```bash
-  NC="\033[0m"     # No Color 关闭颜色
-  RED="\033[31m"   # 红色
-  GREEN="\033[32m" # 绿色
-  YELLOW="\033[33m" # 黄色
-  BLUE="\033[34m"  # 蓝色
-  PURPLE="\033[0;35m" # 紫色
-  CYAN="\033[0;36m"  # 青色
-  ```
+  # 推荐
+  log_error() { printf "%s\n" "$message" >&2; }
+  log_info() { printf "%s\n" "$message" >&2; }
   
-  如果需要执行json的，则定义
-  
-  ```bash
-  JQ_EXEC=$(which jq)
+  # 不推荐（可能丢失特殊字符）
+  log_error() { echo "$message" >&2; }
   ```
 
 ### 7、代码要求
 
-- 尽量不在 `log` 开头的方法（如 `log_info`、`log_error`、`log_warn`）之外的其他地方使用 `echo` 或 `printf` ，除非是需要颜色，如
+#### 7.1、命令输出（printf vs echo）
 
-  ```bash
-  echo "${RED}缺少 -contentJsonKey 参数，要contents来源于文件的哪个key不能为空.${NC}\n"
-  ```
+- **输出规则**：
+  - 用 `printf "%s\n"` 而非 `echo`（更安全，可避免特殊字符问题）
+  - 静态固定提示文本可用 `echo`
+  - 禁止使用 `echo -e`
 
-- **禁止使用 echo -e**
+- **场景说明**：
+  - **场景1：日志函数** → 用 `printf`，避免路径等含特殊字符的值输出异常
+  
+    ```bash
+      log_error() { printf "%s\n" "$message" >&2; }
+    ```
+  
+  - **场景2：变量输出：终端显示变量内容** → 用 `printf "%s"`，变量中的 `\n` 才能原样显示，而不是被显示成换行，导致看不到`\n`这个内容，丢失了这个信息
+  
+  - **场景3：变量输出：传递给 jq 的变量** → 用 `printf "%s"`，避免对含反斜杠 `\`的字段值（如文件路径 `"C:\Users\test"`），echo 会改变反斜杠，从而影响整个jsonString没法原样传递，而是被处理，导致传给 jq 后，jq 解析失败。
+  
+    ```bash
+    # 推荐(printf 保持原样)
+    printf "%s" "$jsonString" | jq "."  # 正常
+    # 避免使用 echo(echo 会改变反斜杠)
+    echo "$jsonString" | jq "."    # 可能解析失败
+    ```
+  
+  - **场景4：固定提示文本** → 用 `echo`（确认是静态文字，如 "开始执行..."）
+
+#### 7.2、日志输出（>&2 重定向）
+
+日志输出使用 `>&2` 重定向，确保脚本返回值保持干净，不被日志污染：
+
+```bash
+# 推荐
+printf "日志信息\n" >&2
+
+# 日志函数
+function debug_log() {
+    printf "$1\n" >&2
+}
+```
+
+**说明**：用 `>&2` 后，日志只显示在终端，不会传递给管道或被其他脚本获取。
+
+**了解常识**：
+不管是用 `echo` 还是 `printf` 输出脚本内容给其他脚本调用或管道使用，这些输出都会被传递下去，导致返回值不够干净。但**加上用 `>&2` 重定向后，这些信息就只会显示在终端，不会传递下去，这样脚本的返回值（JSON 等）就可以保持干净，不会被日志信息污染。
+
+#### 7.3、输出信息（错误提示等）
+
+当脚本执行失败时，应给出清晰的错误提示，帮助用户排查问题：
+
+- **jq 执行失败的错误提示**：
+```bash
+iCatalogMap=$(printf "%s" "$categoryData" | jq -r ".[${i}]")
+if [ $? != 0 ] || [ -z "${iCatalogMap}" ]; then
+    echo "❌${RED}Error1:执行命令jq出错了，常见错误：您的内容文件中，有斜杠，但使用jq时候却没使用printf \"%s\"，而是使用echo。解决方法：【若允许修改源内容时，方法①去掉斜杠，方法②一个斜杠应该用四个斜杠标识】；【默认不允许修改源内容时，解决方法：使用printf \"%s\"】。请检查源内容>>>>>>>${NC}\n ${iCatalogMap} ${RED}\n<<<<<<<<<<<<<请检查以上内容。${NC} "
+    exit 1
+fi
+```
 
 ### 8、耗时操作提示
 
@@ -183,3 +268,53 @@ stop_timer
 ```
 
 效果：`正在获取版本....` 每秒增加一个点
+
+### 8、用户确认交互
+
+当脚本需要用户确认某些操作（如确认更新、确认删除等）时，应使用循环确保输入有效：
+
+- 使用 `while true` + `case` 循环
+- 接受有效输入：`yes/y`（确认）、`no/n`（取消）、`quit/q`（退出）
+- 无效输入时提示重新输入，避免误操作跳过确认
+- 输入有效后 `break` 退出循环
+
+### 9、脚本目录获取
+
+获取脚本自身目录和项目根目录，用于调用同项目下的其他脚本：
+
+```bash
+# 获取脚本自身目录（$0 所在的目录）
+CurrentDIR_Script_Absolute="$(cd "$(dirname "$0")" && pwd)"
+
+# 获取项目根目录（脚本所在目录，即项目目录）
+project_homedir_abspath="${CurrentDIR_Script_Absolute}"
+
+# 如需获取上级目录，根据脚本所在层级使用一个或多个 %/* 来获取项目根目录
+# 目的：避免路径中出现 ".."，防止某些场景下路径处理异常
+# project_homedir_abspath="${CurrentDIR_Script_Absolute%/*}"        # 去除最后一级（如 script-qbase/package/ -> script-qbase）
+# project_homedir_abspath="${CurrentDIR_Script_Absolute%/*/*}"     # 去除最后两级
+```
+
+**变量说明**：
+
+| 变量 | 说明 | 适用场景 |
+|------|------|----------|
+| `CurrentDIR_Script_Absolute` | 脚本自身所在目录 | 当被执行的脚本和目标脚本同级时 |
+| `project_homedir_abspath` | 项目根目录 | 当需要调用子目录下的脚本时（如 `package/xxx.sh`） |
+| `${CurrentDIR_Script_Absolute%/*}` | 上级目录 | 需要通过 %/* 获取上级目录时（脚本在子目录中，可多次使用获取项目根目录） |
+
+**`%/*` 的作用**：
+- 去除路径的最后一级目录
+- 避免路径中出现 `..`（如 `../../`），导致某些场景下路径处理异常（如某些脚本或工具对包含 `..` 的路径兼容性差）
+
+**使用场景**：当脚本需要调用同项目下的其他脚本时（如调用 `package/package_remote_version.sh`），先获取自身目录，再拼接目标脚本路径：
+
+```bash
+# 示例：调用项目下的 package_remote_version.sh
+package_remote_version_script="${project_homedir_abspath}/package/package_remote_version.sh"
+if [ ! -f "${package_remote_version_script}" ]; then
+    echo "${RED}Error: 未找到 ${package_remote_version_script}${NC}"
+    exit 1
+fi
+sh "${package_remote_version_script}" "$@"
+```

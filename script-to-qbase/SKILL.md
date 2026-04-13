@@ -21,12 +21,12 @@ description: |
 
 将所有脚本调用方式统一为：
 ```bash
-qbase -quick 脚本关键字 [参数...]
+qbase -quick 脚本关键字 [具名参数/参数...]
 ```
 
 而不是：
-- `sh xxx.sh 参数`
-- `sh ${path}/qbase.sh -quick 脚本关键字 参数`
+- `sh xxx.sh 具名参数/参数`
+- `sh ${path}/qbase.sh -quick 脚本关键字 具名参数/参数`
 
 ## 好处
 
@@ -66,13 +66,27 @@ qbase -quick 脚本关键字 [参数...]
 }
 ```
 
-添加后即可以通过 `sh ${path}/qbase.sh -quick 脚本关键字 [具名参数/参数...]` 调用脚本。
+**效果**：添加后即可以通过 `sh ${path}/qbase.sh -quick 脚本关键字 [具名参数/参数...]` 调用脚本。
+
+示例：将 `package_remote_version.sh` 整合到 qbase
+
+> **qbase.json 添加配置**：
+>
+> ```json
+> {
+>     "key": "check_remote_version",
+>     "des": "检查/更新 Homebrew 包的远程版本",
+>     "rel_path": "./package/package_remote_version.sh",
+>     "example": "qbase -quick check_remote_version -a check -p qbase"
+> }
+> ```
+>
 
 ### 步骤2：重新编译 qbase（使用 shc）
 
 运行 `${path}/qbase重新生成.sh`（内部使用 `shc` 将 shell 脚本转换为二进制文件）。
 
-生成后即可通过 `${path}/qbase -quick 脚本关键字 [具名参数/参数...]` 调用脚本。
+**效果**：生成后即可通过 `${path}/qbase -quick 脚本关键字 [具名参数/参数...]` 调用脚本。
 
 ### 步骤3：提交代码并发布
 
@@ -88,93 +102,130 @@ qbase -quick 脚本关键字 [参数...]
 5. 更新 rb 文件：在 homebrew 对应仓库中更新 .rb 文件的 url 和 sha256
 6. 提交 rb 文件：将更新后的 rb 文件提交到 homebrew 仓库
 
-### 步骤4：下载更新和使用
+### 步骤4：安装、更新和使用
 
-用户更新：
+《安装和更新命令的**更多介绍》**见：[https://dvlproad.github.io/代码管理/库管理/homebrew](https://dvlproad.github.io/%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%BA%93%E7%AE%A1%E7%90%86/homebrew) 中 【安装和更新命令的**更多介绍】**
+
+
+
+#### 4.1、安装
+
 ```bash
+# 先添加 qbase.rb 所在的 Tap 包(dvlpCI/qbase)
+brew tap dvlpCI/qbase
+
+# 添加 Tap 后，可以简化命令（省略 dvlpCI/qbase/ 前缀）
+brew install qbase
+或
+brew install dvlpCI/qbase/qbase
+```
+
+#### 4.2、更新
+
+```bash
+# 步骤1. 刷新索引（知道有哪些新版本）
+# 方法一：通过 brew update,刷新所有 tap 的索引
 brew update
+# 方法二：不通过 brew update,只更新这一个 tap 而不更新其他。这样比 brew update（更新所有 tap）快很多。
+cd "$(brew --repository)/Library/Taps/dvlpci/homebrew-qbase" && git pull
+
+# 步骤2. 升级指定包（按刷新后的最新版本升级）
 brew upgrade qbase
 ```
 
-使用：
+#### 4.3、使用
+
 ```bash
 qbase -quick 脚本关键字 [具名参数/参数...]
 ```
 
+示例：
+
+> ```bash
+> qbase -quick check_remote_version -a check -p qbase -v
+> ```
+>
 
 
 
+## 附录
 
-## 完整 Homebrew Tap 创建流程
+<a name="以 qhelloworld 为例的完整 Homebrew Tap 创建流程"></a>
 
-### 1. 脚本仓库（script-qbase）
+## 附录一、以 qhelloworld 为例的完整 Homebrew Tap 创建流程
+
+### 1. 脚本仓库(script-qbase)
 
 1.1. 创建脚本仓库（如 `https://github.com/dvlpCI/script-qbase.git`）
 
-1.2. 在仓库中添加脚本文件（如 `helloworld.sh`），编写脚本代码
+1.2. 在仓库中添加脚本文件（如 `qhelloworld.sh`），编写脚本代码
 
-1.3. 编译为二进制：
+1.3. 编译为加密的二进制文件：
+
    ```bash
-   shc -r -f helloworld.sh
-   ```
-   - 将生成的 `helloworld.sh.x` 重命名为 `helloworld`
-
-1.4. 提交代码并打标签（如 `0.0.1`）
-
-1.5. 获取 tar.gz 链接：`https://github.com/dvlpCI/script-qbase/archive/0.0.1.tar.gz`
-
-1.6. 计算 sha256：
-   ```bash
-   shasum -a 256 0.0.1.tar.gz
+shc -r -f ${path}/qhelloworld.sh
    ```
 
-### 2. Homebrew 仓库（homebrew-qbase）
+   - 将生成的二进制可执行文件 `qhelloworld.sh.x` 重命名为 `qhelloworld`(以便后续能够使用qhelloworld，而不是还要输qhelloworld.sh或者qhelloworld.sh.x)"
 
-2.1. 创建 homebrew tap 仓库（如 `https://github.com/dvlpCI/homebrew-qbase.git`）
+[https://dvlproad.github.io/Script/Shell/Shell高级加密可执行](https://dvlproad.github.io/Script/Shell/Shell%E9%AB%98%E7%BA%A7%E5%8A%A0%E5%AF%86%E5%8F%AF%E6%89%A7%E8%A1%8C/)
 
-2.2. 添加 `.rb` 文件，配置 url 和 sha256：
+1.4. 提交代码并打标签tag到远程（如 `qhelloworld-0.0.1`），发布后 GitHub 会自动生成 tar.gz 包
+
+1.5. 获取刚才打的tag的 tar.gz 的 url 地址，并下载。
+
+ tar.gz 链接：如刚才打的tag是 `qhelloworld-0.0.1`，则链接为（**推荐**）
+
+https://github.com/dvlpCI/script-qbase/archive/qhelloworld-0.0.1.tar.gz 
+
+你可以直接在浏览器里输入后按回车来下载该文件"
+
+你也可以通过一下方式，获取到链接为（不推荐）：
+
+https://github.com/dvlpCI/script-qbase/archive/refs/tags/qhelloworld-0.0.1.tar.gz
+
+<img src="resources/tag_tar_gz.png" alt="tag下的tar_gz包" style="zoom: 33%;" />
+
+1.6. 计算该包的 sha256：
+
+   ```bash
+shasum -a 256 ${path}/script-qbase-qhelloworld-0.0.1.tar.gz
+   ```
+
+### 2. Homebrew 仓库(homebrew-qbase)
+
+2.1. 创建 homebrew tap 仓库，用于存放各种 `.rb` 文件，仓库必须已 `homebrew-` 开头，后缀名一般用你最后想要被使用比较好。
+
+不过这里 qhelloworld 只是我们测试的一个例子，所以就不特意为其创建 tap 仓库，就暂时放在 qbase 的 tap 仓库里就好。即： `https://github.com/dvlpCI/homebrew-qbase.git`
+
+2.2. 在上述创建的git下添加 `qhelloword.rb` 文件，配置刚才的 `url` 及通过该url对应的的.tar.gz的 `sha256`：
+
    ```ruby
-   class Qbase < Formula
-     url "https://github.com/dvlpCI/script-qbase/archive/0.0.1.tar.gz"
-     sha256 "xxxxxx"
-     ...
-   end
+class Qhelloworld < Formula
+  url "https://github.com/dvlpCI/script-qbase/archive/qhelloworld-0.0.1.tar.gz"
+  sha256 "xxxxxx"
+  ...
+end
    ```
+
+**Homebrew 对 rb 文件的要求**：
+
+- 文件名: qbase.rb （小写）
+
+- 类名: Qbase （首字母大写，但第二个字母小写）
 
 2.3. 提交 rb 文件
 
-### 3. 使用
+### 3. 安装、更新和使用
 
-```bash
-brew tap dvlpCI/qbase
-brew install qbase
-```
+#### 3.1、安装、更新
+
+见：[https://dvlproad.github.io/代码管理/库管理/homebrew](https://dvlproad.github.io/%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%BA%93%E7%AE%A1%E7%90%86/homebrew) 中 【安装和更新命令的**更多介绍】**里的 【homebrew-xxx 下多 .rb 包的安装和更新】  
+
+#### 3.2、使用
+
+在终端输入 `qhelloworld` 即可。
 
 
 
-
-
-## 示例
-
-将 `package_remote_version.sh` 整合到 qbase：
-
-1. **qbase.json 添加配置**：
-```json
-{
-    "key": "check_remote_version",
-    "des": "检查/更新 Homebrew 包的远程版本",
-    "rel_path": "./package/package_remote_version.sh",
-    "example": "qbase -quick check_remote_version -a check -p qbase"
-}
-```
-
-2. **重新编译 qbase**：运行 `${path}/qbase重新生成.sh`
-
-3. **提交代码并发布**：打标签、更新 rb 文件
-
-4. **下载更新和使用**：
-```bash
-brew update
-brew upgrade qbase
-qbase -quick check_remote_version -a check -p qbase
-```
+## End
