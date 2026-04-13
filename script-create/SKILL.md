@@ -160,6 +160,16 @@ fi
 sh "${package_remote_version_script}" "$@"
 ```
 
+*特殊，如果是qbase等这种后面会被放到bin下的，则不能使用上述方法。**
+
+应该用 https://github.com/dvlpCI/script-qbase/blob/main/qbase.sh 里的如下代码：
+
+```bash
+# qbase.sh
+...
+qbase_homedir_abspath=$(getHomeDir_abspath_byVersion "${qbaseScript_allVersion_homedir}" "${qbase_latest_version}" "bin")
+```
+
 ### 5、日志函数
 
 #### 5.1 基础日志函数（必需）
@@ -434,14 +444,32 @@ stop_timer
 
 ### 3、用户确认交互
 
-当脚本需要用户确认某些操作（如确认更新、确认删除等）时，应使用循环确保输入有效：
+当脚本需要用户确认某些操作（如确认更新、确认删除等）时，应：
 
-- 使用 `while true` + `case` 循环
-- 接受有效输入：`yes/y`（确认）、`no/n`（取消）、`quit/q`（退出）
+- 使用 `while true` + `case` 循环，确保输入有效。输入无效时提示重新输入，直到输入有效。
 - 无效输入时提示重新输入，避免误操作跳过确认
 - 输入有效后 `break` 退出循环
+
+#### 输入场景
+
+要根据不同输入场景，显示命令
+
+- 正常输入：
+  - 接受有效输入：`yes/y`（确认）、`no/n`（取消）
+  - 接收退出输入：文案为 `（退出quit/q）`，在末尾
+- 若是**请确认是否正确**的输入，则文案为 `[继续y/退出n]`，在末尾
 
 ### 4、结果要求
 
 - 能将脚本的执行结果固定的以json的格式输出给其他脚本使用
 - JSON 必须包含 status 字段
+
+
+
+
+
+## 版本记录
+
+- 0.0.4 (2026-04-14): 完善用户确认交互的退出机制
+- 0.0.1 (2026-04-11): 初始版本
+

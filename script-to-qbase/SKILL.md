@@ -136,7 +136,7 @@ git status
 **2. 提示用户确认提交内容**：
 
 根据操作类型提示：
-- **包功能新增：选择时
+- **包功能新增**：选择时
   1. 请确认**新增**的脚本文件是否已提交，如果没有请添加
   2. 请确认 `qbase.json` 和 `qbase` 二进制是否已提交，如果没有请添加
 - **包功能修复**：选择时
@@ -146,7 +146,36 @@ git status
 
 **3. 让用户选择要提交的文件**：
 
-罗列修改的文件，让用户输入要提交的文件的序号（可输入多个，用空格分隔）
+AI 先分析修改内容，将所有修改的文件分为两部分：
+- **第一部分（建议提交）**：根据修改内容分析应该提交的文件
+- **第二部分（其他）**：其他修改的文件
+
+然后请用户确认：
+
+- 输入 `yes`：确认建议无误，继续执行
+- 输入 `no`：分析有误，让用户选择所有要提交的文件编号（多个用空格分隔，即使之前建议里的某个正确也要重新选）
+
+选择后再让用户确认是否正确，直到用户确认。
+
+示例：
+```
+分析修改内容，建议如下：
+【建议提交】
+1. qbase.sh
+2. qbase.json
+3. qbase
+【其他修改】
+4. README.md
+
+请确认建议是否正确？（输入 yes 或 no）: 
+```
+
+如果用户输入 no：
+```
+请从头选择要提交的所有文件编号（多个用空格分隔）: 
+```
+
+用户选择后再确认，直到输入 yes。
 
 **4. 执行提交并推送**：
 
@@ -187,9 +216,34 @@ shasum -a 256 /tmp/script-qbase-{tag}.tar.gz
 - 更新 qbase.rb 中的 version 和 sha256
 - 将更新的 qbase.rb 提交并推送
 
-### 步骤5：安装、更新和使用
+### 步骤5：验证发布包（可选）
 
-完成后提示用户：
+询问用户是否立即验证新版本：
+
+- 输入 `yes`：下载并验证新版本
+- 输入 `myself`：输出自行下载新包的命令
+- 输入其他：跳过
+
+验证步骤：
+
+```bash
+# 步骤1. 刷新 Tap 索引（检测新版本）
+# 方法二：只刷新 qbase tap（更快）
+cd "$(brew --repository)/Library/Taps/dvlpci/homebrew-qbase" && git pull
+
+# 步骤2. 升级 qbase
+brew upgrade qbase
+
+# 步骤3. 验证 qbase
+qbase --version
+```
+
+验证结果：
+
+- 验证成功：提示"新版本已发布并验证成功"，并继续下一步
+- 验证失败：提示"发布成功，验证失败，请检查"
+
+自行下载新包的命令：
 
 ```bash
 # 步骤1. 刷新 Tap 索引（检测新版本）
@@ -203,41 +257,19 @@ brew upgrade qbase
 
 # 附：如果你之前已经安装过qbase 0.9.0 之后的版本，则步骤1和步骤2，可简化为如下命令
 qbase check-version
-
-# 步骤3. 验证安装
-qbase -quick 脚本关键字 --help
 ```
 
 《安装和更新命令的**更多介绍》**见：[https://dvlproad.github.io/代码管理/库管理/homebrew](https://dvlproad.github.io/%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%BA%93%E7%AE%A1%E7%90%86/homebrew) 中 【安装和更新命令的**更多介绍】**
 
+### 步骤6：验证发布的脚本（如需要）
 
+#### 6.1. 测试脚本基本命令：
 
-#### 5.1、安装
-
-```bash
-# 先添加 qbase.rb 所在的 Tap 包(dvlpCI/qbase)
-brew tap dvlpCI/qbase
-
-# 添加 Tap 后，可以简化命令（省略 dvlpCI/qbase/ 前缀）
-brew install qbase
-或
-brew install dvlpCI/qbase/qbase
+```
+qbase -quick 脚本关键字 --help
 ```
 
-#### 5.2、更新
-
-```bash
-# 步骤1. 刷新索引（知道有哪些新版本）
-# 方法一：通过 brew update,刷新所有 tap 的索引
-brew update
-# 方法二：不通过 brew update,只更新这一个 tap 而不更新其他。这样比 brew update（更新所有 tap）快很多。
-cd "$(brew --repository)/Library/Taps/dvlpci/homebrew-qbase" && git pull
-
-# 步骤2. 升级指定包（按刷新后的最新版本升级）
-brew upgrade qbase
-```
-
-#### 5.3、使用
+#### 6.2. 询问是否执行脚本命令：
 
 ```bash
 qbase -quick 脚本关键字 [具名参数/参数...]
@@ -333,7 +365,8 @@ end
 
 ## 版本记录
 
-- 0.0.1 (2026-04-11): 初始版本
+- 0.0.5 (2026-04-13): 完善整合步骤
 - 0.0.4 (2026-04-13): 修复AI执行skill中断问题，让AI可以按skill自动执行完整个流程
+- 0.0.1 (2026-04-11): 初始版本
 
 ## End
