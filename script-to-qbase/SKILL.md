@@ -2,7 +2,7 @@
 name: script-to-qbase
 description: |
   将独立脚本整合到 qbase 库中，统一使用 qbase -quick 调用
-  触发场景：用户输入"将脚本整合/添加到qbase"
+  触发场景：用户输入"将脚本整合到qbase" 或 "发布qbase新版本"
 ---
 
 # 将脚本整合到 qbase 库
@@ -13,7 +13,7 @@ description: |
 
 ## 触发条件
 
-用户输入"将脚本整合/添加到qbase"时触发
+用户输入"将脚本整合/添加到qbase" 或 "发布qbase新版本"时触发
 
 
 
@@ -47,9 +47,40 @@ qbase -quick 脚本关键字 [具名参数/参数...]
 
 ## 整合步骤
 
-### 步骤1：在 qbase.json 中添加配置
+### 步骤1：选择操作类型
 
-在 `support_script_path` 数组中添加：
+请选择你此次发布的背景（输入数字）：
+
+- 1【包功能新增】：①新增的脚本文件、② qbase.json 、③ qbase
+- 2【包功能修复】：①修改的脚本问卷、② qbase.json(如果修改了)、③ qbase(如果重新编译了)
+
+用户选择后，继续后续步骤。
+
+### 步骤2：在 qbase.json 中添加/更新配置（如需要）
+
+```mermaid
+graph TD
+    A[步骤1: 选择操作类型] --> B{选择结果}
+    
+    B -->|包功能新增| C[检查 qbase.json]
+    B -->|包功能修复| D[检查 qbase.json]
+    
+    C --> E{是否已新增配置?}
+    E -->|有| F[直接下一步]
+    E -->|无| G[新增配置]
+    G --> H[展示给用户确认]
+    H --> I[确认后下一步]
+    
+    D --> J{是否需要更新?}
+    J -->|需要| K[修改配置]
+    K --> L[展示给用户确认]
+    L --> M[确认后下一步]
+    J -->|不需要| N[直接下一步]
+```
+
+**配置方法**
+
+在 `support_script_path` 数组中添加或更新：
 
 ```json
 {
@@ -80,37 +111,61 @@ qbase -quick 脚本关键字 [具名参数/参数...]
 >     "example": "qbase -quick package_remote_version -p qbase -v -l ./check.log"
 > }
 > ```
->
 
-### 步骤2：重新编译 qbase（使用 shc）
+### 步骤3：重新编译 qbase（如需要）
 
-运行 `${path}/qbase重新生成.sh`（内部使用 `shc` 将 shell 脚本转换为二进制文件）。
+只有当 **qbase.sh 被修改** 时才需要运行 `${path}/qbase重新生成.sh`（使用 shc 将 shell 脚本转换为二进制文件）。
 
-**效果**：生成后即可通过 `${path}/qbase -quick 脚本关键字 [具名参数/参数...]` 调用脚本。
+**编译的目的**：编译后即可通过 `${path}/qbase -quick 脚本关键字 [具名参数/参数...]` 调用脚本。
 
 **注意**：此步骤需要 AI 执行，AI 会运行：
 ```bash
 cd ${path} && sh qbase重新生成.sh
 ```
 
-### 步骤3：提交代码并发布
+### 步骤4：提交代码并发布
 
-此步骤由 AI 自动执行：
+此步骤由 AI 执行：
 
-**1. 提交修改后的 `qbase.json` 和 二进制文件 `qbase` 到脚本仓库**：
+**1. 查看修改的文件**：
 
 ```bash
-# 只提交步骤一(qbase.json)和步骤二(qbase二进制)生成的文件
-git add qbase.json qbase
-git commit -m "【Update】添加脚本配置并升级 qbase 二进制"
+git status
+```
 
-# 推送到远程
+**2. 提示用户确认提交内容**：
+
+根据操作类型提示：
+- **包功能新增：选择时
+  1. 请确认**新增**的脚本文件是否已提交，如果没有请添加
+  2. 请确认 `qbase.json` 和 `qbase` 二进制是否已提交，如果没有请添加
+- **包功能修复**：选择时
+  1. 请确认**修改**的脚本文件是否已提交，如果没有请添加
+  2. 如果修改了 `qbase.json`，请确认该文件是否已提交，如果没有请添加
+  3. 如果重新编译了 `qbase`，请确认该文件是否已提交，如果没有请添加
+
+**3. 让用户选择要提交的文件**：
+
+罗列修改的文件，让用户输入要提交的文件的序号（可输入多个，用空格分隔）
+
+**4. 执行提交并推送**：
+
+commit message 标签根据实际情况选择：
+- **【Feature】** - 新增功能/脚本
+- **【Fix】** - 修复问题/bug
+- **【Optimize】** - 优化/改进
+- **【Update】** - 版本更新/依赖升级
+
+```bash
+git add 用户选择的文件
+git commit -m "【操作类型】提交描述"
+
 git push
 ```
 
-**2. 创建版本标签并推送到远程**：
+**5. 创建版本标签并推送到远程**：
 
-标签需由用户输入，不能自己指定。
+**注意**：版本号需由用户输入，不能自己指定。
 
 ```bash
 # 创建标签（版本号由用户提供）
@@ -120,7 +175,7 @@ git tag -a {版本号} -m "版本 {版本号}"
 git push origin {版本号}
 ```
 
-**3. 准备 rb 更新所需信息（tar.gz 的 url 和 sha256）**：
+**6. 准备 rb 更新所需信息（tar.gz 的 url 和 sha256）**：
 
 ```bash
 # 下载 tar.gz 并计算 sha256
@@ -128,11 +183,11 @@ curl -sL https://github.com/dvlpCI/script-qbase/archive/{tag}.tar.gz -o /tmp/scr
 shasum -a 256 /tmp/script-qbase-{tag}.tar.gz
 ```
 
-**4. 更新 homebrew 仓库**：
+**7. 更新 homebrew 仓库**：
 - 更新 qbase.rb 中的 version 和 sha256
 - 将更新的 qbase.rb 提交并推送
 
-### 步骤4：安装、更新和使用
+### 步骤5：安装、更新和使用
 
 完成后提示用户：
 
@@ -146,6 +201,9 @@ cd "$(brew --repository)/Library/Taps/dvlpci/homebrew-qbase" && git pull
 # 步骤2. 升级 qbase
 brew upgrade qbase
 
+# 附：如果你之前已经安装过qbase 0.9.0 之后的版本，则步骤1和步骤2，可简化为如下命令
+qbase check-version
+
 # 步骤3. 验证安装
 qbase -quick 脚本关键字 --help
 ```
@@ -154,7 +212,7 @@ qbase -quick 脚本关键字 --help
 
 
 
-#### 4.1、安装
+#### 5.1、安装
 
 ```bash
 # 先添加 qbase.rb 所在的 Tap 包(dvlpCI/qbase)
@@ -166,7 +224,7 @@ brew install qbase
 brew install dvlpCI/qbase/qbase
 ```
 
-#### 4.2、更新
+#### 5.2、更新
 
 ```bash
 # 步骤1. 刷新索引（知道有哪些新版本）
@@ -179,7 +237,7 @@ cd "$(brew --repository)/Library/Taps/dvlpci/homebrew-qbase" && git pull
 brew upgrade qbase
 ```
 
-#### 4.3、使用
+#### 5.3、使用
 
 ```bash
 qbase -quick 脚本关键字 [具名参数/参数...]
@@ -188,7 +246,7 @@ qbase -quick 脚本关键字 [具名参数/参数...]
 示例：
 
 > ```bash
-> qbase -quick check_remote_version -a check -p qbase -v
+> qbase -quick package_remote_version -p qbase -v
 > ```
 >
 
