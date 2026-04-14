@@ -447,6 +447,7 @@ stop_timer
 当脚本需要用户确认某些操作（如确认更新、确认删除等）时，应：
 
 - 使用 `while true` + `case` 循环，确保输入有效。输入无效时提示重新输入，直到输入有效。
+- **无效应先判断空字符串**：先判断 `-z "${option}"`（输入为空），再判断其他有效条件
 - 无效输入时提示重新输入，避免误操作跳过确认
 - 输入有效后 `break` 退出循环
 
@@ -456,15 +457,52 @@ stop_timer
 
 - 正常输入：
   - 接受有效输入：`yes/y`（确认）、`no/n`（取消）
-  - 接收退出输入：文案为 `（退出quit/q）`，在末尾
+  - 接收退出输入：文案为 `（退出quit/q）`或`(退出请输入Q|q)`，在末尾
 - 若是**请确认是否正确**的输入，则文案为 `[继续y/退出n]`，在末尾
+
+#### 示例
+
+```bash
+if [ "${option}" == "q" ] || [ "${option}" == "Q" ]; then
+    exit 2
+elif [ -z "${option}" ]; then
+    echo "输入不能为空，请重新输入。"
+elif [ "${option}" -le "${count}" ]; then
+    ...
+```
+
+**变量加双引号的原因**：避免空字符串导致 `[: -le: unary operator expected` 报错。
 
 ### 4、结果要求
 
 - 能将脚本的执行结果固定的以json的格式输出给其他脚本使用
+
 - JSON 必须包含 status 字段
 
+- JSON 输出使用`heredocs`
 
+  所谓heredocs，算是一种多行输入的方法，即在”<<”后定一个标识符，接着我们可以输入多行内容，直到再次遇到标识符为止。
+
+  ```bash
+  cat << EOF
+  {
+    "status": "$STATUS",
+    "package": "$PACKAGE_NAME",
+    "local_version": "${LOCAL_VERSION_ESCAPED:-null}",
+    "remote_version": "$REMOTE_VERSION_ESCAPED",
+    "has_update": $HAS_UPDATE,
+    "tap_repo": "$TAP_REPO_ESCAPED"
+  }
+  EOF
+  ```
+
+  
+
+## 一些文献
+
+### 初次实践的示例文件
+
+参考 [dvlpCI/script-qbase  中 package 里的 package_remote_version.sh](https://github.com/dvlpCI/script-qbase/blob/main/package/package_remote_version.sh)
 
 
 

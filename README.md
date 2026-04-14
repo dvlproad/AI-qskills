@@ -13,6 +13,7 @@
 | [emoji-idiom](./emoji-idiom) | 输入"猜成语"或发送emoji图片 | 根据emoji符号猜成语，支持谐音法、象形法、组合法 |
 | [script-create](./script-create) | 输入"创建脚本" | 帮助用户创建符合统一要求的脚本 |
 | [script-to-qbase](./script-to-qbase) | 输入"整合到qbase"或"添加到qbase" | 将独立脚本整合到 qbase 库中 |
+| [qtool](./qtool) | 输入包含 "qtool" 的指令时触发 | 操作 CQCI 工具集，用于分支管理、代码提交、打包上传等 |
 
 
 
@@ -96,8 +97,9 @@ description: |
 
 
 
-
 ## 版本记录
+
+更多版本记录想看每个 SKILL 内部的版本记录
 
 ### 0.0.5 (2026-04-13)
 - 新增 [skill-qian-optimize](./skill-qian-optimize) skill：优化和完善用户创建的 skill

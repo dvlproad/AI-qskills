@@ -42,7 +42,15 @@ description: |
 >
 > **过渡语**：以后我输入 "营商环境主题: xxx" 的格式，你就直接生成回复。明白请回复"明白"
 
-### 2、版本记录
+### 2、一些文献
+
+> ## 一些文献
+>
+> ### 初次实践的示例文件
+>
+> 参考 [dvlpCI/script-qbase  中 package 里的 package_remote_version.sh](https://github.com/dvlpCI/script-qbase/blob/main/package/package_remote_version.sh)
+
+### 3、版本记录
 
 检查 skill 是否包含版本记录，且放在文件末尾。
 
