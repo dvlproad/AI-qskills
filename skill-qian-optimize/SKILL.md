@@ -30,9 +30,73 @@ description: |
 
 
 
-## 二、结构顺序检查
+## 二、章节结构顺序检查
 
-### 1、过渡语
+### 1、执行流程
+
+检查 skill 的执行流程是否遵循以下原则：
+
+**原则：**
+- 执行流程保持纯步骤指导
+- 不要在执行流程中放大量示例内容
+
+**推荐结构：**
+```
+## 执行流程
+### 1. 步骤一
+### 2. 步骤二
+### 3. 步骤三
+...
+```
+
+### 2、文档结构/文档模板（如果有）
+
+检查 skill 中的文档结构或文档模板是否遵循以下格式要求：
+
+**文档模板格式：**
+
+- 该章节下的模板内容不使用 ` ```markdown ` 包裹，直接显示
+- 该章节模板里的子章节（如代码块 ` ``` `）正常渲染，不受外层影响
+- 模板的标题层级 = skill 正文的标题层级 + 1（如 skill 正文用 `##`，模板用 `###`）
+
+**示例：**
+
+````
+## 文档模板
+
+### 一、概述
+简要说明...
+
+### 二、目录结构
+```
+结构内容
+```
+
+### 三、xxx
+...
+``````
+
+**使用案例：**
+
+三个文件的关系（按生成顺序）：
+
+```
+skill-qian-optimize/SKILL.md
+    │
+    ├── 生成《写代码结构的文档 skill.md》
+    ▼
+code-structure-organizer/SKILL.md
+    │
+    ├── 生成《代码结构的文档.md》
+    ▼
+script-qbase/branch.md
+```
+
+- [code-structure-organizer/SKILL.md](../code-structure-organizer/SKILL.md)
+
+- [script-qbase/branch.md](https://github.com/dvlpCI/script-qbase/blob/main/branch.md)
+
+### 3、过渡语
 
 如果skill支持用在 DeepSeek 网页版 等，应在 skill 的**末尾（版本记录前）**中添加如下过渡语内容：
 
@@ -42,7 +106,7 @@ description: |
 >
 > **过渡语**：以后我输入 "营商环境主题: xxx" 的格式，你就直接生成回复。明白请回复"明白"
 
-### 2、一些文献
+### 4、一些文献
 
 > ## 一些文献
 >
@@ -50,7 +114,7 @@ description: |
 >
 > 参考 [dvlpCI/script-qbase  中 package 里的 package_remote_version.sh](https://github.com/dvlpCI/script-qbase/blob/main/package/package_remote_version.sh)
 
-### 3、版本记录
+### 5、版本记录
 
 检查 skill 是否包含版本记录，且放在文件末尾。
 
@@ -142,5 +206,6 @@ description: |
 
 ## 版本记录
 
+- 0.0.3 (2026-04-15): 新增执行流程和文档结构检查规范
 - 0.0.2 (2026-04-14): 新增让用户选择要提交的文件场景
 - 0.0.1 (2026-04-13): 初始版本

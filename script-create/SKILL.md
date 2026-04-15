@@ -427,6 +427,72 @@ stop_timer
 
 效果：`正在获取版本....` 每秒增加一个点
 
+### 4、执行脚本前打印命令
+
+在执行其他脚本之前，应先打印将要执行的完整命令，方便用户了解当前执行的操作：
+
+```bash
+# 示例：执行其他脚本前打印命令
+printf "${YELLOW}正在执行命令(获取分支名)：《${BLUE} sh %s -rebaseBranch \"%s\" -addValue \"%s\" -onlyName \"%s\" ${YELLOW}》${NC}\n" \
+    "${scriptPath}" "${REBASE_BRANCH}" "${add_value}" "${ONLY_NAME}"
+result=$(sh "${scriptPath}" -rebaseBranch "${REBASE_BRANCH}" -addValue "${add_value}" -onlyName "${ONLY_NAME}")
+```
+
+**说明**：
+- 使用 `${YELLOW}` 显示命令的整体开始/结束
+- 使用 `${BLUE}` 高亮脚本路径和参数值
+- 打印完成后，再执行实际的 `sh` 命令
+
+### 5、特殊字符处理
+
+示例：打印测试命令时候，遇到 requestBranchNames 换行了
+
+```bash
+    echo "${YELLOW}正在执行测试名(获取所有json):《${BLUE} sh \"$qbase_get_allBranchJson_inBranchNames_byJsonDir_scriptPath\" -requestBranchNames \"${requestBranchNames//$'\n'/ }\" -access-token \"${access_token}\" -oneOfDirUrl \"${ONE_OF_DIRECTORY_URL}\" -dirUrlBranchName \"${DIRECTORY_URL_BranchName}\" ${YELLOW}》${NC}"
+```
+
+参考：[dvlpCI/script-qbase 中 value_update_in_code 里的 example_update_text_variable.sh](https://github.com/dvlpCI/script-qbase/blob/main/value_update_in_code/example/example_update_text_variable.sh)
+
+```bash
+function updateText_test3() {
+    
+    WillUpdateText=$(
+cat << 'EOF'
+origin/main
+origin/dev_in_pgyer
+origin/feature/network_time
+origin/test/test1
+origin/test3
+EOF
+)
+		HopeText_KongGe="origin/main origin/dev_in_pgyer origin/feature/network_time origin/test/test1 origin/test3"
+		HopeText_N="origin/main\norigin/dev_in_pgyer\norigin/feature/network_time\norigin/test/test1\norigin/test3"
+		
+    echo "原始值:"
+    echo "$WillUpdateText"
+    
+    echo "想要得到"
+
+    echo "-------------3.1.①直接使用原始命令，直接输出(替换所有)"
+    echo ">>>>>>>>>>>>>3.1.1"
+    echo ${WillUpdateText//\\n/\\\\n}   		# ✅	\n	HopeText_KongN
+    echo ">>>>>>>>>>>>>3.1.2"
+    echo "${WillUpdateText//\\n/\\\\n}" 		# ❌ 换行了
+    echo ">>>>>>>>>>>>>3.1.3"
+    echo ${WillUpdateText//$'\n'/\\\\n} 		# ✅ \n	HopeText_KongN
+    echo ${WillUpdateText//$'\n'/ }     		# ✅ 空格 HopeText_KongGe
+    echo ">>>>>>>>>>>>>3.1.4"
+    echo "${WillUpdateText//$'\n'/\\\\n}"   # ✅ \n 	HopeText_KongN
+    echo "${WillUpdateText//$'\n'/ }"       # ✅ 空格 HopeText_KongGe
+}
+updateText_test3
+
+```
+
+
+
+
+
 ## 二、脚本要求(业务)
 
 ### 1、参数要求
@@ -508,6 +574,7 @@ elif [ "${option}" -le "${count}" ]; then
 
 ## 版本记录
 
+- 0.0.5 (2026-04-15): 新增执行脚本前打印命令的要求
 - 0.0.4 (2026-04-14): 完善用户确认交互的退出机制
 - 0.0.1 (2026-04-11): 初始版本
 
