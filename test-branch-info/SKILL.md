@@ -30,11 +30,14 @@ graph TD
     G3 --> H3{分支是否存在?}
 
     H1 -->|是| I1[rebase 到主分支]
-    H1 -->|否| J1[基于主分支创建分支]
+    H1 -->|否| J1a[先切换回主分支]
+    J1a --> J1[基于主分支创建分支]
     H2 -->|是| I2[rebase 到主分支]
-    H2 -->|否| J2[基于主分支创建分支]
+    H2 -->|否| J2a[先切换回主分支]
+    J2a --> J2[基于主分支创建分支]
     H3 -->|是| I3[rebase 到主分支]
-    H3 -->|否| J3[基于主分支创建分支]
+    H3 -->|否| J3a[先切换回主分支]
+    J3a --> J3[基于主分支创建分支]
 
     I1 --> K1{分支信息是否存在?}
     J1 --> K1
@@ -88,10 +91,13 @@ graph TD
     style A fill:#e1f5fe
     style X fill:#c8e6c9
     style I1 fill:#fff3e0
+    style J1a fill:#fff3e0
     style J1 fill:#fff3e0
     style I2 fill:#fff3e0
+    style J2a fill:#fff3e0
     style J2 fill:#fff3e0
     style I3 fill:#fff3e0
+    style J3a fill:#fff3e0
     style J3 fill:#fff3e0
     style T1 fill:#ffcdd2
     style T2 fill:#c8e6c9
@@ -163,4 +169,23 @@ graph TD
 助手：好的，现在开始创建测试分支...
 （执行创建流程）
 完成！已创建 test/branchInfo1、test/branchInfo2、test/branchInfo3 三个分支，并合并到 dev_in_pgyer 分支，可用于测试分支信息获取功能。
+```
+
+## 注意事项
+
+**创建新分支的正确方式**：
+```bash
+# 每个分支都要先切回主分支，再创建
+git checkout main                    # 先切回主分支
+git checkout -b test/branchInfo1     # 基于主分支创建分支1
+git checkout main                    # 切回主分支
+git checkout -b test/branchInfo2     # 基于主分支创建分支2
+git checkout main                    # 切回主分支
+git checkout -b test/branchInfo3     # 基于主分支创建分支3
+```
+
+**禁止使用链式创建**：
+```bash
+# ❌ 错误：会产生分支依赖链
+git checkout -b test/branchInfo1 && git checkout -b test/branchInfo2 && git checkout -b test/branchInfo3
 ```
