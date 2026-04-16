@@ -111,6 +111,35 @@ grep -r "sh.*\.sh\|source.*\.sh" <目录> --include="*.sh"
 
 以主入口为例，说明其输出是如何由各子模块组合而成的：
 
+##### 1. 数据来源说明（如有需要）
+
+> - 主入口脚本如果需要读取 JSON 文件，必须说明其参数的数据来源
+> - 如果需要 `-xxxJsonF` 和 `-xxxKey` 类型的参数，需添加数据流转关系图
+
+`主入口脚本.sh` 的两个关键参数 `-xxxJsonF` 和 `-xxxKey` 通常来源于 `获取数据的脚本.sh` 的输出：
+
+```
+数据流转关系：
+获取数据的脚本.sh (获取信息)
+    │
+    │  输出: JSON 数组
+    │  示例: [{ "name": "xxx", ... }, { "name": "yyy", ... }]
+    │
+    ▼
+存储到 JSON 文件 (通过其他脚本或手动)
+    │
+    │  文件示例: output.json
+    │  内容: { "dataKey": [{ "name": "xxx", ... }, ...] }
+    │
+    ▼
+主入口脚本.sh (读取并展示)
+    │
+    ├── -xxxJsonF = output.json      ← 数据源文件
+    └── -xxxKey = dataKey             ← 数据在文件中的 key（对应数组）
+```
+
+##### 2. 输出结构说明
+
 ```
 主入口脚本.sh 的输出结构
 │
@@ -134,7 +163,7 @@ grep -r "sh.*\.sh\|source.*\.sh" <目录> --include="*.sh"
     }
 ```
 
-**规则：**
+**输出结构规则：**
 
 1. **用完整脚本名作为标题**：如 `get20_branchMapsInfo_byHisJsonFile.sh 的输出结构`
 2. **内部生成的部分加示例**：如 `分支名 (get10 内部生成)：dev_login_err`
@@ -143,53 +172,8 @@ grep -r "sh.*\.sh\|source.*\.sh" <目录> --include="*.sh"
    - `输出示例`：具体内容
 4. **输出示例用 `""` 包裹**：表示字符串
 5. **`\n` 保持原样**：不要渲染成换行，这样才能和最终 JSON 输出对应
-6. **添加数据来源说明**：主入口脚本如果需要读取 JSON 文件，必须说明其参数的数据来源
 
-**数据来源说明规则：**
-
-如果主入口脚本需要 `-xxxJsonF` 和 `-xxxKey` 类型的参数（JSON 文件路径和 key），需要在调用关系示例开头添加数据流转关系：
-
-```
-数据流转关系：
-获取数据的脚本.sh (获取信息)
-    │
-    │  输出: JSON 数组
-    │  示例: [{ "name": "xxx", ... }, { "name": "yyy", ... }]
-    │
-    ▼
-存储到 JSON 文件 (通过其他脚本或手动)
-    │
-    │  文件示例: output.json
-    │  内容: { "dataKey": [{ "name": "xxx", ... }, ...] }
-    │
-    ▼
-主入口脚本.sh (读取并展示)
-    │
-    ├── -xxxJsonF = output.json      ← 数据源文件
-    └── -xxxKey = dataKey             ← 数据在文件中的 key（对应数组）
-```
-
-**完整示例参考写法：**
-
-```bash
-# 示例中的关键代码
-# 1. 获取数据并存储
-allDataStrings=$(sh get_data.sh ...)
-lastJson='{
-    "dataKey": '"${allDataStrings}"'
-}'
-printf "%s" "$lastJson" > ${output_file}
-
-# 2. 读取并处理
-dataJsonFile=${output_file}
-dataKey="dataKey"
-
-sh main_entry.sh -xxxJsonF "${dataJsonFile}" -xxxKey "${dataKey}" ...
-```
-
-参考示例：[branchMaps_10_resouce_get 下的example_get_allBranchJson_inBranchNames_byJsonDir.sh](https://github.com/dvlpCI/script-qbase/blob/main/branchMaps_10_resouce_get/example/example_get_allBranchJson_inBranchNames_byJsonDir.sh)
-
-**实际示例的示例：**
+**输出结构的实际示例的示例：**
 
 见：[script-qbase/branch.md](https://github.com/dvlpCI/script-qbase/blob/main/branch.md)
 
@@ -233,6 +217,39 @@ get20_branchMapsInfo_byHisJsonFile.sh 的输出结构
     }
 ```
 
+
+
+#####3. 输出用途说明
+
+`主入口脚本.sh` 的输出主要用于以下场景（根据实际情况选择或补充）：
+
+| 用途 | 说明 | 示例 |
+|------|------|------|
+| **发送通知** | 发送到企业微信/钉钉机器人 | `notification.sh` |
+| **生成周报** | 整理信息生成周报 | 定时任务调用 |
+| **状态展示** | 在 CI/CD 流程中展示状态 | 打包完成后输出 |
+| **xxx** | 根据实际用途填写 | 根据实际情况填写 |
+
+##### 4. 完整示例参考写法
+
+```bash
+# 示例中的关键代码
+# 1. 获取数据并存储
+allDataStrings=$(sh get_data.sh ...)
+lastJson='{
+    "dataKey": '"${allDataStrings}"'
+}'
+printf "%s" "$lastJson" > ${output_file}
+
+# 2. 读取并处理
+dataJsonFile=${output_file}
+dataKey="dataKey"
+
+sh main_entry.sh -xxxJsonF "${dataJsonFile}" -xxxKey "${dataKey}" ...
+```
+
+参考示例：[branchMaps_10_resouce_get 下的example_get_allBranchJson_inBranchNames_byJsonDir.sh](https://github.com/dvlpCI/script-qbase/blob/main/branchMaps_10_resouce_get/example/example_get_allBranchJson_inBranchNames_byJsonDir.sh)
+
 ### 四、功能详解
 
 **每个脚本的内容按以下规则书写**
@@ -254,6 +271,8 @@ get20_branchMapsInfo_byHisJsonFile.sh 的输出结构
 ##### 4.1 主入口 - 主脚本.sh
 
 **功能：** 简要描述
+
+**数据来源：** 从xxx获取/读取xxx
 
 **输出用途：** 其输出通常作为 `xxx.sh` 见（[xxx 的 xxx](#xxx)）的数据源，用于xxx。
 
