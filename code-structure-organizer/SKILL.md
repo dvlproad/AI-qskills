@@ -242,6 +242,7 @@ get20_branchMapsInfo_byHisJsonFile.sh 的输出结构
 | 字段         | 说明             |
 | ------------ | ---------------- |
 | **功能**     | 简要描述         |
+| **输出用途** | 输出将被谁使用   |
 | **被谁调用** | 调用它的父脚本名 |
 | **参数**     | 参数说明表格     |
 | **测试用例** | 测试用例         |
@@ -253,6 +254,8 @@ get20_branchMapsInfo_byHisJsonFile.sh 的输出结构
 ##### 4.1 主入口 - 主脚本.sh
 
 **功能：** 简要描述
+
+**输出用途：** 其输出通常作为 `xxx.sh` 见（[xxx 的 xxx](#xxx)）的数据源，用于xxx。
 
 **参数：**
 
@@ -299,6 +302,23 @@ sh test/example_xxx.sh
    - 输出示例用 `""` 包裹
    - `\n` 保持原样
    - 用 `**` 标注新增内容
+7. **添加跳转链接**：
+   - 当提及某个脚本或章节时，如果有更详细的说明位置，应添加跳转链接
+   - **添加锚点**：在被跳转位置的标题前添加 `<a name="锚点名"></a>`
+   - **跳转链接格式**：`[显示文本](#锚点名)`，写在描述文字中（不要写在代码块里，代码块里的链接无法点击）
+   - **锚点名建议**：使用描述性中文，如 `四、分支信息展示 的 调用关系示例 的数据来源`
+
+**跳转链接示例：**
+
+```markdown
+<a name="2.5-主入口详细说明"></a>
+
+### 2.5 主入口 - get_allBranchJson_inBranchNames_byJsonDir.sh
+
+**输出用途：** 其输出通常作为 `get20_branchMapsInfo_byHisJsonFile.sh` 见（[四、分支信息展示 的 调用关系示例 的数据来源](#四、分支信息展示 的 调用关系示例 的数据来源)）的数据源。
+```
+
+参考示例：[script-qbase/branch.md](https://github.com/dvlpCI/script-qbase/blob/main/branch.md) 中的 `get20_branchMapsInfo_byHisJsonFile.sh` 数据来源说明
 
 ## 版本记录
 
