@@ -143,6 +143,51 @@ grep -r "sh.*\.sh\|source.*\.sh" <目录> --include="*.sh"
    - `输出示例`：具体内容
 4. **输出示例用 `""` 包裹**：表示字符串
 5. **`\n` 保持原样**：不要渲染成换行，这样才能和最终 JSON 输出对应
+6. **添加数据来源说明**：主入口脚本如果需要读取 JSON 文件，必须说明其参数的数据来源
+
+**数据来源说明规则：**
+
+如果主入口脚本需要 `-xxxJsonF` 和 `-xxxKey` 类型的参数（JSON 文件路径和 key），需要在调用关系示例开头添加数据流转关系：
+
+```
+数据流转关系：
+获取数据的脚本.sh (获取信息)
+    │
+    │  输出: JSON 数组
+    │  示例: [{ "name": "xxx", ... }, { "name": "yyy", ... }]
+    │
+    ▼
+存储到 JSON 文件 (通过其他脚本或手动)
+    │
+    │  文件示例: output.json
+    │  内容: { "dataKey": [{ "name": "xxx", ... }, ...] }
+    │
+    ▼
+主入口脚本.sh (读取并展示)
+    │
+    ├── -xxxJsonF = output.json      ← 数据源文件
+    └── -xxxKey = dataKey             ← 数据在文件中的 key（对应数组）
+```
+
+**完整示例参考写法：**
+
+```bash
+# 示例中的关键代码
+# 1. 获取数据并存储
+allDataStrings=$(sh get_data.sh ...)
+lastJson='{
+    "dataKey": '"${allDataStrings}"'
+}'
+printf "%s" "$lastJson" > ${output_file}
+
+# 2. 读取并处理
+dataJsonFile=${output_file}
+dataKey="dataKey"
+
+sh main_entry.sh -xxxJsonF "${dataJsonFile}" -xxxKey "${dataKey}" ...
+```
+
+参考示例：[branchMaps_10_resouce_get 下的example_get_allBranchJson_inBranchNames_byJsonDir.sh](https://github.com/dvlpCI/script-qbase/blob/main/branchMaps_10_resouce_get/example/example_get_allBranchJson_inBranchNames_byJsonDir.sh)
 
 **实际示例的示例：**
 
