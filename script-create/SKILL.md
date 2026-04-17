@@ -286,7 +286,108 @@ cleanup_timer() {
 }
 ```
 
-### 7、主区域划分结构
+### 7、服务主区域的基础函数
+
+#### 1. 具名参数值的解析和获取函数
+
+```bash
+# --------------------- 具名参数值的解析和获取函数 ---------------------
+# 获取具名参数的值（不允许以 - 开头）
+# 用法：get_named_arg_value "$1" "$2" "参数名"
+# 返回值：0=成功，1=参数缺失，2=参数为空，3=参数以-开头
+# 输出：成功时输出参数值，失败时输出具体原因（不含 Error: 前缀）
+get_named_arg_value() {
+    local opt="$1"
+    local val="$2"
+    local arg_name="${3:-参数值}"
+    
+    # 条件1：没有第2个参数
+    if [ $# -lt 2 ]; then
+        printf "%s 缺少 %s" "$opt" "$arg_name"
+        return 1
+    fi
+    
+    # 条件2：第2个参数为空字符串
+    if [ -z "$val" ]; then
+        printf "%s 的 %s 为空字符串" "$opt" "$arg_name"
+        return 2
+    fi
+    
+    # 条件3：第2个参数以 - 开头（是选项）
+    if [[ "$val" =~ ^- ]]; then
+        printf "%s 的 %s 不能以 '-' 开头: %s" "$opt" "$arg_name" "$val"
+        return 3
+    fi
+    
+    # 正常情况：输出值，返回0
+    printf "%s" "$val"
+    return 0
+}
+
+# 获取具名参数的值（允许以 - 开头）
+# 用法：get_named_arg_dashValue "$1" "$2" "参数名"
+# 返回值：0=成功，1=参数缺失，2=参数为空
+# 输出：成功时输出参数值，失败时输出具体原因（不含 Error: 前缀）
+get_named_arg_dashValue() {
+    local opt="$1"
+    local val="$2"
+    local arg_name="${3:-参数值}"
+    
+    # 条件1：没有第2个参数
+    if [ $# -lt 2 ]; then
+        printf "%s 缺少 %s" "$opt" "$arg_name"
+        return 1
+    fi
+    
+    # 条件2：第2个参数为空字符串
+    if [ -z "$val" ]; then
+        printf "%s 的 %s 为空字符串" "$opt" "$arg_name"
+        return 2
+    fi
+    
+    # 正常情况：输出值，返回0
+    printf "%s" "$val"
+    return 0
+}
+
+# 定义错误处理函数
+handle_named_arg_error() {
+    local option="$1"
+    echo "${RED}Error: 您为参数${YELLOW} ${option} ${RED}指定了值，但该值不符合要求或为空，请检查是否在 ${option} 后提供了正确的值${NC}"
+    exit 1
+}
+```
+
+调用示例：
+
+```bash
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -rebaseBranch|--rebase-branch)
+            REBASE_BRANCH=$(get_named_arg_value "$1" "$2") || handle_named_arg_error "$1"
+            shift 2;;
+        -addValue|--add-value)
+            ADD_VALUE=$(get_named_arg_dashValue "$1" "$2") || handle_named_arg_error "$1"
+            shift 2;;
+        -onlyName|--only-name)
+            VALUE=$(get_named_arg_value "$1" "$2")
+            if [ $? -eq 0 ] && [ "$VALUE" = "true" ]; then
+                ONLY_NAME="true"
+                shift 2
+            else
+                ONLY_NAME="false"
+                shift
+            fi
+            ;; # ;; 必须放在分支的最后一条命令后面。前面有 if/else/for 所以需另起一行
+    esac
+done
+```
+
+**规则**
+
+若干该脚本不需要使用 `get_named_dashArg_value` 则不用添加
+
+### 8、主区域划分结构
 
 ```bash
 # --------------------- main 相关 ---------------------
@@ -320,6 +421,10 @@ done
 
 
 
+
+
+
+
 ## 一、脚本要求(基础/公共)
 
 ### 1、日志要求
@@ -347,7 +452,7 @@ done
   - 为可选的具名参数 `-l` `-log-file`
   - 所有等级信息都显示
 
-### 2、输出的代码要求
+### 2、输出代码的要求
 
 #### 2.1、命令输出（printf vs echo）
 
@@ -410,6 +515,59 @@ if [ $? != 0 ] || [ -z "${iCatalogMap}" ]; then
     exit 1
 fi
 ```
+
+### 3、contain代码的要求
+
+#### 1、数组是常量(固定)，简单
+
+如只判断是不是 --help|-help|-h|help 中的一个
+
+```bash
+# 判断第一个参数是不是 help 参数
+shouldShowHelp=false
+case "${firstArg}" in
+    --help|-help|-h|help)
+        shouldShowHelp=true
+        exit 0  # 这行会退出脚本！
+        ;;
+esac
+```
+
+延伸：判断剩余参数中是不是有参数属于 help 数组
+
+```bash
+# 判断去除第一个参数后，剩余的参数是不是 help 参数
+contains_help_in_allArgsExceptFirstArg=false
+for arg in $allArgsExceptFirstArg; do
+    case $arg in
+        --help|-help|-h|help)
+            contains_help_in_allArgsExceptFirstArg=true
+            break
+            ;;
+    esac
+done
+```
+
+#### 2、数组是变量(不确定)，通用
+
+```bash
+# 数组从外部获取，灵活可变
+helpCmdStrings=$(cat config.json | jq -r '.help_params[]')
+
+contains_help=false
+for arg in $allArgsExceptFirstArg; do
+    for help_arg in "${helpCmdStrings[@]}"; do  # 遍历数组，支持任意多个参数
+        if [ "$arg" = "$help_arg" ]; then
+            contains_help=true
+            break 2
+        fi
+    done
+done
+```
+
+应用实例：[dvlpCI/script-qbase 中的 qbase.sh](https://github.com/dvlpCI/script-qbase/blob/main/qbase.sh)
+
+
 
 ### 3、耗时操作提示
 
