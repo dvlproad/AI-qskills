@@ -47,25 +47,15 @@ graph TD
     J3 --> K3
 
     K1 -->|是| L1[跳过创建]
-    K1 -->|否| M1{检查 QTOOL 环境变量?}
+    K1 -->|否| M1[创建 test/branchInfo1 分支信息]
     K2 -->|是| L2[跳过创建]
-    K2 -->|否| M2{检查 QTOOL 环境变量?}
+    K2 -->|否| M2[创建 test/branchInfo2 分支信息]
     K3 -->|是| L3[跳过创建]
-    K3 -->|否| M3{检查 QTOOL 环境变量?}
+    K3 -->|否| M3[创建 test/branchInfo3 分支信息]
 
-    M1 -->|是| N1[使用 qtool 创建分支信息]
-    M1 -->|否| O1[直接创建在项目example目录]
-    M2 -->|是| N2[使用 qtool 创建分支信息]
-    M2 -->|否| O2[直接创建在项目example目录]
-    M3 -->|是| N3[使用 qtool 创建分支信息]
-    M3 -->|否| O3[直接创建在项目example目录]
-
-    O1 --> P1[修改 README.md<br/>插入 2-5 个中文字]
-    N1 --> P1
-    O2 --> P2[跳过 README 修改]
-    N2 --> P2
-    O3 --> P3[跳过 README 修改]
-    N3 --> P3
+    M1 --> P1[修改 README.md<br/>插入 2-5 个中文字]
+    M2 --> P2[跳过 README 修改]
+    M3 --> P3[跳过 README 修改]
 
     P1 --> Q1[提交修改]
     P2 --> Q2[提交修改]
@@ -83,7 +73,9 @@ graph TD
     T1 --> U[基于主分支创建 dev_in_pgyer]
     T2 --> U
 
-    U --> V[合并 test/branchInfo1/2/3<br/>的所有提交到 dev_in_pgyer]
+    U --> U1[创建 dev_in_pgyer 分支信息 JSON]
+
+    U1 --> V[合并 test/branchInfo1/2/3<br/>的所有提交到 dev_in_pgyer]
     V --> W[推送]
 
     W --> X[完成]
@@ -112,11 +104,40 @@ graph TD
     style W fill:#e8f5e9
 ```
 
-## 分支信息 JSON 结构
+## 规则
 
-直接创建时，在项目根目录 `example` 目录下创建分支信息 JSON 文件，结构要完整。
+> **重要**：确保每一步执行成功（检查结果正确），才能进行下一步！
 
-### 5.1 分支 JSON 结构
+### 1. 创建分支信息
+
+> **注意**：流程图中的"创建分支信息"步骤，按 **1.1 流程图** 处理。
+
+#### 1.1 流程图
+
+```mermaid
+graph TD
+    A[开始创建分支信息] --> B{检查 QTOOL_DEAL_PROJECT_PARAMS_FILE_PATH<br/>环境变量?}
+    B -->|是| C[使用 qtool 创建分支信息 JSON]
+    B -->|否| D[直接创建在项目example目录]
+    C --> E[提交修改]
+    D --> E
+    E --> F[完成]
+```
+
+#### 1.2 创建位置
+
+- **直接创建**时，在项目指定目录下创建分支信息的 JSON 文件。位置如下：
+  - 如果是 `script-branch-json-file`项目：则创建位置在项目的`branch_quickcmd/example/featureBrances/` 目录下
+  - 其他：一律在项目根目录的 `example/featureBrances/` 目录下
+- **使用 qtool 创建分支信息**，是通过 qtool 命令创建分支信息 JSON 文件，得到的也是一个JSON文件
+
+### 2. 分支文件名
+
+- 分支信息 JSON 文件，文件命名为 `{分支名}.json`，结构要完整。如 `test/branchInfo1`分支得到的是 `test_branchInfo1.json`
+
+### 3. 分支 JSON 结构
+
+#### 3.1 JSON 结构
 
 ```json
 {
@@ -141,7 +162,7 @@ graph TD
 }
 ```
 
-### 5.2 字段说明
+#### 3.2 JSON字段说明
 
 | 字段                   | 类型   | 必填         | 说明                                |
 | ---------------------- | ------ | ------------ | ----------------------------------- |
@@ -157,6 +178,39 @@ graph TD
 | `outlines`             | array  | 否           | 工作事项列表                        |
 | `outlines[].title`     | string | 是           | 事项标题                            |
 | `outlines[].weekSpend` | array  | 周报必填     | 各周耗时（小时）                    |
+
+### 4、分支合并
+
+#### 4.1 合并命令
+
+必须使用 **octopus merge** 一次性合并多个分支：
+
+```bash
+git merge branch1 branch2 branch3 --no-edit
+```
+
+#### 4.2 为什么要用 octopus merge
+
+- 能清晰看到合并线（`*---.   Merge branches ...`）
+- 避免链式合并导致合并线不清晰
+
+#### 4.3 错误示例
+
+```bash
+# ❌ 错误：链式合并，合并线不清晰
+git merge branch1
+git merge branch2
+git merge branch3
+```
+
+#### 4.4 正确示例
+
+```bash
+# ✅ 正确：一次性合并三个分支
+git merge test/branchInfo1 test/branchInfo2 test/branchInfo3 --no-edit
+```
+
+合并后的提交会有多个父节点（4个），确保合并线清晰可见。
 
 ## 示例对话
 
