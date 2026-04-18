@@ -78,7 +78,9 @@ graph TD
     U1 --> V[合并 test/branchInfo1/2/3<br/>的所有提交到 dev_in_pgyer]
     V --> W[推送]
 
-    W --> X[完成]
+    W --> Y[执行脚本获取所有分支信息]
+
+    Y --> X[完成]
 
     style A fill:#e1f5fe
     style X fill:#c8e6c9
@@ -102,6 +104,7 @@ graph TD
     style P1 fill:#fce4ec
     style V fill:#e8f5e9
     style W fill:#e8f5e9
+    style Y fill:#e8f5e9
 ```
 
 ## 规则
@@ -113,6 +116,8 @@ graph TD
 > **注意**：流程图中的"创建分支信息"步骤，按 **1.1 流程图** 处理。
 
 #### 1.1 流程图
+
+下文说的环境变量均为：`QTOOL_DEAL_PROJECT_PARAMS_FILE_PATH`
 
 ```mermaid
 graph TD
@@ -126,10 +131,20 @@ graph TD
 
 #### 1.2 创建位置
 
-- **直接创建**时，在项目指定目录下创建分支信息的 JSON 文件。位置如下：
+- **直接创建**时，在项目指定目录下创建分支信息的 JSON 文件。
+  
+  位置如下：
+  
   - 如果是 `script-branch-json-file`项目：则创建位置在项目的`branch_quickcmd/example/featureBrances/` 目录下
   - 其他：一律在项目根目录的 `example/featureBrances/` 目录下
+  
 - **使用 qtool 创建分支信息**，是通过 qtool 命令创建分支信息 JSON 文件，得到的也是一个JSON文件
+
+  ```bash
+  qtool -quick branchJsonFile_create -tool_params_file_path "${环境变量指向的json文件}"
+  ```
+  
+- **存放创建分支的目录**（最后 [执行脚本获取所有分支信息](#执行脚本获取所有分支信息) 的时候需要使用） = 生成的JSON文件的所在目录
 
 ### 2. 分支文件名
 
@@ -211,6 +226,30 @@ git merge test/branchInfo1 test/branchInfo2 test/branchInfo3 --no-edit
 ```
 
 合并后的提交会有多个父节点（4个），确保合并线清晰可见。
+
+<a id="执行脚本获取所有分支信息"></a>
+
+### 5. 执行脚本获取所有分支信息
+
+执行脚本，进行分支信息的获取，将结果存放在指定json中的指定值
+
+**执行的脚本**：`qtool -path getBranchMapsAccordingToRebaseBranch`
+
+**存放结果的json**：存放创建分支的目录/app_branch_info.json
+
+**存放结果的key**：feature_brances
+
+```bash
+sh ${执行的脚本} -rebaseBranch ${主分支名} --add-value 1 -branchMapsFromDir ${存放创建分支的目录} -branchMapsAddToJsonF ${存放结果的json} -branchMapsAddToKey ${存放结果的key} -verbose
+```
+
+示例：
+
+```bash
+sh ~/Project/CQCI/script-branch-json-file/qtool.sh -quick getBranchMapsAccordingToRebaseBranch -rebaseBranch main --add-value 1 -branchMapsFromDir /Users/lichaoqian/Project/CQCI/script-branch-json-file/branch_quickcmd/example/featureBrances -branchMapsAddToJsonF /Users/lichaoqian/Project/CQCI/script-branch-json-file/branch_quickcmd/example/app_branch_info.json -branchMapsAddToKey feature_brances -verbose
+```
+
+
 
 ## 示例对话
 
