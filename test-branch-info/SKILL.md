@@ -95,13 +95,6 @@ graph TD
     style J3 fill:#fff3e0
     style T1 fill:#ffcdd2
     style T2 fill:#c8e6c9
-    style N1 fill:#fce4ec
-    style N2 fill:#fce4ec
-    style N3 fill:#fce4ec
-    style O1 fill:#fce4ec
-    style O2 fill:#fce4ec
-    style O3 fill:#fce4ec
-    style P1 fill:#fce4ec
     style V fill:#e8f5e9
     style W fill:#e8f5e9
     style Y fill:#e8f5e9
