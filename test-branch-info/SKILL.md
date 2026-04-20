@@ -228,9 +228,9 @@ git merge test/branchInfo1 test/branchInfo2 test/branchInfo3 --no-edit
 
 **执行的脚本**：`qtool -path getBranchMapsAccordingToRebaseBranch`
 
-**存放结果的json**：存放创建分支的目录/app_branch_info.json
+**存放结果的json**： 存放创建分支的目录/app_branch_info.json
 
-**存放结果的key**：feature_brances
+**存放结果的key**： online_branches
 
 ```bash
 sh ${执行的脚本} -rebaseBranch ${主分支名} --add-value 1 -branchMapsFromDir ${存放创建分支的目录} -branchMapsAddToJsonF ${存放结果的json} -branchMapsAddToKey ${存放结果的key} -verbose
@@ -241,6 +241,32 @@ sh ${执行的脚本} -rebaseBranch ${主分支名} --add-value 1 -branchMapsFro
 ```bash
 sh ~/Project/CQCI/script-branch-json-file/qtool.sh -quick getBranchMapsAccordingToRebaseBranch -rebaseBranch main --add-value 1 -branchMapsFromDir /Users/lichaoqian/Project/CQCI/script-branch-json-file/branch_quickcmd/example/featureBrances -branchMapsAddToJsonF /Users/lichaoqian/Project/CQCI/script-branch-json-file/branch_quickcmd/example/app_branch_info.json -branchMapsAddToKey feature_brances -verbose
 ```
+
+### 6. 整理出分支信息字符串
+
+1、整理出分支信息字符串
+
+```bash
+qbase -quick getBranchMapsInfoAndNotifiction -branchMapsInJsonF ${存放结果的json} -branchMapsInKey ${存放结果的key} -showCategoryName true -showFlag true -showName true -showTime none -showAt true -shouldMD true -robot https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxx
+```
+
+2、执行完之后，打开 json 文件即可看到分支信息字符串在字段 `full` 里。
+
+```bash
+open ${存放结果的json}
+```
+
+示例：
+
+```bash
+qbase -quick getBranchMapsInfoAndNotifiction -branchMapsInJsonF xxx/v1.7.2.json -branchMapsInKey online_branches -showCategoryName true -showFlag true -showName true -showTime none -showAt true -shouldMD true -robot https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxx
+
+或
+
+qbase -quick getBranchMapsInfoAndNotifiction -branchMapsInJsonF xxx/v1.7.2.json -branchMapsInKey online_branches -showCategoryName true -showFlag true -showName true -showTime none -showAt true -shouldMD true -robot https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxx
+```
+
+
 
 
 
