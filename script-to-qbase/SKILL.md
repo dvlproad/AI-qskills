@@ -15,7 +15,7 @@ script-项目
 
 | 替换项描述       | qbase                                   | qtool                                   | 其他                                                         |
 | ---------------- | --------------------------------------- | --------------------------------------- | ------------------------------------------------------------ |
-| 脚本仓库名       | `script-qbase`                          | `script-qtool`（或实际仓库名）          | 同步替换所有 GitHub URL 中的仓库路径                         |
+| 脚本仓库名       | `script-qbase`                          | `script-branch-json-file`               | 同步替换所有 GitHub URL 中的仓库路径                         |
 | 可执行与脚本文件 | `qbase`、`qbase.sh`、`qbase重新生成.sh` | `qtool`、`qtool.sh`、`qtool重新生成.sh` | 若 `qtool` 没有同名重编译脚本，以实际构建命令为准            |
 | 配置文件名       | `qbase.json`                            | `qtool.json`                            | 同步调整文中所有引用处                                       |
 | 命令示例         | `qbase -quick ...`、`qbase --version`   | `qtool -quick ...`、`qtool --version`   | `brew upgrade qbase` 也需替换为 `brew upgrade qtool`（按实际包名） |

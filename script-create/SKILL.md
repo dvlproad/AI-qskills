@@ -176,6 +176,9 @@ qbase_homedir_abspath=$(getHomeDir_abspath_byVersion "${qbaseScript_allVersion_h
 
 ```bash
 # --------------------- 日志函数（终端） ---------------------
+# 说明1：log_key()是公开的关键步骤
+#	说明2：qian_log()是隐私的关键步骤，一般含底层命令
+
 # 日志相关的初始变量
 VERBOSE=false
 
@@ -210,7 +213,41 @@ log_error() { _log "ERROR" "$1"; }
 log_warn() { _log "WARN" "$1"; }
 log_info() { _log "INFO" "$1"; }
 log_key() { _log "KEY" "$1"; }
+
+# qian_log 函数
+DEFINE_QIAN=false
+function qian_log() {
+    # 只有定义 --qian 的时候才打印这个log
+    if [ "$DEFINE_QIAN" = true ]; then
+        echo "$1" >&2   # 使用 echo 信息里的颜色才能正常显示出来
+        # printf "%s\n" "$1" >&2
+    fi
+}
 ```
+
+python 中
+
+```python
+# --------------------- 日志函数（终端） ---------------------
+# 说明1：qian_log_func()是隐私的关键步骤，放在方法入口，代表进到某个方法，方便从日志中查看到哪了
+#	说明2：qian_log()是隐私的关键步骤，一般含底层命令
+
+
+#### ------ qian_log_func() ------ ####
+import inspect
+# 声明全局变量
+DEFINE_QIAN = None
+def qian_log_func(msg):
+    """只有定义 --qian 的时候才打印这个log(带函数名)"""
+    global DEFINE_QIAN
+    if DEFINE_QIAN:  # 只有当用户传了 --qian 相关参数时才打印
+        func_name = inspect.currentframe().f_back.f_code.co_name
+        print(f"{PURPLE}>>>>>>>>>>>>【{func_name}】{msg} {NC}", file=sys.stderr)
+```
+
+
+
+
 
 #### 5.2 日志文件功能（可选）
 
@@ -288,7 +325,11 @@ cleanup_timer() {
 
 ### 7、服务主区域的基础函数
 
-#### 1. 具名参数值的解析和获取函数
+#### 1.help
+
+
+
+#### 2. 具名参数值的解析和获取函数
 
 ```bash
 # --------------------- 具名参数值的解析和获取函数 ---------------------
@@ -389,6 +430,8 @@ done
 
 ### 8、主区域划分结构
 
+#### 主区域划分结构
+
 ```bash
 # --------------------- main 相关 ---------------------
 # ---------- 1、初始化变量 ----------
@@ -417,6 +460,185 @@ done
 
 # ---------- 3.3、返回值 ----------
 ...
+```
+
+#### 通配符了解
+
+```shell
+#!/bin/bash
+
+parse_args() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --)
+                echo "匹配 [--] : 选项结束标志"
+                shift
+                echo "  剩余参数都是位置参数: $@"
+                break
+                ;;
+            -*)
+                echo "匹配 [-*] : 选项参数 $1"
+                shift
+                ;;
+            *)
+                echo "匹配 [*] : 普通参数 $1"
+                shift
+                ;;
+        esac
+    done
+}
+
+# 测试
+echo "=== 测试1 ==="
+parse_args --verbose --file test.txt
+
+echo -e "\n=== 测试2 ==="
+parse_args --verbose -- --help test.txt
+
+echo -e "\n=== 测试3 ==="
+parse_args -v -f config.txt
+
+echo -e "\n=== 测试4 ==="
+parse_args --help --version
+```
+
+#### 1. 参数解析部分
+
+1. 获取第几个参数，如获取 `firstArg=$1`，作为逻辑判断是走`-quick`还是`-path`
+
+2. 过滤掉前几个参数
+
+3. 循环判断剩余参数里是否包含指定参数，例如 `contains_verbose_in_allArgs`
+
+4. 循环获取要传递给下个脚本的参数 `COMMON_FLAG_ARGS`，只允许传递不影响脚本逻辑的公共参数，不然传了后发现有些脚本只接收指定的参数会造成反而无法正常运行
+
+5. 循环获取过滤掉指定参数的剩余参数，如过滤掉 `--version`，其他参数继续传给下个脚本，如传给 `-quick`
+
+6. ？检查参数是否存在两个连续的`--`开头长参
+
+   > 1. 如果当前参数以 - 或 -- 开头，且需要值（具名参数），则 shift 2
+   > 2. 如果当前参数不以 - 或 -- 开头（位置参数），则 shift 1
+   > 3. 如果当前参数是 -quick 或 -path 这类需要值的选项，则要获取下一个参数作为值
+
+参考： [qtool.sh](https://github.com/dvlpCI/script-branch-json-file/blob/main/qtool.sh) 中的参数解析
+
+附：py的参数解析参考
+
+[qbase 的 dealScript_by_scriptConfig.py](https://github.com/dvlpCI/script-qbase/blob/main/pythonModuleSrc/dealScript_by_scriptConfig.py) 的参数解析 更完整
+
+[qtool 的 dealScriptByCustomChoose.py](https://github.com/dvlpCI/script-branch-json-file/blob/main/src/dealScriptByCustomChoose.py) 的参数解析
+
+
+
+
+
+```bash
+# 使用数组保存参数，避免空格问题
+# shift 1		#如果需要可以先通过 shift 过滤掉前几个参数
+allArgsArray=("$@")
+
+
+COMMON_FLAG_ARGS=() # 存储要传递给下个脚本的参数，只允许传递不影响脚本逻辑的公共参数，不然传了后发现有些脚本只接收指定的参数会造成反而无法正常运行
+
+# 初始化标志
+contains_help_in_allArgs=false
+contains_verbose_in_allArgs=false
+# 遍历数组
+for arg in "${allArgsArray[@]}"; do
+    # echo "正在处理参数: $arg"  # 打印每个参数
+    
+    case "$arg" in
+        -qbase-local-path|--qbase-local-path)
+            # 用户明确传递了此参数，必须提供有效值
+            QBASE_CMD=$(get_named_arg_value "$1" "$2" "qbase路径") || handle_named_arg_error "$1"
+            COMMON_FLAG_ARGS+=("$1" "$2")
+            shift 2;;
+        # 标志参数（不需要值的开关）
+        --no-use-brew-path)
+            isTestingScript=true    # qtool 里的其他脚本路径是否使用本地来拼接，而不是 brew 里的路径
+            COMMON_FLAG_ARGS+=("$1")
+            shift 1
+            ;;
+        --help|-help|-h|help)
+            contains_help_in_allArgs=true
+            COMMON_FLAG_ARGS+=("$arg")
+            ;;
+        --verbose|-verbose|-v)
+            contains_verbose_in_allArgs=true
+            COMMON_FLAG_ARGS+=("$arg")
+            ;;
+        --qian|-qian|-lichaoqian|-chaoqian)
+            DEFINE_QIAN=true
+            COMMON_FLAG_ARGS+=("$arg")
+            ;;
+        *)
+            # echo "  -> 未匹配的普通参数: $arg"
+            ;;
+    esac
+done
+# 输出解析结果（调试用）
+qian_log "========== 参数解析结果（$0） =========="
+qian_log "QBASE_CMD: $QBASE_CMD"
+qian_log "DEFINE_QIAN: $DEFINE_QIAN"
+qian_log "CONTAINS_VERBOSE: $CONTAINS_VERBOSE"
+qian_log "CONTAINS_HELP: $CONTAINS_HELP"
+qian_log "公共参数（${#COMMON_FLAG_ARGS[@]}个）: ${COMMON_FLAG_ARGS[*]}"
+qian_log "=================================="
+
+# 剩余未解析到的参数（已解析的已被shift等）
+POSITIONAL_ARGS=("$@")
+```
+
+附：如果是python
+
+```python
+import argparse
+import sys
+
+def print_custom_help():
+    print(f"print_custom_help()")
+    
+def parse_arguments():
+    # 先手动检查 help
+    if '-h' in sys.argv or '--help' in sys.argv:
+        print_custom_help()
+        sys.exit(0)
+    
+    # 禁用自动 help，避免冲突
+    parser = argparse.ArgumentParser(description='你的程序描述', add_help=False)
+    
+    parser.add_argument('--verbose', '-v', 
+                       action='store_true',
+                       help='显示详细信息')
+    
+    parser.add_argument('--qian', 
+                       action='store_true',
+                       help='开启打印调试log模式')
+    
+    parser.add_argument('--test', 
+                       action='store_true',
+                       help='开启本地测试模式')
+    
+    args = parser.parse_args()
+    return args
+
+# 声明全局变量
+DEFINE_QIAN = None
+def qian_log(msg):
+    """只有定义 --qian 的时候才打印这个log"""
+    global DEFINE_QIAN
+    if DEFINE_QIAN:  # 只有当用户传了 --qian 相关参数时才打印
+        print(msg, file=sys.stderr)
+
+# 解析参数（所有参数都是可选的）
+args = parse_arguments()
+contains_verbose_in_allArgs = args.verbose  # 用户没传 --verbose 时是 False
+DEFINE_QIAN = args.qian  # 用户没传 --qian 时是 False
+'''
+# 测试输出
+if contains_verbose_in_allArgs:
+    print("Verbose mode enabled")
+'''
 ```
 
 
@@ -536,12 +758,24 @@ esac
 延伸：判断剩余参数中是不是有参数属于 help 数组
 
 ```bash
-# 判断去除第一个参数后，剩余的参数是不是 help 参数
-contains_help_in_allArgsExceptFirstArg=false
-for arg in $allArgsExceptFirstArg; do
+allArgsOrigin="$@"
+# 是不是包含 help 参数
+contains_help_in_allArgs=false
+for arg in $allArgsOrigin; do
     case $arg in
         --help|-help|-h|help)
-            contains_help_in_allArgsExceptFirstArg=true
+            contains_help_in_allArgs=true
+            break
+            ;;
+    esac
+done
+
+# 是不是包含 verbose 参数
+contains_verbose_in_allArgs=false
+for arg in $allArgsOrigin; do
+    case $arg in
+        --verbose|-verbose|-v)
+            contains_verbose_in_allArgs=true
             break
             ;;
     esac
@@ -645,6 +879,85 @@ EOF
 }
 updateText_test3
 
+```
+
+### 6、返回值的代码要求(py)
+
+背景：想要让方法里的错误信息，放到方法后的  if 才打印。但只要方法里有print肯定先打印，才打印方法后的。所以原则是方法里不 print
+
+#### shell
+
+```shell
+getPath() {
+    local type = $1
+    if [ ! -f "$1" ]; then
+        # 输出写法一：使用如下输出
+        echo "😭文件不存在: $1"
+        # 输出写法二：使用如下输出
+        echo "$1"
+
+        return 1
+    fi
+
+    echo "$1"
+}
+path=$(getPath "/some/file")
+if [ $? != 0 ]; then
+    printf "❌Error:目录不存在，请检查:%s\n" "${path}" >&2
+    exit 1
+fi
+
+
+则失败时，输出写法一
+❌Error:目录不存在，请检查:😭文件不存在: /some/file
+
+输出写法2：
+❌Error:目录不存在，请检查:/some/file
+```
+
+
+
+#### python
+
+```python
+		branch_json_file_dir_abspath = joinFullPath_checkExsit(base_dir_path, result_value)
+    # print(f"branch_json_file_dir_abspath:{RED}{branch_json_file_dir_abspath} {NC}")
+    if branch_json_file_dir_abspath == None:
+        print(f"{RED}获取路径失败。获取{BLUE} {base_dir_path} {RED}相对路径{BLUE} {result_value} {RED}失败。请修改您在文件{BLUE} {json_file_path} {RED}中的 {hasFoundKeyPath.split('.')} {RED}字段值{NC}")
+        return None
+```
+
+方法修正后的示例：
+
+```python
+def joinFullPath_checkExsit(host_dir, rel_path, createIfNoExsit=False):
+    # 处理路径
+    if host_dir.endswith("/"):
+        host_dir = host_dir[:-1]
+    if rel_path.startswith("/"):
+        rel_path = rel_path[1:]
+    full_path = os.path.join(host_dir, rel_path)
+    full_abspath = os.path.abspath(full_path)
+    
+    if os.path.exists(full_abspath):
+        return full_abspath, None  # 返回 (路径, 错误信息)
+    else:
+        if createIfNoExsit == True:
+            try:
+                os.makedirs(full_abspath, exist_ok=True)
+                return full_abspath, None
+            except Exception as e:
+                return None, f"创建目录失败: {full_abspath}, 错误: {e}"
+        else:
+            return None, f"路径不存在: {full_abspath}"
+
+# 调用方
+dir_path, error_msg = joinFullPath_checkExsit(host_dir, rel_path, createIfNoExsit=False)
+if error_msg:
+    print(f"--------------------3 {error_msg}")
+    print(f"--------------------4 {error_msg}")
+else:
+    print(f"路径有效: {dir_path}")
 ```
 
 
