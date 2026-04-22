@@ -126,10 +126,7 @@ graph TD
 
 - **直接创建**时，在项目指定目录下创建分支信息的 JSON 文件。
   
-  位置如下：
-  
-  - 如果是 `script-branch-json-file`项目：则创建位置在项目的`branch_quickcmd/example/featureBrances/` 目录下
-  - 其他：一律在项目根目录的 `example/featureBrances/` 目录下
+  位置一律在**项目根目录**的 `example/featureBrances/` 目录下
   
 - **使用 qtool 创建分支信息**，是通过 qtool 命令创建分支信息 JSON 文件，得到的也是一个JSON文件
 
