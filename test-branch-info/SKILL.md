@@ -239,7 +239,7 @@ sh ${执行的脚本} -rebaseBranch ${主分支名} --add-value 1 -branchMapsFro
 示例：
 
 ```bash
-sh ~/Project/CQCI/script-branch-json-file/qtool.sh -quick getBranchMapsAccordingToRebaseBranch -rebaseBranch main --add-value 1 -branchMapsFromDir /Users/lichaoqian/Project/CQCI/script-branch-json-file/branch_quickcmd/example/featureBrances -branchMapsAddToJsonF /Users/lichaoqian/Project/CQCI/script-branch-json-file/branch_quickcmd/example/app_branch_info.json -branchMapsAddToKey feature_brances -verbose
+sh ~/Project/CQCI/script-branch-json-file/qtool.sh -quick getBranchMapsAccordingToRebaseBranch -rebaseBranch main --add-value 1 -branchMapsFromDir /Users/lichaoqian/Project/CQCI/script-branch-json-file/example/featureBrances -branchMapsAddToJsonF /Users/lichaoqian/Project/CQCI/script-branch-json-file/example/app_branch_info.json -branchMapsAddToKey online_branches -verbose
 ```
 
 ### 6. 整理出分支信息字符串
