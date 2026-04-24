@@ -1,5 +1,5 @@
 ---
-name: emoji-idiom
+name: life-emoji-idiom
 description: 使用当用户想要玩emoji猜成语游戏、要求根据emoji猜成语、或发送emoji图片时 / Use when user wants to play emoji guessing idiom game, asks to guess idioms from emojis, or sends emoji images
 ---
 
@@ -260,6 +260,11 @@ description: 使用当用户想要玩emoji猜成语游戏、要求根据emoji猜
 > 
 > **过渡语**：以后我说"猜成语"或发送emoji图片，你就帮我猜成语。明白请回复"明白"
 
+---
+
+## 示例文件
+
+参考 `/Users/lichaoqian/Project/AI/AI-qskills/emoji-idiom/example/emoji-idiom-guess.html`，该文件实现了完整的 Emoji 猜成语网页应用。
 
 
 <!--
@@ -269,5 +274,7 @@ description: 使用当用户想要玩emoji猜成语游戏、要求根据emoji猜
 - v1.0 (2026-04-01): 初始版本
 - v1.1 (2026-04-02): 优化 emoji 组合分析逻辑，提升对 😭😄🙅‍♀️🏠 等组合的成语识别准确性
 - v1.2 (2026-04-02): 完善分析猜测严格三步，以修复对 ❌👀☀️⛰️ 的识别（避免直接套用常见成语再反推的逻辑）
+- v1.3 (2026-04-06): 添加 example 文件，实现完整的网页应用
+- v1.4 (2026-04-06): 重构使用公共 JS 文件，复用通用架构
 -->
 

@@ -1,17 +1,15 @@
 # AI-qskills
 自定义的 Skill 工具集合
 
-**Skill 的 完善遵从 [skill-qian-optimize 的 SKILL.md](./skill-qian-optimize/SKILL.md) **
+| Skill                                        | 描述                      | 触发场景        | 产出示例          |
+| -------------------------------------------- | ------------------------- | --------------- | ----------------- |
+| [skill-qian-optimize](./skill-qian-optimize) | 优化skill，可生成结构文档 | "完善我的skill" | 所有的skill的创建 |
+
+**所有 Skill 的完善遵从 [skill-qian-optimize 的 SKILL.md](./skill-qian-optimize/SKILL.md)**
 
 
 
 ## Skill 分类详解
-
-### 🏗️ 基础工具
-
-| Skill                                        | 描述                      | 触发场景        | 产出示例          |
-| -------------------------------------------- | ------------------------- | --------------- | ----------------- |
-| [skill-qian-optimize](./skill-qian-optimize) | 优化skill，可生成结构文档 | "完善我的skill" | 所有的skill的创建 |
 
 ---
 
@@ -21,54 +19,44 @@
 
 ```mermaid
 graph LR
-    A[📝 create] --> B[📦 publish] --> C[🔧 use] --> D[🧪 test]
+    A[📝 script-specification<br/>创建脚本] --> B[📦 script-to-homebrew<br/>发布] --> C[🔧 script-qtool<br/>使用] --> D[🧪 script-test-branch-info<br/>测试]
 ```
 
-| Skill                                                | 描述                                                 | 触发场景                   | 产出示例                  |
-| ---------------------------------------------------- | ---------------------------------------------------- | -------------------------- | ------------------------- |
-| [script-specification](./script-specification)       | 帮助创建符合统一要求的脚本                           | "创建脚本"                 |                           |
-| [script-to-homebrew](./script-to-homebrew)           | 将脚本整合到 qbase 库                                | "整合到qbase"              | 发布qbase或者script-qtool |
-| [script-qtool](./script-qtool)                       | 操作 CQCI 工具集，用于分支管理、代码提交、打包上传等 | 包含 "script-qtool" 的指令 |                           |
-| [script-test-branch-info](./script-test-branch-info) | 测试分支信息                                         | "测试分支信息"             |                           |
+| Skill | 描述 | 触发场景 | 产出示例 |
+|-------|------|----------|----------|
+| [script-specification](./script-specification) | 帮助创建符合统一要求的脚本 | "创建脚本" | |
+| [script-to-homebrew](./script-to-homebrew) | 将脚本整合到 qbase 库 | "整合到qbase" | 发布qbase |
+| [script-qtool](./script-qtool) | 操作 CQCI 工具集 | 包含 "script-qtool" 的指令 | |
+| [script-test-branch-info](./script-test-branch-info) | 测试分支信息 | "测试分支信息" | |
 
 ---
 
 ### 📁 内容整理
 
-**关系**: 独立（可协作）
-
 ```mermaid
 graph LR
-    B[📁 code] --> C[🧪 branch.md]
-    A[📚 doc]
-    A -.-> B
+    A[📁 organize-code-to-md<br/>整理代码] --> B[qbase/branch.md<br/>产出]
+    C[🧪 organize-md-to-md<br/>生成文档] -.-> A
 ```
 
-| Skill                                        | 描述                  | 触发场景           | 产出示例                                                     |
-| -------------------------------------------- | --------------------- | ------------------ | ------------------------------------------------------------ |
-| [organize-code-to-md](./organize-code-to-md) | 整理代码目录结构      | "帮我理下有关 XXX" | [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
-| [organize-md-to-md](./organize-md-to-md)     | 整理文档关系/生成图谱 | "整理文档关系"     |                                                              |
+| Skill | 描述 | 触发场景 | 产出示例 |
+|-------|------|----------|----------|
+| [organize-code-to-md](./organize-code-to-md) | 整理代码目录结构 | "帮我理下有关 XXX" | [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
+| [organize-md-to-md](./organize-md-to-md) | 整理文档关系/生成图谱 | "整理文档关系" | |
 
 ---
 
 ### 💬 创意娱乐
 
-**关系**: 互相调用
-
 ```mermaid
 graph LR
-    A[💬 crush-reply] <--> B[🎮 emoji-idiom]
+    A[💬 life-reply-crush<br/>回复] <--> B[🎮 life-emoji-idiom<br/>猜成语]
 ```
 
-| Skill                        | 描述                           | 触发场景     | 产出示例          |
-| ---------------------------- | ------------------------------ | ------------ | ----------------- |
-| [crush-reply](./crush-reply) | 生成幽默撩人、有情绪张力的回复 | `crush: xxx` | crush: 今天忙啥呢 |
-| [emoji-idiom](./emoji-idiom) | 根据emoji符号猜成语            | "猜成语"     | 🙄🐯🧧🏮              |
-
----
-
-## 
-
+| Skill                                  | 描述                           | 触发场景     | 产出示例          |
+| -------------------------------------- | ------------------------------ | ------------ | ----------------- |
+| [life-reply-crush](./life-reply-crush) | 生成幽默撩人、有情绪张力的回复 | `crush: xxx` | crush: 今天忙啥呢 |
+| [life-emoji-idiom](./life-emoji-idiom) | 根据emoji符号猜成语            | "猜成语"     | 🙄🐯🧧🏮              |
 
 
 

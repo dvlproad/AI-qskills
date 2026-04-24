@@ -1,5 +1,5 @@
 ---
-name: crush-reply
+name: life-reply-crush
 description: |
   当用户想给 crush 回消息、需要有趣的回复风格、问怎么回复crush、或者发来crush说的话需要生成回复时触发。
   不需要用户明确说"使用skill"，只要涉及到如何回复暧昧对象/追求对象的消息，都应该触发这个skill。
