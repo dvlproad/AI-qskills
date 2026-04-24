@@ -1,9 +1,9 @@
 ---
-name: qtool
+name: script-qtool
 description: 操作 CQCI 工具集（script-branch-json-file），用于分支管理、代码提交、打包上传等
 ---
 
-# Skill: qtool
+# qtool
 
 当用户输入包含 "qtool" 的指令时触发，用于操作 CQCI 工具集（script-branch-json-file）。
 

@@ -1,5 +1,5 @@
 ---
-name: script-to-qbase
+name: script-to-homebrew
 description: |
   将独立脚本整合到 qbase 库中，统一使用 qbase -quick 调用
   触发场景：用户输入"发布homebrew" 或 "发布qbase新版本" 或 "发布tool新版本"

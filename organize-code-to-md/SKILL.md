@@ -1,5 +1,5 @@
 ---
-name: code-structure-organizer
+name: organize-code-to-md
 description: |
   当用户需要整理代码目录结构时触发
   触发场景：

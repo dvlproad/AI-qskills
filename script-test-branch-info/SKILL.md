@@ -1,5 +1,5 @@
 ---
-name: test-branch-info
+name: script-test-branch-info
 description: |
   测试分支信息的获取
   触发场景：用户输入"测试分支信息的获取"

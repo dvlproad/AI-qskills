@@ -5,15 +5,71 @@
 
 
 
-## Skills
+## Skill 分类详解
 
-| Skill | 推荐使用方式 | 描述 |
-|-------|-------------|------|
-| [crush-reply](./crush-reply) | `crush: 对方说的话` | 生成幽默撩人、有情绪张力的回复，让对方笑、脸红、想继续聊 |
-| [emoji-idiom](./emoji-idiom) | 输入"猜成语"或发送emoji图片 | 根据emoji符号猜成语，支持谐音法、象形法、组合法 |
-| [script-create](./script-create) | 输入"创建脚本" | 帮助用户创建符合统一要求的脚本 |
-| [script-to-qbase](./script-to-qbase) | 输入"整合到qbase"或"添加到qbase" | 将独立脚本整合到 qbase 库中 |
-| [qtool](./qtool) | 输入包含 "qtool" 的指令时触发 | 操作 CQCI 工具集，用于分支管理、代码提交、打包上传等 |
+### 🏗️ 基础工具
+
+| Skill                                        | 描述                      | 触发场景        | 产出示例          |
+| -------------------------------------------- | ------------------------- | --------------- | ----------------- |
+| [skill-qian-optimize](./skill-qian-optimize) | 优化skill，可生成结构文档 | "完善我的skill" | 所有的skill的创建 |
+
+---
+
+### 📝 脚本相关
+
+**关系**: 流程链
+
+```mermaid
+graph LR
+    A[📝 create] --> B[📦 publish] --> C[🔧 use] --> D[🧪 test]
+```
+
+| Skill                                                | 描述                                                 | 触发场景                   | 产出示例                  |
+| ---------------------------------------------------- | ---------------------------------------------------- | -------------------------- | ------------------------- |
+| [script-specification](./script-specification)       | 帮助创建符合统一要求的脚本                           | "创建脚本"                 |                           |
+| [script-to-homebrew](./script-to-homebrew)           | 将脚本整合到 qbase 库                                | "整合到qbase"              | 发布qbase或者script-qtool |
+| [script-qtool](./script-qtool)                       | 操作 CQCI 工具集，用于分支管理、代码提交、打包上传等 | 包含 "script-qtool" 的指令 |                           |
+| [script-test-branch-info](./script-test-branch-info) | 测试分支信息                                         | "测试分支信息"             |                           |
+
+---
+
+### 📁 内容整理
+
+**关系**: 独立（可协作）
+
+```mermaid
+graph LR
+    B[📁 code] --> C[🧪 branch.md]
+    A[📚 doc]
+    A -.-> B
+```
+
+| Skill                                        | 描述                  | 触发场景           | 产出示例                                                     |
+| -------------------------------------------- | --------------------- | ------------------ | ------------------------------------------------------------ |
+| [organize-code-to-md](./organize-code-to-md) | 整理代码目录结构      | "帮我理下有关 XXX" | [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
+| [organize-md-to-md](./organize-md-to-md)     | 整理文档关系/生成图谱 | "整理文档关系"     |                                                              |
+
+---
+
+### 💬 创意娱乐
+
+**关系**: 互相调用
+
+```mermaid
+graph LR
+    A[💬 crush-reply] <--> B[🎮 emoji-idiom]
+```
+
+| Skill                        | 描述                           | 触发场景     | 产出示例          |
+| ---------------------------- | ------------------------------ | ------------ | ----------------- |
+| [crush-reply](./crush-reply) | 生成幽默撩人、有情绪张力的回复 | `crush: xxx` | crush: 今天忙啥呢 |
+| [emoji-idiom](./emoji-idiom) | 根据emoji符号猜成语            | "猜成语"     | 🙄🐯🧧🏮              |
+
+---
+
+## 
+
+
 
 
 
@@ -103,11 +159,11 @@ description: |
 
 ### 0.0.5 (2026-04-13)
 - 新增 [skill-qian-optimize](./skill-qian-optimize) skill：优化和完善用户创建的 skill
-- 修复 [script-to-qbase](./script-to-qbase) skill：修复AI执行skill中断问题，让AI可以按skill自动执行完整个流程
+- 修复 [script-to-homebrew](./script-to-homebrew) skill：修复AI执行skill中断问题，让AI可以按skill自动执行完整个流程
 
 ### 0.0.4 (2026-04-11)
-- 新增 [script-create](./script-create) skill：帮助用户创建符合统一要求的脚本
-- 新增 [script-to-qbase](./script-to-qbase) skill：将独立脚本整合到 qbase 库中
+- 新增 [script-specification](./script-specification) skill：帮助用户创建符合统一要求的脚本
+- 新增 [script-to-homebrew](./script-to-homebrew) skill：将独立脚本整合到 qbase 库中
 
 ### 0.0.2 (2026-04-1)
 
