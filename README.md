@@ -1,11 +1,7 @@
 # AI-qskills
 自定义的 Skill 工具集合
 
-| Skill                                        | 描述                      | 触发场景        | 产出示例          |
-| -------------------------------------------- | ------------------------- | --------------- | ----------------- |
-| [skill-qian-optimize](./skill-qian-optimize) | 优化skill，可生成结构文档 | "完善我的skill" | 所有的skill的创建 |
-
-**所有 Skill 的完善遵从 [skill-qian-optimize 的 SKILL.md](./skill-qian-optimize/SKILL.md)**
+**所有 Skill 的完善遵从 [skill-qian-optimize 的 SKILL.md](./skill-qian-optimize/SKILL.md)**，通过输入**"完善我的skill"**即可触发，**优化skill，可生成结构文档**
 
 
 
@@ -46,6 +42,12 @@ graph LR
 
 ---
 
+### 🔧 功能模块
+| Skill                                                  | 描述                                        | 触发场景       | 产出示例   |
+| ------------------------------------------------------ | ------------------------------------------- | -------------- | ---------- |
+| [dev-fw-setting-ai-models](./dev-fw-setting-ai-models) | AI应用通用架构，包含模型选择、API Key管理等 | "创建 AI 网页" | AI聊天应用 |
+---
+
 ### 💬 创意娱乐
 
 ```mermaid
@@ -72,10 +74,11 @@ graph LR
 
 **过渡**：
 
-| Skill                        | 过渡                                               |
-| ---------------------------- | -------------------------------------------------- |
-| [crush-reply](./crush-reply) | 以后我输入 "crush: xxx" 的格式，你就直接生成回复。 |
-| [emoji-idiom](./emoji-idiom) | 以后我说"猜成语"或发送emoji图片，你就帮我猜成语。 |
+> 以后我输入 "crush: xxx" 的格式，你就直接生成回复。
+
+或
+
+> 以后我说"猜成语"或发送emoji图片，你就帮我猜成语。
 
 **结尾：明白请回复"明白"**
 
