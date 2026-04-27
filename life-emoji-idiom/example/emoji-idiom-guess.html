@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji 猜成语</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Noto Sans SC', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .emoji-display { font-size: 3rem; letter-spacing: 0.5rem; }
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .loading-dots::after { content: ''; animation: dots 1.5s steps(4, end) infinite; }
+        @keyframes dots { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
+        .typing-effect { animation: blink 1s infinite; }
+        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-3">🧩 Emoji 猜成语</h1>
+            <p class="text-white/80 text-lg">输入表情符号，AI 帮你猜成语</p>
+        </div>
+
+        <!-- 
+            =============================================
+            以下公共部分参考自 common-model-struct/resources/base.html
+            如需修改公共部分，请同步修改 base.html
+            =============================================
+        -->
+        <!-- ========== 公共部分: API Key 设置 ========== -->
+        <div class="bg-white/10 backdrop-blur rounded-xl p-4 mb-6">
+            <div class="flex gap-2 mb-3">
+                <button onclick="selectPlatform('deepseek')" id="btn-deepseek" class="platform-btn px-4 py-2 rounded-lg bg-white/20 text-white text-sm transition-all">DeepSeek</button>
+                <button onclick="selectPlatform('siliconflow')" id="btn-siliconflow" class="platform-btn px-4 py-2 rounded-lg bg-white/10 text-white/60 text-sm transition-all hover:bg-white/20">硅基流动</button>
+            </div>
+            <div id="modelSelector" class="flex flex-wrap gap-2 mb-3"></div>
+            <div class="flex flex-col md:flex-row gap-3 items-center">
+                <input type="password" id="apiKey" placeholder="输入 API Key" class="flex-1 px-4 py-2 text-sm border border-white/30 bg-white/20 text-white placeholder-white/50 rounded-lg focus:outline-none focus:border-white">
+                <button onclick="saveApiKey()" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white text-sm rounded-lg transition-all">保存</button>
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                <span class="text-white/50 text-xs">仅保存在本地浏览器，不上传服务器</span>
+            </div>
+            <p id="apiKeyHelp" class="text-white/60 text-xs mt-2">获取 API Key: <a href="https://platform.deepseek.com/" target="_blank" class="underline">https://platform.deepseek.com/</a></p>
+            <p id="pricingInfo" class="text-white/50 text-xs mt-1">定价: 输入 $0.28/M, 输出 $0.42/M <a id="pricingUrl" href="https://api-docs.deepseek.com/quick_start/pricing" target="_blank" class="underline">(来源)</a></p>
+            <p id="estimateInfo" class="text-white/40 text-xs mt-1">预计每次: 约 $0.0005 (~¥0.004)</p>
+        </div>
+
+        <!-- ========== 业务特定部分: 输入区 ========== -->
+        <div class="bg-white rounded-2xl shadow-2xl p-6 mb-8">
+            <label class="block text-gray-700 font-medium mb-3 text-lg">输入表情符号</label>
+            <div class="relative">
+                <input type="text" id="inputText" placeholder="👦💰👩🐱" class="w-full px-5 py-4 text-2xl border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all text-center">
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 typing-effect">|</span>
+            </div>
+            <div id="emojiPreview" class="mt-4 text-center text-5xl min-h-[80px] flex items-center justify-center">
+                <span class="text-gray-300 text-lg">预览区</span>
+            </div>
+            <button id="generateBtn" onclick="guessIdiom()" class="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 rounded-xl font-semibold text-lg hover:shadow-lg hover:scale-[1.02] transition-all duration-200 flex flex-col items-center justify-center gap-1">
+                <span id="btnMainText">🔍 开始猜成语</span>
+                <span id="btnSubText" class="text-xs font-normal opacity-75"></span>
+            </button>
+        </div>
+
+        <!-- ========== 公共部分: 结果展示 ========== -->
+        <div id="modelInfo" class="text-center text-white/50 text-sm mb-4 hidden">使用平台: <span id="platformDisplay"></span> | 模型: <span id="modelDisplay"></span></div>
+        <div id="repliesContainer" class="space-y-6">
+            <div id="tokenUsage" class="bg-white/10 backdrop-blur rounded-lg px-4 py-2 text-center text-white/60 text-sm hidden">
+                本次消耗: <span id="tokenCount" class="font-medium">-</span> tokens (<span id="tokenCost">约 ¥0.00</span>)
+            </div>
+        </div>
+        <div id="emptyState" class="text-center text-white/70 py-12">
+            <div class="text-6xl mb-4">🤔</div>
+            <p class="text-xl">输入表情符号，挑战你的成语储备</p>
+            <p class="text-white/50 mt-2">例如：👦💰👩🐱 → 男才女貌</p>
+        </div>
+
+        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none">已复制到剪贴板！</div>
+    </div>
+
+    <!-- ========== 公共部分: 引入公共JS ========== -->
+    <script src="../common-model-struct/resources/common.js"></script>
+    
+    <!-- ========== 业务特定部分: 业务逻辑 ========== -->
+    <script>
+        // 业务特定 Prompt
+        const SYSTEM_PROMPT = `你是一个看图猜成语的高手，擅长根据表情符号（emoji）的本义、谐音、象形/引申来推断成语。
+
+核心任务：分析用户输入的 emoji，猜出对应的成语。
+
+猜成语的核心规律：
+
+1. **本义法**：利用 emoji 本身代表的含义
+   - 🐯 → 虎，🐴 → 马，👦 → 男，👩 → 女
+
+2. **谐音法**：利用 emoji 名称或含义的读音
+   - 🐱(猫 māo) → 貌(mào)
+   - 🐟(鱼 yú) → 渔(yú)
+   - 💰(钱) → 才、富、前
+   - 👋(拜拜) → 白(bái)
+
+3. **象形/引申法**：利用 emoji 的形状、动作或联想
+   - 🙅‍♀️（双手交叉）→ 交
+   - 😭（哭）→ 悲
+   - ❌（错误）→ 不、无
+
+常用示例：
+- 👦💰👩🐱 → 男才女貌
+- ❤️❌🍅✋ → 爱不释手
+- 🔪⚡🚀🎥 → 刀光剑影
+- ❌👀☀️⛰️ → 不识泰山
+- 👄👄🐘🚤 → 口口相传
+
+输出要求：
+1. 直接给出最佳答案（成语）
+2. 简要解释每个 emoji 如何对应成语中的字
+3. 如有其他可能的答案也列出
+4. 语气活泼有趣`;
+
+        // 事件绑定
+        document.getElementById('inputText').addEventListener('input', (e) => {
+            const emojis = e.target.value.trim();
+            const preview = document.getElementById('emojiPreview');
+            preview.innerHTML = emojis 
+                ? `<span class="emoji-display">${emojis}</span>` 
+                : '<span class="text-gray-300 text-lg">预览区</span>';
+        });
+
+        document.getElementById('inputText').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') guessIdiom();
+        });
+
+        // 业务函数
+        async function guessIdiom() {
+            let input = document.getElementById('inputText').value.trim();
+            if (!input) {
+                showToast('请输入表情符号！');
+                return;
+            }
+            
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                alert('请先输入 ' + PLATFORMS[currentPlatform].name + ' API Key');
+                document.getElementById('apiKey').focus();
+                return;
+            }
+            
+            if (startGenerating()) return;
+            
+            const container = document.getElementById('repliesContainer');
+            showLoadingSkeleton(container);
+
+            try {
+                const response = await fetch(PLATFORMS[currentPlatform].endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: currentModel,
+                        messages: [
+                            { role: 'system', content: SYSTEM_PROMPT },
+                            { role: 'user', content: `请猜这个成语：${input}` }
+                        ],
+                        temperature: 0.9
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    const errorMsg = data.error?.message || data.message || JSON.stringify(data);
+                    throw new Error(`请求失败 (${response.status}): ${errorMsg}`);
+                }
+                
+                updateTokenUsage(data);
+                renderResult(input, data.choices[0].message.content);
+                
+            } catch (error) {
+                showErrorCard(container, error.message);
+            } finally {
+                finishGenerating();
+            }
+        }
+
+        function renderResult(emojis, content) {
+            const container = document.getElementById('repliesContainer');
+            container.innerHTML = '';
+            
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-2xl shadow-xl p-8 fade-in';
+            card.innerHTML = `
+                <div class="text-center mb-6">
+                    <p class="text-gray-500 text-sm mb-2">表情符号</p>
+                    <div class="text-6xl mb-4">${emojis}</div>
+                </div>
+                <div class="border-t border-gray-100 pt-6">
+                    <p class="text-gray-500 text-sm mb-2">AI 猜测结果</p>
+                    <div class="prose prose-lg max-w-none text-gray-700 whitespace-pre-wrap">${content}</div>
+                </div>
+                <button class="w-full mt-6 bg-gradient-to-r from-purple-100 to-pink-100 hover:from-purple-200 hover:to-pink-200 text-purple-700 py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    复制答案
+                </button>
+            `;
+            
+            card.querySelector('button').addEventListener('click', () => copyToClipboard(content));
+            container.appendChild(card);
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            initCommonUI();
+        });
+    </script>
+</body>
+</html>
