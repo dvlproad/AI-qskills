@@ -17,136 +17,28 @@ description: 整理 GitHub 和 Gitee 仓库列表为分类文档，保存为 Mar
 
 ## 执行流程
 
-### 1. 获取 GitHub Token
+### 1、获取 Github 的所有 repos 
 
-- 优先使用环境变量 `GITHUB_TOKEN` 的值
-- 如果没有，尝试使用 `gh auth token`
-- 如果都没有，请求用户从 https://github.com/settings/tokens 获取 Token
+### 2、获取 Gitee 的所有 repos 
 
-```bash
-# 查看本地 Token
-gh auth token
-```
+### 3、整合所有json文件
 
-### 2. 获取 Gitee OAuth Token
+### 4. 分类原则
 
-Gitee 需要通过 OAuth 获取 Token：
-
-#### 2.1 获取 Client ID 和 Client Secret
-
-用户需要在 https://gitee.com/oauth/applications 创建一个 OAuth 应用：
-
-- 应用名称：任意（如 opencode）
-- 应用主页：任意（如 `https://example.com`）
-- Redirect URI：`https://example.com/callback`
-- 权限：需要 `projects` 和 `groups`
-
-#### 2.2 生成授权链接
-
-```bash
-CLIENT_ID="你的Client_ID"
-REDIRECT_URI="https://example.com/callback"
-echo "请访问以下链接授权："
-echo "https://gitee.com/oauth/authorize?client_id=$CLIENT_ID&redirect_uri=$REDIRECT_URI&response_type=code&scope=projects+groups"
-```
-
-#### 2.3 获取 Access Token
-
-用户授权后会跳转到 `https://example.com/callback?code=xxx`，提取 `code=` 后面的值：
-
-```bash
-curl -X POST "https://gitee.com/oauth/token" \
-  -d "grant_type=authorization_code" \
-  -d "code=刚才获取的code" \
-  -d "client_id=$CLIENT_ID" \
-  -d "client_secret=$CLIENT_SECRET" \
-  -d "redirect_uri=$REDIRECT_URI"
-```
-
-返回格式：
-```json
-{"access_token":"xxx","token_type":"bearer","expires_in":86400,"refresh_token":"xxx","scope":"user_info projects groups","created_at":xxx}
-```
-
-### 3. 获取仓库列表
-
-#### 3.1 GitHub 仓库
-
-```bash
-# 获取用户自己的仓库（公开）
-curl -s -H "Authorization: token $GITHUB_TOKEN" \
-  "https://api.github.com/user/repos?per_page=100&sort=updated" | \
-  jq -r '.[] | "\(.full_name) | \(.language // "-") | \(.private | tostring) | \(.stargazers_count) | \(.description // "-")"'
-
-# 获取用户自己的仓库（所有，包括私有）
-curl -s -H "Authorization: token $GITHUB_TOKEN" \
-  "https://api.github.com/user/repos?per_page=100&sort=updated&affiliation=owner" | \
-  jq -r '.[] | "\(.full_name) | \(.language // "-") | \(.private | tostring) | \(.stargazers_count) | \(.description // "-")"'
-
-# 获取组织仓库（需要是组织成员）
-for org in org1 org2 org3; do
-  curl -s -H "Authorization: token $GITHUB_TOKEN" \
-    "https://api.github.com/orgs/$org/repos?per_page=100" | \
-    jq -r '.[] | "\(.full_name) | \(.language // "-") | \(.private | tostring) | \(.stargazers_count) | \(.description // "-")"'
-done
-```
-
-#### 3.2 Gitee 仓库
-
-```bash
-# 获取用户自己的仓库
-curl -s -H "Authorization: token $GITEE_TOKEN" \
-  "https://gitee.com/api/v5/users/用户名/repos?per_page=100" | \
-  jq -r '.[] | "\(.full_name) | \(.language // "-") | \(.private | tostring) | \(.description // "-")"'
-
-# 获取组织仓库
-for org in org1 org2 org3; do
-  curl -s -H "Authorization: token $GITEE_TOKEN" \
-    "https://gitee.com/api/v5/orgs/$org/repos?per_page=100" | \
-    jq -r '.[] | "\(.full_name) | \(.language // "-") | \(.private | tostring) | \(.description // "-")"'
-done
-```
-
-### 4. 组织仓库列表
-
-#### 4.1 常见组织
-
-**GitHub:**
-- `dvlproad` - 主用户
-- `dvlpCI` - CI脚本
-- `dvlpCrack` - 逆向
-- `dvlpFork` - Fork仓库
-- `luckincoffee-app` - 瑞幸项目
-
-**Gitee:**
-- `dvlproad` - 主用户
-- `dvlpAppModule` - App模块
-- `dvlpFeatureModule` - 功能模块
-- `dvlpCI` - CI脚本
-- `dvlpBridgeModule` - 桥接模块
-- `dvlpApi` - API
-- `dvlpPublic` - 公共
-- `dvlpMedia` - 媒体
-- `dvlpPrivateForever` - 私有永久
-- `dvlpteam` - 团队
-- `aliroad` - 阿里
-
-### 5. 分类原则
-
-#### 5.1 核心原则
+#### 4.1 核心原则
 
 1. **按用途分类**：按仓库的实际用途分类，而非按语言或平台分类
 2. **唯一位置**：每个仓库只出现在一个最合适的位置，不要重复
 3. **同级分类**：同一层级的分类应该是平行的概念
 
-#### 5.2 子分类细分
+#### 4.2 子分类细分
 
 同类仓库可再细分子分类：
 
 - **基础/常见/其他**：如 App模块
 - **视频/图片/图表/摄像头**：如 媒体相关
 
-### 6. 推荐分类体系
+### 5. 推荐分类体系
 
 ```
 模板Demo
@@ -194,9 +86,9 @@ SDK
 其他
 ```
 
-### 7. Markdown 格式
+### 6. Markdown 格式
 
-#### 7.1 表格列顺序
+#### 6.1 表格列顺序
 
 | 仓库名 | 描述 | 来源 | 组织 | 可见 | 语言 | Stars |
 |--------|------|------|------|-----------|------|------|
@@ -205,7 +97,7 @@ SDK
 - 来源：GitHub / Gitee
 - 可见：公有 / 私有
 
-#### 7.2 文档模板
+#### 6.2 文档模板
 
 ```markdown
 ---
@@ -230,6 +122,119 @@ tags:
 | 仓库名 | 描述 | 来源 | 组织 | 可见 | 语言 | Stars |
 |--------|------|------|------|-----------|------|------|
 | [仓库名](链接) | 描述内容 | GitHub | dvlproad | 公有 | Objective-C | 0 |
+```
+
+
+
+## 一、获取 Github 的所有 repos 
+
+### 1. 获取 GitHub Token
+
+- 优先使用环境变量 `GITHUB_TOKEN` 的值
+- 如果没有，尝试使用 `gh auth token`
+- 如果都没有，请求用户从 https://github.com/settings/tokens 获取 Token
+
+```bash
+# 查看本地 Token
+gh auth token
+```
+
+### 2. 组织仓库列表
+
+- `dvlproad` - 主用户
+- `dvlpCI` - CI脚本
+- `dvlpCrack` - 逆向
+- `dvlpFork` - Fork仓库
+- `luckincoffee-app` - 瑞幸项目
+
+### 3. GitHub 仓库
+
+```bash
+# 获取用户自己的仓库（公开）
+curl -s -H "Authorization: token $GITHUB_TOKEN" \
+  "https://api.github.com/user/repos?per_page=100&sort=updated" | \
+  jq -r '.[] | "\(.full_name) | \(.language // "-") | \(.private | tostring) | \(.stargazers_count) | \(.description // "-")"'
+
+# 获取用户自己的仓库（所有，包括私有）
+curl -s -H "Authorization: token $GITHUB_TOKEN" \
+  "https://api.github.com/user/repos?per_page=100&sort=updated&affiliation=owner" | \
+  jq -r '.[] | "\(.full_name) | \(.language // "-") | \(.private | tostring) | \(.stargazers_count) | \(.description // "-")"'
+
+# 获取组织仓库（需要是组织成员）
+for org in org1 org2 org3; do
+  curl -s -H "Authorization: token $GITHUB_TOKEN" \
+    "https://api.github.com/orgs/$org/repos?per_page=100" | \
+    jq -r '.[] | "\(.full_name) | \(.language // "-") | \(.private | tostring) | \(.stargazers_count) | \(.description // "-")"'
+done
+```
+
+## 二、获取 Gitee 的所有 repos 的方法
+
+**详见 [gitee_repos_all.sh](./scripts/gitee_repos_all.sh) **
+
+### 1. 获取 Gitee OAuth Token
+
+Gitee 需要通过 OAuth 获取 Token：
+
+#### 1.1 获取 Client ID 和 Client Secret
+
+用户需要在 https://gitee.com/oauth/applications 创建一个 OAuth 应用：
+
+- 应用名称：任意（如 opencode）
+- 应用主页：任意（如 `https://example.com`）
+- Redirect URI：`https://example.com/callback`
+- 权限：需要 `projects` 和 `groups`
+
+#### 1.2 生成授权链接
+
+```bash
+CLIENT_ID="你的Client_ID"
+REDIRECT_URI="https://example.com/callback"
+echo "请访问以下链接授权："
+echo "https://gitee.com/oauth/authorize?client_id=$CLIENT_ID&redirect_uri=$REDIRECT_URI&response_type=code&scope=projects+groups"
+```
+
+#### 1.3 获取 Access Token
+
+用户授权后会跳转到 `https://example.com/callback?code=xxx`，提取 `code=` 后面的值：
+
+```bash
+curl -X POST "https://gitee.com/oauth/token" \
+  -d "grant_type=authorization_code" \
+  -d "code=刚才获取的code" \
+  -d "client_id=$CLIENT_ID" \
+  -d "client_secret=$CLIENT_SECRET" \
+  -d "redirect_uri=$REDIRECT_URI"
+```
+
+返回格式：
+
+```json
+{"access_token":"xxx","token_type":"bearer","expires_in":86400,"refresh_token":"xxx","scope":"user_info projects groups","created_at":xxx}
+```
+
+### 2. 获取所有组织
+
+获取Gitee用户dvlproad的所有组织
+
+```shell
+curl -s https://gitee.com/api/v5/users/dvlproad/orgs | jq '.'
+```
+
+### 3. 获取仓库列表
+
+```bash
+# 获取用户自己的仓库
+curl -s -H "Authorization: token $GITEE_TOKEN" \
+  "https://gitee.com/api/v5/users/用户名/repos?per_page=100" | \
+  jq -r '.[] | "\(.full_name) | \(.language // "-") | \(.private | tostring) | \(.description // "-")"'
+
+# 获取组织仓库
+for org in org1 org2 org3; do
+  curl -s -H "Authorization: token $GITEE_TOKEN" \
+    "https://gitee.com/api/v5/orgs/$org/repos?per_page=100" | \
+    jq -r '.[] | "\(.full_name) | \(.language // "-") | \(.private | tostring) | \(.description // "-")"'
+done
 ```
 
 ## 输出文件
