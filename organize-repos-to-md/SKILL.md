@@ -23,6 +23,24 @@ description: 整理 GitHub 和 Gitee 仓库列表为分类文档，保存为 Mar
 
 ### 3、整合所有json文件
 
+#### 3.2、Gitee 中的某个 repo
+
+以 `UIKit-EffectBaseUI-iOS` 为例，它的仓库名是 `name` 部分，链接是 `html_url`
+
+```json
+	{
+    "id": 14196705,
+    "path": "UIKit-EffectBaseUI-iOS",
+    "name": "001-UIKit-EffectBaseUI-iOS",
+    "description": "含效果的baseUI：数字滚动、跑马灯等",
+    "private": true,
+    "public": false,
+    "html_url": "https://gitee.com/dvlproad/UIKit-EffectBaseUI-iOS.git"
+  }
+```
+
+
+
 ### 4. 分类原则
 
 #### 4.1 核心原则
