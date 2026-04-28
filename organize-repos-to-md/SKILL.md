@@ -23,6 +23,21 @@ description: 整理 GitHub 和 Gitee 仓库列表为分类文档，保存为 Mar
 
 ### 3、整合所有json文件
 
+#### 3.1、Github 中的某个 repo
+
+以 `001-UIKit-CQDemo-iOS` 为例，它的仓库名是 `name` 部分，链接是 `html_url`
+
+```json
+	{
+    "id": 252917475,
+    "name": "001-UIKit-CQDemo-iOS",
+    "private": false,
+    "html_url": "https://github.com/dvlproad/001-UIKit-CQDemo-iOS",
+    "description": "a template demo",
+    "org": "dvlproad"
+  }
+```
+
 #### 3.2、Gitee 中的某个 repo
 
 以 `UIKit-EffectBaseUI-iOS` 为例，它的仓库名是 `name` 部分，链接是 `html_url`
@@ -144,7 +159,9 @@ tags:
 
 
 
-## 一、获取 Github 的所有 repos 
+## 一、获取 Github 的所有 repos
+
+**详见 [github_repos_all.sh](./scripts/github_repos_all.sh) **
 
 ### 1. 获取 GitHub Token
 
@@ -157,13 +174,16 @@ tags:
 gh auth token
 ```
 
-### 2. 组织仓库列表
+### 2. 获取所有组织
 
-- `dvlproad` - 主用户
-- `dvlpCI` - CI脚本
-- `dvlpCrack` - 逆向
-- `dvlpFork` - Fork仓库
-- `luckincoffee-app` - 瑞幸项目
+获取Github用户dvlproad的所有组织
+
+```shell
+GITHUB_TOKEN=ghp_xxx
+curl -s -H "Authorization: token $GITHUB_TOKEN" \
+  "https://api.github.com/user/orgs" | \
+  jq -r '.[] | "\(.login) | \(.description // "-")"'
+```
 
 ### 3. GitHub 仓库
 
