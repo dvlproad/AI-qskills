@@ -41,6 +41,7 @@ graph LR
 | [organize-code-to-md](./organize-code-to-md) | 整理代码目录结构 | "帮我理下有关 XXX" | [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
 | [organize-md-to-md](./organize-md-to-md) | 整理文档关系/生成图谱 | "整理文档关系" | |
 | [organize-repos-to-md](./organize-repos-to-md) | 整理仓库列表为分类文档 | "整理仓库" | 项目列表.md |
+| [organize-pod-to-md](./organize-pod-to-md) | 整理 CocoaPods Pod 列表，匹配到项目列表 | "整理pod" | github_pod_all.md |
 
 ---
 
@@ -110,9 +111,11 @@ Fetch and follow instructions from https://raw.githubusercontent.com/dvlproad/AI
 ### 方式二：手动软链接（简单）
 
 ```bash
-注意：原文件不能使用相对路径
+# 注意：原文件不能使用相对路径，会导致无法正确链接，及显示原身失败，必须使用绝对路径
+# 注意：原文件不能使用相对路径，会导致无法正确链接，及显示原身失败，必须使用绝对路径
+# 注意：原文件不能使用相对路径，会导致无法正确链接，及显示原身失败，必须使用绝对路径
 
-# 克隆仓库后链接整个 AI-qskills 目录（使用绝对路径）
+# 克隆仓库后链接整个 AI-qskills 目录（必须使用绝对路径）
 ln -s "/Users/用户名/Project/AI/AI-qskills" ~/.config/opencode/skills/ai-qskills
 
 # 或者链接单个 skill
@@ -149,6 +152,9 @@ description: |
 ## 版本记录
 
 更多版本记录想看每个 SKILL 内部的版本记录
+
+### 0.0.7 (2026-05-10)
+- 新增 [organize-pod-to-md](./organize-pod-to-md): 整理自己的公有和私有 CocoaPods 列表为 Markdown 文档，并匹配到项目列表 md 中
 
 ### 0.0.6 (2026-04-25)
 - 新增 [organize-repos-to-md](./organize-repos-to-md) skill：整理 GitHub 和 Gitee 仓库列表为分类文档
