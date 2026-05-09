@@ -185,20 +185,21 @@ with open(out_json, 'w') as f:
 # Output MD
 with open(out_md, 'w') as f:
     f.write('# GitHub Pod All\n\n')
-    f.write('| Pod | Version | Git URL | Source | Visibility | Language |\n')
-    f.write('| --- | ------- | ------- | ------ | ---------- | -------- |\n')
+    f.write('| Pod | Summary | Version | Git URL | Source | Visibility | Language |\n')
+    f.write('| --- | ------- | ------- | ------- | ------ | ---------- | -------- |\n')
     for d in merged:
         pod = d['pod']
         ver = d['version']
         git = d['git']
+        summary = d.get('summary', '').replace('|', '\\|')
         src = d['source']
         vis = d['visibility']
         lang = d['language']
         if git == 'N/A':
-            f.write(f'| {pod} | {ver} | N/A | {src} | {vis} | {lang} |\n')
+            f.write(f'| {pod} | {summary} | {ver} | N/A | {src} | {vis} | {lang} |\n')
         else:
             repo = git.rstrip('/').split('/')[-1].replace('.git', '')
-            f.write(f'| {pod} | {ver} | [{repo}]({git}) | {src} | {vis} | {lang} |\n')
+            f.write(f'| {pod} | {summary} | {ver} | [{repo}]({git}) | {src} | {vis} | {lang} |\n')
 
 print(f'Saved: {os.path.abspath(out_md)}')
 print(f'Saved: {os.path.abspath(out_json)}')

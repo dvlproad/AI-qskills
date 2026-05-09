@@ -44,6 +44,8 @@ for p in pods:
         p.get('language', '')
     ))
 
+matched_urls = set()
+
 def find_pods_for_repo(repo_url):
     norm = norm_url(repo_url)
     matched = pod_map.get(norm, [])
@@ -53,7 +55,10 @@ def find_pods_for_repo(repo_url):
             key2 = re.sub(r'^https?://', '', key)
             if norm2 == key2 or norm2 in key:
                 matched = pod_map[key]
-                break
+                matched_urls.add(key)
+                return matched
+    if matched:
+        matched_urls.add(norm)
     return matched
 
 def is_pod_table_header(line):
@@ -66,11 +71,29 @@ with open(repos_md) as f:
     lines = f.readlines()
 
 # Pre-process: parse old Pod tables to extract row order, then strip them
-ordered_pods = {}  # repo_name -> [pod_name, ...] preserving user's order
+ordered_rows = []  # [(repo_name, pod_name)] preserving user's exact row order
 clean_lines = []
 i = 0
 while i < len(lines):
     line = lines[i]
+    if re.match(r'^##\s+未匹配的 Pod', line):
+        i += 1
+        while i < len(lines) and re.match(r'^\s*$', lines[i]):
+            i += 1
+        if i < len(lines) and ('| 开发的Pod |' in lines[i] or '| Pod |' in lines[i]):
+            i += 1  # skip header
+            if i < len(lines) and is_table_separator(lines[i]):
+                i += 1
+            while i < len(lines):
+                l = lines[i]
+                if re.match(r'^\|', l):
+                    i += 1
+                    continue
+                if re.match(r'^\s*$', l):
+                    i += 1
+                    continue
+                break
+        continue
     if 'Pod 情况：' in line:
         i += 1
         while i < len(lines) and re.match(r'^\s*$', lines[i]):
@@ -89,10 +112,7 @@ while i < len(lines):
                     if len(parts) >= 3:
                         repo_name = parts[1]
                         pod_name = parts[2]
-                        if repo_name not in ordered_pods:
-                            ordered_pods[repo_name] = []
-                        if pod_name not in ordered_pods[repo_name]:
-                            ordered_pods[repo_name].append(pod_name)
+                        ordered_rows.append((repo_name, pod_name))
                     i += 1
                     continue
                 if re.match(r'^\s*$', l):
@@ -115,26 +135,28 @@ def flush_chunk():
     if not chunk_lines:
         return
 
-    all_pods = []
+    # Build lookup: (display_name, pod_name) -> full row
+    repo_match = {}
     for repo_name, repo_url in chunk_repos:
         matched = find_pods_for_repo(repo_url)
-        if repo_name in ordered_pods:
-            existing = ordered_pods[repo_name]
-            existing_set = set(existing)
-            matched_dict = {m[0]: m for m in matched}
-            ordered = []
-            for name in existing:
-                if name in matched_dict:
-                    ordered.append(matched_dict[name])
-            new_pods = [m for m in matched if m[0] not in existing_set]
-            new_pods.sort(key=lambda x: x[0])
-            ordered.extend(new_pods)
-            for pod_info in ordered:
-                all_pods.append((repo_name,) + pod_info)
-        else:
-            matched.sort(key=lambda x: x[0])
-            for pod_info in matched:
-                all_pods.append((repo_name,) + pod_info)
+        for pod_info in matched:
+            repo_match[(repo_name, pod_info[0])] = (repo_name,) + pod_info
+
+    all_pods = []
+    seen = set()
+
+    # Output in user's original row order
+    for rn, pn in ordered_rows:
+        key = (rn, pn)
+        if key in repo_match:
+            all_pods.append(repo_match[key])
+            seen.add(key)
+
+    # Append new pods (not in ordered_rows) sorted by name
+    remaining = sorted(repo_match.items(), key=lambda x: (x[0][0], x[0][1]))
+    for key, row in remaining:
+        if key not in seen:
+            all_pods.append(row)
 
     out.extend(chunk_lines)
 
@@ -175,6 +197,26 @@ for line in lines:
         chunk_lines.append(line)
 
 flush_chunk()
+
+# Append unmatched pods (pod not matched to any repo)
+unmatched = []
+for key, pods in pod_map.items():
+    if key not in matched_urls:
+        for pod_info in pods:
+            unmatched.append((key,) + pod_info)
+
+if unmatched:
+    out.append('\n## 未匹配的 Pod\n\n')
+    out.append('| Pod | Summary | Version | Git URL | Source | Visibility | Language |\n')
+    out.append('| --- | ------- | ------- | ------- | ------ | ---------- | -------- |\n')
+    unmatched.sort(key=lambda x: (x[1], x[0]))
+    for key, pod, ver, summary, source, visibility, language in unmatched:
+        esc_summary = summary.replace('|', '\\|')
+        if key == 'N/A':
+            out.append(f'| {pod} | {esc_summary} | {ver} | N/A | {source} | {visibility} | {language} |\n')
+        else:
+            repo = key.rstrip('/').split('/')[-1].replace('.git', '')
+            out.append(f'| {pod} | {esc_summary} | {ver} | [{repo}]({key}) | {source} | {visibility} | {language} |\n')
 
 sys.stdout.writelines(out)
 PYEOF
