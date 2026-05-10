@@ -41,7 +41,7 @@ graph LR
 | [organize-code-to-md](./organize-code-to-md) | 整理代码目录结构 | "帮我理下有关 XXX" | [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
 | [organize-md-to-md](./organize-md-to-md) | 整理文档关系/生成图谱 | "整理文档关系" | |
 | [organize-repos-to-md](./organize-repos-to-md) | 整理仓库列表为分类文档 | "整理仓库" | 项目列表.md |
-| [organize-pod-to-md](./organize-pod-to-md) | 整理 CocoaPods Pod 列表，匹配到项目列表 | "整理pod" | github_pod_all.md |
+| [organize-pod-to-md](./organize-pod-to-md) | 整理 CocoaPods Pod 列表，匹配到项目列表 | "整理pod" | pods_all.md |
 
 ---
 

@@ -231,7 +231,7 @@ API项目
 | `language` | 编程语言 |
 | `stars` | star 数 |
 
-`repos.json` 中每个 repo 的 `url` 用于和 `organize-pod-to-md` 的 `github_pod_all.json` 做 `git URL` 匹配，决定 Pod 归属。
+`repos.json` 中每个 repo 的 `url` 用于和 `organize-pod-to-md` 的 `pods_all.json` 做 `git URL` 匹配，决定 Pod 归属。
 
 ### 8. Markdown 格式
 
@@ -414,14 +414,14 @@ done
 
 ```
 repos.json（分类 + repo 数据）
-github_pod_all.json（pod 数据）
+pods_all.json（pod 数据）
         ↓
 pod_render_final.sh（按 repo url 匹配 pod）
         ↓
 dvlproad项目列表.md（最终产物，含 Pod 表 + 子库详情）
 ```
 
-`repos.json` 中每个 repo 的 `url` 字段用于和 `github_pod_all.json` 做 git URL 匹配，决定该 repo 关联了哪些 Pod。
+`repos.json` 中每个 repo 的 `url` 字段用于和 `pods_all.json` 做 git URL 匹配，决定该 repo 关联了哪些 Pod。
 
 ## 注意事项
 

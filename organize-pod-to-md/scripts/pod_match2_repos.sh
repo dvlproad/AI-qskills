@@ -17,7 +17,7 @@ while [ $# -gt 0 ]; do
 done
 
 REPOS_MD="${1}"
-POD_JSON="${2:-$(pwd)/github_pod_all.json}"
+POD_JSON="${2:-$(pwd)/pods_all.json}"
 
 [ -z "$REPOS_MD" ] && { echo "用法: sh pod_match2_repos.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 1; }
 [ ! -f "$REPOS_MD" ] && { echo "文件不存在: $REPOS_MD"; exit 1; }

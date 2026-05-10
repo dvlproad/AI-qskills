@@ -21,8 +21,8 @@ Pod 数据渲染工具 — 可独立使用，也可被其他脚本 import
   python3 pod_to_md.py --help                               # 帮助信息
 
 示例:
-  # 生成总览页面（github_pod_all.json 每条已含 subspecs 字段）
-  cat github_pod_all.json | python3 pod_to_md.py --type overview > result.md
+  # 生成总览页面（pods_all.json 每条已含 subspecs 字段）
+  cat pods_all.json | python3 pod_to_md.py --type overview > result.md
 
   # 单个对象也支持（自动包成数组处理）
   echo '{"pod":"Test","version":"1.0","source":"CocoaPods","visibility":"公有","language":"OC","subspec_count":0,"subspecs":[]}' | python3 pod_to_md.py --type overview
@@ -60,7 +60,7 @@ def _git_link(url):
 
 def render_overview(pods, subspec_min_count=None, always_show_subspecs=None):
     """
-    渲染总览页面（github_pod_all.md）
+    渲染总览页面（pods_all.md）
     pods: list[dict]，每项需含 pod/version/summary/git/source/visibility/language/subspec_count/subspecs
     subspec_min_count: 子库详情展示阈值，为 None 则使用 SUBSPEC_MIN_COUNT
     always_show_subspecs: 总是展示子库详情的 Pod 列表，为 None 则使用 ALWAYS_SHOW_SUBSPECS

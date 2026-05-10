@@ -71,7 +71,7 @@ sh organize-pod-to-md/scripts/pod_match2_repos.sh --subspec-min-count 1 --separa
 
 ## 表格格式
 
-### github_pod_all.md
+### pods_all.md
 
 ```markdown
 | Pod | Version | Git URL | Source | Visibility | Language |
@@ -112,7 +112,7 @@ sh organize-pod-to-md/scripts/pod_match2_repos.sh --subspec-min-count 1 --separa
 | 功能 | 说明 |
 |------|------|
 | 脚本路径 | `organize-pod-to-md/scripts/pod_match2_repos.sh` |
-| 输入 1 | `github_pod_all.json`（pod 数据） |
+| 输入 1 | `pods_all.json`（pod 数据） |
 | 输入 2 | 项目列表 md 文件（如 dvlproad项目列表.md） |
 | 匹配方式 | 按 git URL 归一化后匹配 |
 | 输出 | 在原始 md 中每个有 pod 的 section 后追加 Pod 情况表格（7 列） |
