@@ -82,13 +82,23 @@ with open(public_specs_path) as f:
         except:
             pass
 
-# For pods not found in trunk, try cocoapods repo with targeted lookup
-cocoapods_root = os.path.expanduser('~/.cocoapods/repos/cocoapods')
+# `pod trunk me` 有该 pod 但本地 trunk CDN 缓存里没有
+#（从未被任何项目的 pod install 拉取过，所以无缓存）。
+# 兜底方案：去完整 git clone 的 cocoapods 仓库 Specs/ 里查找。
+#
+# 目录结构：
+#   ~/.cocoapods/repos/cocoapods/Specs/{a}/{b}/{c}/{PodName}/
+#   不是 ~/.cocoapods/repos/cocoapods/{PodName}/  ← 原代码走的路径，永远查不到
+#
+# 用 find -maxdepth 4 搜索（Specs/{a}/{b}/{c}/{PodName}/ 共 4 层）。
+# depth 4 约有 ~10.6 万个 pod 目录，macOS 上每个 pod 约 ~0.2 秒。
+cocoapods_specs = os.path.expanduser('~/.cocoapods/repos/cocoapods/Specs')
 remaining = [n for n in public_pod_names if n not in public_specs]
-if remaining and os.path.isdir(cocoapods_root):
+if remaining and os.path.isdir(cocoapods_specs):
     for name in remaining:
-        pod_dir = os.path.join(cocoapods_root, name)
-        if not os.path.isdir(pod_dir):
+        with os.popen(f'find {cocoapods_specs} -maxdepth 4 -type d -name "{name}" -print -quit') as pipe:
+            pod_dir = pipe.read().strip()
+        if not pod_dir:
             continue
         versions = sorted(
             [d for d in os.listdir(pod_dir) if os.path.isdir(os.path.join(pod_dir, d))],
