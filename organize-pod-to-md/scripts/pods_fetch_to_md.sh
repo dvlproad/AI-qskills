@@ -106,7 +106,7 @@ python3 - "$OUT_JSON" "$OUT_MD" "$PUBLIC_LIST" "$PUBLIC_SPECS" "$PRIVATE_LIST" "
 # ---------- Python 数据采集 + 渲染 ----------
 import sys, json, os, re
 sys.path.insert(0, sys.argv[6])  # 添加 scripts 目录到 Python 路径
-from pod_data_render import render_overview  # 渲染模块（独立可用的库）
+from pod_to_md import render_overview  # 渲染模块（独立可用的库）
 
 out_json = sys.argv[1]
 out_md = sys.argv[2]
@@ -317,7 +317,7 @@ for key, data in private_specs.items():
 
 merged.sort(key=lambda x: x['pod'])
 
-# ---------- 输出 JSON（供 pod_match2_repos.sh / pod_data_render.py 使用）----------
+# ---------- 输出 JSON（供 pod_match2_repos.sh / pod_to_md.py 使用）----------
 if out_json:
     with open(out_json, 'w') as f:
         json.dump(merged, f, ensure_ascii=False, indent=2)

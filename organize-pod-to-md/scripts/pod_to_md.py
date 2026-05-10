@@ -15,17 +15,17 @@ Pod 数据渲染工具 — 可独立使用，也可被其他脚本 import
   subspecs        - 子库列表，每项 {"name": "...", "summary": "..."}
 
 用法:
-  cat data.json | python3 pod_render.py --type overview      # 总览表 + 子库信息
-  cat data.json | python3 pod_render.py --type project       # 项目内嵌 Pod 表
-  cat data.json | python3 pod_render.py --type unmatched     # 未匹配 Pod 表
-  python3 pod_render.py --help                               # 帮助信息
+  cat data.json | python3 pod_to_md.py --type overview      # 总览表 + 子库信息
+  cat data.json | python3 pod_to_md.py --type project       # 项目内嵌 Pod 表
+  cat data.json | python3 pod_to_md.py --type unmatched     # 未匹配 Pod 表
+  python3 pod_to_md.py --help                               # 帮助信息
 
 示例:
   # 生成总览页面（github_pod_all.json 每条已含 subspecs 字段）
-  cat github_pod_all.json | python3 pod_render.py --type overview > result.md
+  cat github_pod_all.json | python3 pod_to_md.py --type overview > result.md
 
   # 单个对象也支持（自动包成数组处理）
-  echo '{"pod":"Test","version":"1.0","source":"CocoaPods","visibility":"公有","language":"OC","subspec_count":0,"subspecs":[]}' | python3 pod_render.py --type overview
+  echo '{"pod":"Test","version":"1.0","source":"CocoaPods","visibility":"公有","language":"OC","subspec_count":0,"subspecs":[]}' | python3 pod_to_md.py --type overview
 
   # 引用方式使用
   from pod_render import render_project_table

@@ -28,7 +28,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 python3 - "$REPOS_MD" "$POD_JSON" "$SCRIPT_DIR" "$SEPARATE" "$SUBSPEC_MIN_COUNT" "$ALWAYS_SHOW_SUBSPECS" > "$TMP" << 'PYEOF'
 import json, re, sys
 sys.path.insert(0, sys.argv[3])
-from pod_data_render import render_project_table, render_unmatched_table, render_subspec_inline
+from pod_to_md import render_project_table, render_unmatched_table, render_subspec_inline
 
 repos_md = sys.argv[1]
 pod_json = sys.argv[2]

@@ -391,20 +391,22 @@ done
 
 ## 输出文件
 
+建议都保存到 Hexo 博客目录：
+```
+/Users/qian/Project/CQBook/dvlproadHexo/source/_posts/管理相关/
+```
+
 ### repos.json（供 organize-pod-to-md 消费）
 
 ```
-/Users/qian/Project/AI/AI-qskills/repos.json
+/Users/qian/Project/dvlproadHexo/source/_posts/管理相关/项目列表/repos.json
 ```
 
 ### dvlproad项目列表.md（可直接查看）
 
-建议保存到 Hexo 博客目录：
 ```
-/Users/lichaoqian/Project/CQBook/dvlproadHexo/source/_posts/管理相关/
+/Users/qian/Project/dvlproadHexo/source/_posts/管理相关/项目列表/dvlproad项目列表.md
 ```
-
-> 当前实际路径：`/Users/qian/Project/dvlproadHexo/source/_posts/管理相关/项目列表/dvlproad项目列表.md`
 
 ## 与 organize-pod-to-md 联动
 
