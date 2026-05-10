@@ -1,6 +1,9 @@
 #!/bin/sh
-# pods_fetch_to_md.sh — 采集指定 CocoaPods repo 的 Pod，输出 JSON + Markdown
+# pods_fetch_to_md.sh — 采集指定 CocoaPods repo 的 Pod 数据，可顺便输出 JSON/Markdown
 #
+# 主职是采集（从 trunk、CDN 缓存、私有 specs 获取 pod 数据并去重合并），
+# 输出 Markdown 时底层调用 pod_to_md.py 渲染。
+
 # 用法:
 #   sh pods_fetch_to_md.sh --repos <repo1,repo2,...> --json path [--md path]
 #   sh pods_fetch_to_md.sh --repos <repo1,repo2,...> --md path [--json path]
