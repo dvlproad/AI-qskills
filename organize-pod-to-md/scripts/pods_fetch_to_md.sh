@@ -328,7 +328,7 @@ for key, data in private_specs.items():
 
 merged.sort(key=lambda x: x['pod'])
 
-# ---------- 输出 JSON（供 repos_append_pods.sh / pod_to_md.py 使用）----------
+# ---------- 输出 JSON（供 repos_md_append_pods.sh / pod_to_md.py 使用）----------
 if out_json:
     with open(out_json, 'w') as f:
         json.dump(merged, f, ensure_ascii=False, indent=2)

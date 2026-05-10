@@ -47,13 +47,13 @@ sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk,dvlproad --json 
 ### 2. 将 Pod 匹配到项目列表
 
 ```bash
-sh organize-repos-to-md/scripts/repos_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md路径>
+sh organize-repos-to-md/scripts/repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md路径>
 ```
 
 例如：
 
 ```bash
-sh organize-repos-to-md/scripts/repos_append_pods.sh --subspec-min-count 1 --separate-subspecs /path/to/dvlproad项目列表.md
+sh organize-repos-to-md/scripts/repos_md_append_pods.sh --subspec-min-count 1 --separate-subspecs /path/to/dvlproad项目列表.md
 ```
 
 参数说明：
@@ -107,11 +107,11 @@ sh organize-repos-to-md/scripts/repos_append_pods.sh --subspec-min-count 1 --sep
 | 去重规则 | 同一 pod 在公有和私有都存在 → 标记为 CocoaPods / 公有 |
 | 性能 | 公有约 60 个 pod，私有约 128 个 pod，合计约 2-3 分钟 |
 
-### repos_append_pods.sh
+### repos_md_append_pods.sh
 
 | 功能 | 说明 |
 |------|------|
-| 脚本路径 | `organize-repos-to-md/scripts/repos_append_pods.sh` |
+| 脚本路径 | `organize-repos-to-md/scripts/repos_md_append_pods.sh` |
 | 输入 1 | `pods_all.json`（pod 数据） |
 | 输入 2 | 项目列表 md 文件（如 dvlproad项目列表.md） |
 | 匹配方式 | 按 git URL 归一化后匹配 |
@@ -123,7 +123,7 @@ sh organize-repos-to-md/scripts/repos_append_pods.sh --subspec-min-count 1 --sep
 2. **需要 trunk 登录** — 必须 `pod trunk me` 能正常返回 pod 列表
 3. **私有 repo 需要已 clone** — `gitee-dvlproad-dvlproadspecs` 必须在 `~/.cocoapods/repos/` 中存在
 4. **避免网络超时** — `pod trunk me` 可能需要代理，可设置 `https_proxy=http://127.0.0.1:7897`
-5. **匹配数据源** — 必须先运行 `pods_fetch_to_md.sh` 生成 JSON，再运行 `repos_append_pods.sh`
+5. **匹配数据源** — 必须先运行 `pods_fetch_to_md.sh` 生成 JSON，再运行 `repos_md_append_pods.sh`
 
 ## 版本记录
 
@@ -136,4 +136,4 @@ sh organize-repos-to-md/scripts/repos_append_pods.sh --subspec-min-count 1 --sep
 
 ### 0.0.1 (2026-05-09): 初始版本
 - `pods_fetch_to_md.sh`: 获取所有 pod 数据，输出 md + json
-- `repos_append_pods.sh`: 将 pod 按 git URL 匹配到项目列表，在每个有 pod 的 section 后追加 Pod 情况表格，主表不改
+- `repos_md_append_pods.sh`: 将 pod 按 git URL 匹配到项目列表，在每个有 pod 的 section 后追加 Pod 情况表格，主表不改

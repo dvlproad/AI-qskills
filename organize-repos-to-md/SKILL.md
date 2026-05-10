@@ -410,19 +410,19 @@ done
 
 ## 与 organize-pod-to-md 联动
 
-`repos_all.json` 定义分类体系，`pods_all.json` 提供 pod 数据，通过 `repos_append_pods.sh` 将 pod 匹配到项目列表：
+`repos_all.json` 定义分类体系，`pods_all.json` 提供 pod 数据，通过 `repos_md_append_pods.sh` 将 pod 匹配到项目列表：
 
 ```
 repos_all.json（分类 + repo 数据）
 pods_all.json（pod 数据）
         ↓
-repos_append_pods.sh（按 repo url 匹配 pod 并追加到项目列表 md）
+repos_md_append_pods.sh（按 repo url 匹配 pod 并追加到项目列表 md）
         ↓
 dvlproad项目列表.md（最终产物，含 Pod 表 + 子库详情）
 ```
 
-- `repos_append_pods.sh` 位于 `organize-repos-to-md/scripts/repos_append_pods.sh`
-- 用法: `sh repos_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]`
+- `repos_md_append_pods.sh` 位于 `organize-repos-to-md/scripts/repos_md_append_pods.sh`
+- 用法: `sh repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]`
 - `repos_all.json` 中每个 repo 的 `url` 字段用于和 `pods_all.json` 做 git URL 匹配，决定该 repo 关联了哪些 Pod。
 
 ## 注意事项

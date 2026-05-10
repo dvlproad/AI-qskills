@@ -1,6 +1,6 @@
 #!/bin/sh
-# repos_append_pods.sh - 在每个有 pod 的 section 下按主表追加 Pod 情况表格
-# 用法: sh repos_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]
+# repos_md_append_pods.sh - 在每个有 pod 的 section 下按主表追加 Pod 情况表格
+# 用法: sh repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]
 
 SEPARATE=false
 SUBSPEC_MIN_COUNT=""       # "" → None → 用 Python 默认值(2)
@@ -10,7 +10,7 @@ while [ $# -gt 0 ]; do
         --subspec-min-count) SUBSPEC_MIN_COUNT="$2"; shift 2 ;;
         --subspec-force-show) ALWAYS_SHOW_SUBSPECS="$2"; shift 2 ;;
         --separate-subspecs) SEPARATE=true; shift ;;
-        -h|--help) echo "用法: sh repos_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 0 ;;
+        -h|--help) echo "用法: sh repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 0 ;;
         --) shift; break ;;
         *) break ;;
     esac
@@ -19,7 +19,7 @@ done
 REPOS_MD="${1}"
 POD_JSON="${2:-$(pwd)/pods_all.json}"
 
-[ -z "$REPOS_MD" ] && { echo "用法: sh repos_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 1; }
+[ -z "$REPOS_MD" ] && { echo "用法: sh repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 1; }
 [ ! -f "$REPOS_MD" ] && { echo "文件不存在: $REPOS_MD"; exit 1; }
 [ ! -f "$POD_JSON" ] && { echo "文件不存在: $POD_JSON，请先运行 pods_fetch_to_md.sh"; exit 1; }
 
