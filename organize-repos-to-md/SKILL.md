@@ -1,6 +1,6 @@
 ---
 name: organize-repos-to-md
-description: 整理 GitHub 和 Gitee 仓库列表为分类文档，保存为 Markdown 文件
+description: 整理 GitHub 和 Gitee 仓库列表为分类 JSON，也可直接生成 Markdown 文档
 ---
 
 # organize-repos-to-md
@@ -21,11 +21,58 @@ description: 整理 GitHub 和 Gitee 仓库列表为分类文档，保存为 Mar
 
 ### 2、获取 Gitee 的所有 repos 
 
-### 3、整合所有json文件
+### 3、按分类体系归类 → 输出 repos.json
 
-#### 3.1、Github 中的某个 repo
+从 GitHub/Gitee API 获取到的原始 JSON 数据（参见"一、获取 Github 的所有 repos"和"二、获取 Gitee 的所有 repos"），按"推荐分类体系"归类后输出 `repos.json`。
 
-以 `001-UIKit-CQDemo-iOS` 为例，它的仓库名是 `name` 部分，链接是 `html_url`
+#### 3.1、repos.json 格式
+
+```json
+[
+    {
+        "type": "UI控件",
+        "children": [
+            {
+                "type": "基础UI",
+                "children": [
+                    {
+                        "type": "CJUIKit",
+                        "intro": "CJUIKit 是每个APP都肯定能用到的基础UI控件，该系列包含多个版本和关联项目",
+                        "values": [
+                            {
+                                "repo_name": "CJUIKit",
+                                "url": "https://github.com/dvlproad/CJUIKit",
+                                "description": "每个APP都肯定能用到的基础UI控件",
+                                "source": "GitHub",
+                                "org": "dvlproad",
+                                "visibility": "公有",
+                                "language": "Objective-C",
+                                "stars": 0
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]
+```
+
+- `type` — 分类名，对应 markdown heading
+- `intro` — 可选，分类下的引言/说明文字
+- `values` — 该分类下的 repo 列表
+- `children` — 可选，嵌套子分类
+- `repo_name` — 仓库显示名
+- `url` — 仓库链接
+- `source` — GitHub / Gitee
+- `org` — 所属组织
+- `visibility` — 公有 / 私有
+- `language` — 编程语言
+- `stars` — star 数
+
+#### 3.2、Github 中的某个 repo（原始 API 数据）
+
+以 `001-UIKit-CQDemo-iOS` 为例：
 
 ```json
 	{
@@ -38,7 +85,7 @@ description: 整理 GitHub 和 Gitee 仓库列表为分类文档，保存为 Mar
   }
 ```
 
-#### 3.2、Gitee 中的某个 repo
+#### 3.3、Gitee 中的某个 repo（原始 API 数据）
 
 以 `UIKit-EffectBaseUI-iOS` 为例，它的仓库名是 `name` 部分，链接是 `html_url`
 
@@ -54,74 +101,141 @@ description: 整理 GitHub 和 Gitee 仓库列表为分类文档，保存为 Mar
   }
 ```
 
+### 4. 可选：生成 Markdown
 
+repos.json 生成后，可按第 8 节的 Markdown 格式渲染为项目列表文档。
 
-### 4. 分类原则
+遍历 repos.json，按 type 深度输出 heading → intro → values 表格，即可得到完整的 dvlproad项目列表.md。
 
-#### 4.1 核心原则
+### 5. 分类原则
+
+#### 5.1 核心原则
 
 1. **按用途分类**：按仓库的实际用途分类，而非按语言或平台分类
 2. **唯一位置**：每个仓库只出现在一个最合适的位置，不要重复
 3. **同级分类**：同一层级的分类应该是平行的概念
 
-#### 4.2 子分类细分
+#### 5.2 子分类细分
 
 同类仓库可再细分子分类：
 
 - **基础/常见/其他**：如 App模块
 - **视频/图片/图表/摄像头**：如 媒体相关
 
-### 5. 推荐分类体系
+### 6. 推荐分类体系
 
 ```
+AI
+Book
 模板Demo
 初始化项目
+学习/验证Demo
+  设计模式
+  数据算法
+  项目优化
+  卡顿收集
+  响应式编程
+  其他学习（线程、模块化）
 UI控件
-  - 基础UI (CJUIKit系列)
-  - 弹窗UI
-  - 列表UI
-  - Banner控件
-  - 手势
+  基础UI
+    CJUIKit
+    BaseUIKit
+    BaseVCKit
+  弹窗UI（Popup、Overlay）
+    Popup
+    Overlay
+  下拉刷新、上拉加载、空白页
+  Image、TextInput
+  List、Search
+    列表相关
+    图片添加删除列表
+    搜索
+  Picker控件
+  Banner控件
+  Segmented
+  Guide
+  Line
+  CommonUI
+  其他UI控件
 网络请求
 数据存储
-API
+路由
+开发工具
+  环境切换
+  JS测试
+特效
+  手势
+  动画效果 Animation、Effect
 媒体相关
-  - 视频
-  - 图片
-  - 图表
-  - 摄像头
-动画效果
+  图片
+  视频
+  摄像头
+  图表
+视图元素
+数据万象
 调试监视
 埋点曝光
-设计模式
+国际化
+单元/自动化测试
 App功能
-  - 登录
-  - 分享
-  - 其他
+  登录
+  分享
+  桌面组件、扫一扫、地图等
 App模块
-  - 基础
-  - 常见
-  - 其他
+  基础
+  常见
+  Collect
+  其他
+App项目
+  TotalDemo
+  Demo
+  Widget
+  Card
+  Car
 推送通知
 后台任务
-响应式编程
-数据算法
-Web相关
-开发工具
-  - 环境切换
-工具脚本 (CI/CD)
-Homebrew
-逆向破解
-项目架构
-组件库
-SDK
+组件仓库
 跨平台框架
-其他
+逆向破解
+工具脚本 (CI/CD)
+  基础
+    其他
+  打包相关
+    分支信息
+    打包
+  commit信息
+  安装包优化
+  集成 ChatGPT 到 Discord
+Web项目
+API项目
+其他文档仓库
+组织汇总
 ```
 
-### 6. Markdown 格式
+### 7. JSON 输出
 
-#### 6.1 表格列顺序
+输出 `repos.json`，供 `organize-pod-to-md` 消费。JSON 结构参见 3.1 节，字段说明：
+
+| 字段 | 说明 |
+|------|------|
+| `type` | 分类名，对应 markdown heading |
+| `intro` | 可选，分类下的引言文字 |
+| `values` | repo 数组 |
+| `children` | 递归嵌套子分类 |
+| `repo_name` | 仓库显示名 |
+| `url` | 仓库链接 |
+| `description` | 仓库描述 |
+| `source` | GitHub / Gitee |
+| `org` | 所属组织 |
+| `visibility` | 公有 / 私有 |
+| `language` | 编程语言 |
+| `stars` | star 数 |
+
+`repos.json` 中每个 repo 的 `url` 用于和 `organize-pod-to-md` 的 `github_pod_all.json` 做 `git URL` 匹配，决定 Pod 归属。
+
+### 8. Markdown 格式
+
+#### 8.1 表格列顺序
 
 | 仓库名 | 描述 | 来源 | 组织 | 可见 | 语言 | Stars |
 |--------|------|------|------|-----------|------|------|
@@ -130,7 +244,7 @@ SDK
 - 来源：GitHub / Gitee
 - 可见：公有 / 私有
 
-#### 6.2 文档模板
+#### 8.2 文档模板
 
 ```markdown
 ---
@@ -277,10 +391,35 @@ done
 
 ## 输出文件
 
+### repos.json（供 organize-pod-to-md 消费）
+
+```
+/Users/qian/Project/AI/AI-qskills/repos.json
+```
+
+### dvlproad项目列表.md（可直接查看）
+
 建议保存到 Hexo 博客目录：
 ```
 /Users/lichaoqian/Project/CQBook/dvlproadHexo/source/_posts/管理相关/
 ```
+
+> 当前实际路径：`/Users/qian/Project/dvlproadHexo/source/_posts/管理相关/项目列表/dvlproad项目列表.md`
+
+## 与 organize-pod-to-md 联动
+
+`repos.json` 被 `organize-pod-to-md` 消费，流程如下：
+
+```
+repos.json（分类 + repo 数据）
+github_pod_all.json（pod 数据）
+        ↓
+pod_render_final.sh（按 repo url 匹配 pod）
+        ↓
+dvlproad项目列表.md（最终产物，含 Pod 表 + 子库详情）
+```
+
+`repos.json` 中每个 repo 的 `url` 字段用于和 `github_pod_all.json` 做 git URL 匹配，决定该 repo 关联了哪些 Pod。
 
 ## 注意事项
 
@@ -290,6 +429,10 @@ done
 4. **Stars 为空** - Gitee API 不返回 stars，可留空
 
 ## 版本记录
+
+### 0.0.3 (2026-05-10): 改为 JSON 输出
+- 产出物从纯 Markdown 改为 JSON（`repos.json`），也可直接生成 Markdown
+- 新增与 organize-pod-to-md 联动说明
 
 ### 0.0.2 (2026-04-26): 补充分类原则
 - 添加分类原则：按用途分类、每个仓库只出现一次
