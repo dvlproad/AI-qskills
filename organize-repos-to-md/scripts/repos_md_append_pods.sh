@@ -1,5 +1,6 @@
 #!/bin/sh
-# repos_md_append_pods.sh - 在每个有 pod 的 section 下按主表追加 Pod 情况表格
+# repos_md_append_pods.sh — 直接在 md 中按主表追加 Pod 表（面向生成）
+# 如需中间数据供后续渲染 md/html 等，请用 repos_json_append_pods.sh
 # 用法: sh repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]
 
 SEPARATE=false
@@ -29,17 +30,13 @@ python3 - "$REPOS_MD" "$POD_JSON" "$POD_SCRIPT_DIR" "$SEPARATE" "$SUBSPEC_MIN_CO
 import json, re, sys
 sys.path.insert(0, sys.argv[3])
 from pod_to_md import render_project_table, render_unmatched_table, render_subspec_inline
+from repo_find_pod import build_pod_map, find_pods_for_repo
 
 repos_md = sys.argv[1]
 pod_json = sys.argv[2]
-separate = sys.argv[4] == 'true'  # --separate-subspecs 开关
-subspec_min_count = int(sys.argv[5]) if sys.argv[5] else None  # --subspec-min-count 可选
-always_show_subspecs = sys.argv[6].split(',') if sys.argv[6] else None  # --subspec-force-show 可选
-
-def norm_url(url):
-    u = url.rstrip('/')
-    u = re.sub(r'\.git$', '', u)
-    return u
+separate = sys.argv[4] == 'true'
+subspec_min_count = int(sys.argv[5]) if sys.argv[5] else None
+always_show_subspecs = sys.argv[6].split(',') if sys.argv[6] else None
 
 def has_md_link(line):
     return re.match(r'^\|\s*\[([^\]]+)\]\(([^)]+)\)', line)
@@ -47,41 +44,8 @@ def has_md_link(line):
 with open(pod_json) as f:
     pods = json.load(f)
 
-pod_map = {}
-for p in pods:
-    git = p.get('git', 'N/A')
-    if git == 'N/A':
-        continue
-    norm = norm_url(git)
-    if norm not in pod_map:
-        pod_map[norm] = []
-    pod_map[norm].append({
-        'pod': p['pod'],
-        'version': p.get('version', 'N/A'),
-        'summary': p.get('summary', ''),
-        'source': p.get('source', ''),
-        'visibility': p.get('visibility', ''),
-        'language': p.get('language', ''),
-        'subspec_count': p.get('subspec_count', 0),
-        'subspecs': p.get('subspecs', []),
-    })
-
-matched_urls = set()
-
-def find_pods_for_repo(repo_url):
-    norm = norm_url(repo_url)
-    matched = pod_map.get(norm, [])
-    if not matched:
-        norm2 = re.sub(r'^https?://', '', norm)
-        for key in pod_map:
-            key2 = re.sub(r'^https?://', '', key)
-            if norm2 == key2 or norm2 in key:
-                matched = pod_map[key]
-                matched_urls.add(key)
-                return matched
-    if matched:
-        matched_urls.add(norm)
-    return matched
+pod_map = build_pod_map(pods)
+matched_all_urls = set()
 
 def is_pod_table_header(line):
     return '| 仓库名 | 开发的Pod |' in line
@@ -178,7 +142,8 @@ def flush_chunk():
     # 构建 dict 类型的匹配结果，每条含 repo_name 和所有 pod 字段
     repo_match = {}
     for repo_name, repo_url in chunk_repos:
-        matched = find_pods_for_repo(repo_url)
+        matched, added_urls = find_pods_for_repo(repo_url, pod_map)
+        matched_all_urls.update(added_urls)
         for pod_info in matched:
             repo_match[(repo_name, pod_info['pod'])] = {
                 'repo_name': repo_name,
@@ -238,7 +203,7 @@ flush_chunk()
 # 收集未匹配的 Pod（git 地址不在任何项目仓库列表中）
 unmatched = []
 for key, pods_list in pod_map.items():
-    if key not in matched_urls:
+    if key not in matched_all_urls:
         for pod_info in pods_list:
             unmatched.append({**pod_info, 'git': key})
 

@@ -410,20 +410,98 @@ done
 
 ## 与 organize-pod-to-md 联动
 
-`repos_all.json` 定义分类体系，`pods_all.json` 提供 pod 数据，通过 `repos_md_append_pods.sh` 将 pod 匹配到项目列表：
+### 数据流总览
 
 ```
-repos_all.json（分类 + repo 数据）
-pods_all.json（pod 数据）
+┌─ 管线一 ─────────────────────────────────────────────────────┐
+│                                                              │
+│                    repos_all.json                            │
+│                          │                                   │
+│                          │ 渲染(按 SKILL 第8节Markdown格式 渲染)│
+│                          ↓                                   │
+│                    dvlproad项目列表.md      pods_all.json      │
+│                    （初版 · 无Pod）               │            │
+│                            \                    /             │
+│                             \                  /              │
+│                              \                /               │
+│                               \              /                │
+│                                ↓            ↓                 │
+│                          repos_md_append_pods.sh              │
+│                          (import repo_find_pod)               │
+│                                    │                          │
+│                                    ↓                          │
+│                           dvlproad项目列表.md                 │
+│                           （最终版 · 含Pod表+子库详情）        │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+
+┌─ 管线二 ─────────────────────────────────────────────────────┐
+│                                                              │
+│              repos_all.json        pods_all.json              │
+│                       \                /                     │
+│                        \              /                      │
+│                         \            /                       │
+│                          \          /                        │
+│                           ↓        ↓                         │
+│                       repos_json_append_pods.sh              │
+│                       (import repo_find_pod)                 │
+│                                │                             │
+│                                ↓                             │
+│                          repos_with_pods.json                │
+│                          (JSON 中间格式 · 可渲染md/html)      │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+两条管线共用 `repo_find_pod.py` 的匹配逻辑，数据源相同，输出目标不同。
+
+### 面向生成（直接改 md）
+
+最直接的管线：按 repo url 匹配 pod 后直接在项目列表 md 中追加 Pod 表。
+
+```
+repos_all.json（分类 + repo 数据） + pods_all.json（pod 数据）
         ↓
-repos_md_append_pods.sh（按 repo url 匹配 pod 并追加到项目列表 md）
+repos_md_append_pods.sh — 按 repo url 匹配 pod 并追加到主表下方
         ↓
 dvlproad项目列表.md（最终产物，含 Pod 表 + 子库详情）
 ```
 
-- `repos_md_append_pods.sh` 位于 `organize-repos-to-md/scripts/repos_md_append_pods.sh`
-- 用法: `sh repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]`
-- `repos_all.json` 中每个 repo 的 `url` 字段用于和 `pods_all.json` 做 git URL 匹配，决定该 repo 关联了哪些 Pod。
+```bash
+sh repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]
+```
+
+### 面向数据（JSON 中间格式）
+
+合并 `repos_all.json` + `pods_all.json` → `repos_with_pods.json`，每个 repo 节点上追加 `pods` 字段，顶层含 `unmatched_pods` 列表。
+
+```bash
+sh repos_json_append_pods.sh <repos_all.json> <pods_all.json> [输出.json]
+# 不指定 [输出.json] 则打印到 stdout
+```
+
+`repos_with_pods.json` 格式：
+```json
+{
+  "repos": [ /* 同 repos_all.json 结构，每个叶子节点多一个 "pods" 数组 */ ],
+  "unmatched_pods": [ /* 未匹配到任何 repo 的 pod */ ]
+}
+```
+
+### 共享匹配库
+
+`repo_find_pod.py`（`organize-pod-to-md/scripts/repo_find_pod.py`）提供 git URL 匹配公共逻辑：
+
+- `build_pod_map(pods)` — 从 `pods_all.json` 构建 `git_url → [pod]` 映射
+- `find_pods_for_repo(repo_url, pod_map)` — 按 `(归一化→去协议前缀→含匹配)` 规则返回 `(matched_pods, matched_urls)`
+
+匹配规则：
+1. 归一化（去掉 `.git` 后缀、末尾 `/`）
+2. 精确匹配
+3. 去掉协议前缀（`https://`）后匹配
+4. 含匹配（归一化后 url 是 pod git 的子串）
+
+被 `repos_md_append_pods.sh` 和 `repos_json_append_pods.sh` 共用。
 
 ## 注意事项
 
@@ -433,6 +511,11 @@ dvlproad项目列表.md（最终产物，含 Pod 表 + 子库详情）
 4. **Stars 为空** - Gitee API 不返回 stars，可留空
 
 ## 版本记录
+
+### 0.0.4 (2026-05-11): 提取匹配公共库，新增 JSON 中间格式
+- `repo_find_pod.py` — 从 `repos_md_append_pods.sh` 提取匹配逻辑为公共库
+- `repos_json_append_pods.sh` — 新增 JSON 中间格式输出（面向数据），每个 repo 节点追加 `pods` 字段
+- `repos_md_append_pods.sh` — 精简，改用 import `repo_find_pod`
 
 ### 0.0.3 (2026-05-10): 改为 JSON 输出
 - 产出物从纯 Markdown 改为 JSON（`repos_all.json`），也可直接生成 Markdown
