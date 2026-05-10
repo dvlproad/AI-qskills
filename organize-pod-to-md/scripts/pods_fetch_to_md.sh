@@ -1,17 +1,18 @@
 #!/bin/sh
-# pods_collectAndRender.sh — 采集指定 CocoaPods repo 的 Pod，输出 JSON + Markdown
+# pods_fetch_to_md.sh — 采集指定 CocoaPods repo 的 Pod，输出 JSON + Markdown
 #
 # 用法:
-#   sh pods_collectAndRender.sh --repos <repo1,repo2,...> [--json path] [--md path]
+#   sh pods_fetch_to_md.sh --repos <repo1,repo2,...> --json path [--md path]
+#   sh pods_fetch_to_md.sh --repos <repo1,repo2,...> --md path [--json path]
 #
 # 必传参数:
 #   --repos  逗号分隔的 CocoaPods repo 目录名
 #            trunk/cocoapods → 公有（CocoaPods）
 #            其他 → 私有（从目录名最后一段推导来源标记）
 #
-# 可选参数:
-#   --json   输出 JSON 路径，默认 github_pod_all.json
-#   --md     输出 Markdown 路径，默认 github_pod_all.md
+# 可选参数（至少指定一个）:
+#   --json   输出 JSON 路径（相对于当前工作目录）
+#   --md     输出 Markdown 路径（相对于当前工作目录）
 #            --json 和 --md 各自独立，不自动推导
 #
 # 数据源:
@@ -19,15 +20,10 @@
 #   私有 - ~/.cocoapods/repos/<目录名> 下的 .podspec 文件
 #
 # 示例:
-#   sh pods_collectAndRender.sh --repos trunk,dvlproad
-#   sh pods_collectAndRender.sh --repos trunk --json /tmp/data.json
-#   sh pods_collectAndRender.sh --repos dvlproad,gitee-dvlproad-dvlproadspecs
-#
-# 代理:
-#   export https_proxy=http://127.0.0.1:7897
-#
-# 后续:
-#   sh pod_match2_repos.sh <项目列表.md> <生成的.json>
+#   sh pods_fetch_to_md.sh --repos trunk --json pods.json                 # 输出到当前目录
+#   sh pods_fetch_to_md.sh --repos trunk --json ../output/pods.json       # 相对路径
+#   sh pods_fetch_to_md.sh --repos trunk --json /tmp/pods.json            # 绝对路径（目录必须存在）
+#   sh pods_fetch_to_md.sh --repos trunk,dvlproad --json data.json --md pods.md  # 同时输出 JSON 和 MD
 
 REPOS=""
 OUT_JSON=""
@@ -39,21 +35,22 @@ while [ $# -gt 0 ]; do
         --json)  OUT_JSON="$2"; shift 2 ;;
         --md)    OUT_MD="$2";   shift 2 ;;
         --help|-h)
-            echo "用法: sh pods_collectAndRender.sh --repos <repo1,repo2,...> [--json path] [--md path]"
+            echo "用法: sh pods_fetch_to_md.sh --repos <repo1,repo2,...> (--json path | --md path | both)"
             echo ""
             echo "必传参数:"
             echo "  --repos  逗号分隔的 CocoaPods repo 目录名"
             echo "           如: trunk,dvlproad,gitee-dvlproad-dvlproadspecs"
             echo ""
-            echo "可选参数:"
-            echo "  --json   输出 JSON 路径，默认 github_pod_all.json"
-            echo "  --md     输出 Markdown 路径，默认 github_pod_all.md"
+            echo "可选参数（至少指定一个）:"
+            echo "  --json   输出 JSON 路径（相对于当前工作目录）"
+            echo "  --md     输出 Markdown 路径（相对于当前工作目录）"
             echo "           --json 和 --md 各自独立，不自动推导"
             echo ""
             echo "示例:"
-            echo "  sh pods_collectAndRender.sh --repos trunk,dvlproad"
-            echo "  sh pods_collectAndRender.sh --repos trunk --json /tmp/data.json"
-            echo "  sh pods_collectAndRender.sh --repos dvlproad --md report.md"
+            echo "  sh pods_fetch_to_md.sh --repos trunk --json pods.json                 # 当前目录"
+            echo "  sh pods_fetch_to_md.sh --repos trunk --json ../output/pods.json       # 相对路径"
+            echo "  sh pods_fetch_to_md.sh --repos trunk --json /tmp/pods.json            # 绝对路径（目录必须存在）"
+            echo "  sh pods_fetch_to_md.sh --repos trunk,dvlproad --json data.json --md report.md  # 同时输出 JSON 和 MD"
             exit 0 ;;
         *) echo "未知参数: $1 (使用 --help 查看帮助)"; exit 1 ;;
     esac
@@ -61,11 +58,22 @@ done
 
 [ -z "$REPOS" ] && { echo "错误: --repos 是必传参数"; exit 1; }
 
-# 两个都没指定 → 都输出到默认路径
+# 至少指定 --json 或 --md 之一
 if [ -z "$OUT_JSON" ] && [ -z "$OUT_MD" ]; then
-    OUT_JSON="github_pod_all.json"
-    OUT_MD="github_pod_all.md"
+    echo "错误: 至少指定 --json 或 --md 之一"
+    exit 1
 fi
+
+validate_path() {
+    local dir
+    dir=$(dirname "$1")
+    [ "$dir" = "." ] && return 0
+    [ -d "$dir" ] && return 0
+    echo "错误: 目录 '$dir' 不存在"
+    exit 1
+}
+[ -n "$OUT_JSON" ] && validate_path "$OUT_JSON"
+[ -n "$OUT_MD" ] && validate_path "$OUT_MD"
 
 PUBLIC_LIST=$(mktemp)
 PRIVATE_LIST=$(mktemp)
