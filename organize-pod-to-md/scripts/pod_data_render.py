@@ -36,15 +36,18 @@ import argparse
 import sys
 import json
 
-# 需要展示子库详情的 Pod 列表（不管子库数多少都展示）
-SUBSPEC_PODS = ['CJBaseHelper', 'CJBaseUtil', 'CJBaseUIKit']
-# 子库数超过此阈值则自动展示详情
-SUBSPEC_THRESHOLD = 4
+# 需要展示子库详情的 Pod 列表（不管子库数多少都展示，可被参数覆盖）
+ALWAYS_SHOW_SUBSPECS = ['CJBaseHelper', 'CJBaseUtil', 'CJBaseUIKit']
+
+# 子库数超过此值时自动展示详情（默认值，可被参数覆盖）
+SUBSPEC_MIN_COUNT = 2
 
 
-def should_show_detail(pod_name, subspec_count):
+def should_show_detail(pod_name, subspec_count, subspec_min_count=None, always_show_subspecs=None):
     """判断是否需要展示该 Pod 的子库详情"""
-    return pod_name in SUBSPEC_PODS or subspec_count > SUBSPEC_THRESHOLD
+    threshold = subspec_min_count if subspec_min_count is not None else SUBSPEC_MIN_COUNT
+    pods_list = always_show_subspecs if always_show_subspecs is not None else ALWAYS_SHOW_SUBSPECS
+    return pod_name in pods_list or subspec_count >= threshold
 
 
 def _git_link(url):
@@ -55,10 +58,12 @@ def _git_link(url):
     return f'[{repo}]({url})'
 
 
-def render_overview(pods):
+def render_overview(pods, subspec_min_count=None, always_show_subspecs=None):
     """
     渲染总览页面（github_pod_all.md）
     pods: list[dict]，每项需含 pod/version/summary/git/source/visibility/language/subspec_count/subspecs
+    subspec_min_count: 子库详情展示阈值，为 None 则使用 SUBSPEC_MIN_COUNT
+    always_show_subspecs: 总是展示子库详情的 Pod 列表，为 None 则使用 ALWAYS_SHOW_SUBSPECS
     返回：完整 markdown 字符串（主表 + ## 📋 子库信息 尾部）
     """
     buf = ['# GitHub Pod All\n\n']
@@ -81,7 +86,7 @@ def render_overview(pods):
     for d in pods:
         name = d['pod']
         subspecs = d.get('subspecs', [])
-        if subspecs and should_show_detail(name, len(subspecs)):
+        if subspecs and should_show_detail(name, len(subspecs), subspec_min_count, always_show_subspecs):
             subspec_details[name] = subspecs
     if subspec_details:
         buf.append('\n## 📋 子库信息\n\n')
@@ -145,12 +150,14 @@ def render_unmatched_table(pods):
     return ''.join(buf)
 
 
-def render_subspec_inline(pods, separate_subspecs=False):
+def render_subspec_inline(pods, separate_subspecs=False, subspec_min_count=None, always_show_subspecs=None):
     """
     渲染项目列表内联子库详情（📋 子库详情：）
     pods: list[dict]，每项需含 pod/subspec_count/subspecs
     separate_subspecs: True → 每个 pod 独立表头+分隔线；False → 共享一个表头
-    只有子库数 > SUBSPEC_THRESHOLD 或在 SUBSPEC_PODS 列表中的才展示
+    subspec_min_count: 子库详情展示阈值，为 None 则使用 SUBSPEC_MIN_COUNT
+    always_show_subspecs: 总是展示子库详情的 Pod 列表，为 None 则使用 ALWAYS_SHOW_SUBSPECS
+    只有子库数 > subspec_min_count 或在 always_show_subspecs 列表中的才展示
     返回：表头 + 数据行，若无符合条件的子库则返回空字符串
     """
     buf = []
@@ -159,7 +166,7 @@ def render_subspec_inline(pods, separate_subspecs=False):
     for d in pods:
         pod = d['pod']
         subspecs = d.get('subspecs', [])
-        if subspecs and should_show_detail(pod, len(subspecs)):
+        if subspecs and should_show_detail(pod, len(subspecs), subspec_min_count, always_show_subspecs):
             if not main_header_written:
                 buf.append('**📋 子库详情：**\n\n')
                 main_header_written = True
@@ -184,6 +191,10 @@ if __name__ == '__main__':
     )
     parser.add_argument('--type', choices=['overview', 'project', 'unmatched'],
                         help='渲染类型：overview(总览) / project(项目表) / unmatched(未匹配)')
+    parser.add_argument('--subspec-min-count', type=int, default=2,
+                        help='子库数至少为此值时展示详情，默认 2')
+    parser.add_argument('--subspec-force-show', type=str, default=None,
+                        help='强制展示子库详情的 Pod（逗号分隔），默认 CJBaseHelper,CJBaseUtil,CJBaseUIKit')
     args = parser.parse_args()
 
     if not args.type:
@@ -196,8 +207,10 @@ if __name__ == '__main__':
     if isinstance(data, dict):
         data = [data]
 
+    always_show_subspecs = args.subspec_force_show.split(',') if args.subspec_force_show else None
+
     if args.type == 'overview':
-        sys.stdout.write(render_overview(data))
+        sys.stdout.write(render_overview(data, subspec_min_count=args.subspec_min_count, always_show_subspecs=always_show_subspecs))
     elif args.type == 'project':
         sys.stdout.write(render_project_table(data))
     elif args.type == 'unmatched':

@@ -1,12 +1,16 @@
 #!/bin/sh
 # pod_match2_repos.sh - 在每个有 pod 的 section 下按主表追加 Pod 情况表格
-# 用法: sh pod_match2_repos.sh [--separate-subspecs] <项目列表.md> [pod数据.json]
+# 用法: sh pod_match2_repos.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]
 
 SEPARATE=false
+SUBSPEC_MIN_COUNT=""       # "" → None → 用 Python 默认值(2)
+ALWAYS_SHOW_SUBSPECS=""    # "" → None → 用 Python 默认值(CJBaseHelper,CJBaseUtil,CJBaseUIKit)
 while [ $# -gt 0 ]; do
     case "$1" in
+        --subspec-min-count) SUBSPEC_MIN_COUNT="$2"; shift 2 ;;
+        --subspec-force-show) ALWAYS_SHOW_SUBSPECS="$2"; shift 2 ;;
         --separate-subspecs) SEPARATE=true; shift ;;
-        -h|--help) echo "用法: sh pod_match2_repos.sh [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 0 ;;
+        -h|--help) echo "用法: sh pod_match2_repos.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 0 ;;
         --) shift; break ;;
         *) break ;;
     esac
@@ -15,13 +19,13 @@ done
 REPOS_MD="${1}"
 POD_JSON="${2:-$(pwd)/github_pod_all.json}"
 
-[ -z "$REPOS_MD" ] && { echo "用法: sh pod_match2_repos.sh [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 1; }
+[ -z "$REPOS_MD" ] && { echo "用法: sh pod_match2_repos.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 1; }
 [ ! -f "$REPOS_MD" ] && { echo "文件不存在: $REPOS_MD"; exit 1; }
 [ ! -f "$POD_JSON" ] && { echo "文件不存在: $POD_JSON，请先运行 pods_collectAndRender.sh"; exit 1; }
 
 TMP=$(mktemp)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-python3 - "$REPOS_MD" "$POD_JSON" "$SCRIPT_DIR" "$SEPARATE" > "$TMP" << 'PYEOF'
+python3 - "$REPOS_MD" "$POD_JSON" "$SCRIPT_DIR" "$SEPARATE" "$SUBSPEC_MIN_COUNT" "$ALWAYS_SHOW_SUBSPECS" > "$TMP" << 'PYEOF'
 import json, re, sys
 sys.path.insert(0, sys.argv[3])
 from pod_data_render import render_project_table, render_unmatched_table, render_subspec_inline
@@ -29,6 +33,8 @@ from pod_data_render import render_project_table, render_unmatched_table, render
 repos_md = sys.argv[1]
 pod_json = sys.argv[2]
 separate = sys.argv[4] == 'true'  # --separate-subspecs 开关
+subspec_min_count = int(sys.argv[5]) if sys.argv[5] else None  # --subspec-min-count 可选
+always_show_subspecs = sys.argv[6].split(',') if sys.argv[6] else None  # --subspec-force-show 可选
 
 def norm_url(url):
     u = url.rstrip('/')
@@ -199,7 +205,7 @@ def flush_chunk():
 
     if all_pods:
         out.append(render_project_table(all_pods))
-        out.append(render_subspec_inline(all_pods, separate_subspecs=separate))
+        out.append(render_subspec_inline(all_pods, separate_subspecs=separate, subspec_min_count=subspec_min_count, always_show_subspecs=always_show_subspecs))
 
     chunk_lines = []
     chunk_repos = []

@@ -31,14 +31,19 @@ sh organize-pod-to-md/scripts/pods_collectAndRender.sh
 ### 2. 将 Pod 匹配到项目列表
 
 ```bash
-sh organize-pod-to-md/scripts/pod_match2_repos.sh <项目列表.md路径>
+sh organize-pod-to-md/scripts/pod_match2_repos.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md路径>
 ```
 
 例如：
 
 ```bash
-sh organize-pod-to-md/scripts/pod_match2_repos.sh /path/to/dvlproad项目列表.md
+sh organize-pod-to-md/scripts/pod_match2_repos.sh --subspec-min-count 1 --separate-subspecs /path/to/dvlproad项目列表.md
 ```
+
+参数说明：
+- `--subspec-min-count <N>`（可选）— 子库数至少为 N 时展示详情，默认 2
+- `--subspec-force-show PodA,PodB`（可选）— 强制展示这些 pod 的子库，默认 CJBaseHelper,CJBaseUtil,CJBaseUIKit
+- `--separate-subspecs`（可选）— 每个 pod 独立子库表头
 
 脚本会在每个有 Pod 匹配的 section 下追加 Pod 情况表格，主表完全不改。
 
