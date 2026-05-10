@@ -1,20 +1,34 @@
 #!/bin/sh
 # pod_match2_repos.sh - 在每个有 pod 的 section 下按主表追加 Pod 情况表格
-# 用法: sh pod_match2_repos.sh <项目列表.md> [pod数据.json]
+# 用法: sh pod_match2_repos.sh [--separate-subspecs] <项目列表.md> [pod数据.json]
+
+SEPARATE=false
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --separate-subspecs) SEPARATE=true; shift ;;
+        -h|--help) echo "用法: sh pod_match2_repos.sh [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 0 ;;
+        --) shift; break ;;
+        *) break ;;
+    esac
+done
 
 REPOS_MD="${1}"
 POD_JSON="${2:-$(pwd)/github_pod_all.json}"
 
-[ -z "$REPOS_MD" ] && { echo "用法: sh pod_match2_repos.sh <项目列表.md> [pod数据.json]"; exit 1; }
+[ -z "$REPOS_MD" ] && { echo "用法: sh pod_match2_repos.sh [--separate-subspecs] <项目列表.md> [pod数据.json]"; exit 1; }
 [ ! -f "$REPOS_MD" ] && { echo "文件不存在: $REPOS_MD"; exit 1; }
-[ ! -f "$POD_JSON" ] && { echo "文件不存在: $POD_JSON，请先运行 github_pod_all.sh"; exit 1; }
+[ ! -f "$POD_JSON" ] && { echo "文件不存在: $POD_JSON，请先运行 pods_collectAndRender.sh"; exit 1; }
 
 TMP=$(mktemp)
-python3 - "$REPOS_MD" "$POD_JSON" > "$TMP" << 'PYEOF'
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+python3 - "$REPOS_MD" "$POD_JSON" "$SCRIPT_DIR" "$SEPARATE" > "$TMP" << 'PYEOF'
 import json, re, sys
+sys.path.insert(0, sys.argv[3])
+from pod_data_render import render_project_table, render_unmatched_table, render_subspec_inline
 
 repos_md = sys.argv[1]
 pod_json = sys.argv[2]
+separate = sys.argv[4] == 'true'  # --separate-subspecs 开关
 
 def norm_url(url):
     u = url.rstrip('/')
@@ -35,14 +49,16 @@ for p in pods:
     norm = norm_url(git)
     if norm not in pod_map:
         pod_map[norm] = []
-    pod_map[norm].append((
-        p['pod'],
-        p.get('version', 'N/A'),
-        p.get('summary', ''),
-        p.get('source', ''),
-        p.get('visibility', ''),
-        p.get('language', '')
-    ))
+    pod_map[norm].append({
+        'pod': p['pod'],
+        'version': p.get('version', 'N/A'),
+        'summary': p.get('summary', ''),
+        'source': p.get('source', ''),
+        'visibility': p.get('visibility', ''),
+        'language': p.get('language', ''),
+        'subspec_count': p.get('subspec_count', 0),
+        'subspecs': p.get('subspecs', []),
+    })
 
 matched_urls = set()
 
@@ -120,6 +136,24 @@ while i < len(lines):
                     continue
                 break
         continue
+    if '子库详情' in line:
+        i += 1
+        while i < len(lines) and re.match(r'^\s*$', lines[i]):
+            i += 1
+        if i < len(lines) and '| Subspec | Summary |' in lines[i]:
+            i += 1  # skip header
+            if i < len(lines) and is_table_separator(lines[i]):
+                i += 1
+            while i < len(lines):
+                l = lines[i]
+                if re.match(r'^\|', l):
+                    i += 1
+                    continue
+                if re.match(r'^\s*$', l):
+                    i += 1
+                    continue
+                break
+        continue
     clean_lines.append(line)
     i += 1
 lines = clean_lines
@@ -135,24 +169,27 @@ def flush_chunk():
     if not chunk_lines:
         return
 
-    # Build lookup: (display_name, pod_name) -> full row
+    # 构建 dict 类型的匹配结果，每条含 repo_name 和所有 pod 字段
     repo_match = {}
     for repo_name, repo_url in chunk_repos:
         matched = find_pods_for_repo(repo_url)
         for pod_info in matched:
-            repo_match[(repo_name, pod_info[0])] = (repo_name,) + pod_info
+            repo_match[(repo_name, pod_info['pod'])] = {
+                'repo_name': repo_name,
+                **pod_info
+            }
 
     all_pods = []
     seen = set()
 
-    # Output in user's original row order
+    # 按用户原来的行序输出
     for rn, pn in ordered_rows:
         key = (rn, pn)
         if key in repo_match:
             all_pods.append(repo_match[key])
             seen.add(key)
 
-    # Append new pods (not in ordered_rows) sorted by name
+    # 新增的 pod（不在原有行序中）按名称排序追加
     remaining = sorted(repo_match.items(), key=lambda x: (x[0][0], x[0][1]))
     for key, row in remaining:
         if key not in seen:
@@ -161,14 +198,8 @@ def flush_chunk():
     out.extend(chunk_lines)
 
     if all_pods:
-        out.append('**📦 Pod 情况：**\n\n')
-        out.append('| 仓库名 | 开发的Pod | 描述 | 版本 | 来源 | 可见 | 语言 |\n')
-        out.append('|--------|-----------|------|------|------|--------|------|\n')
-        for row in all_pods:
-            repo_name, pod, ver, summary, source, visibility, language = row
-            esc_summary = summary.replace('|', '\\|')
-            out.append(f'| {repo_name} | {pod} | {esc_summary} | {ver} | {source} | {visibility} | {language} |\n')
-        out.append('\n')
+        out.append(render_project_table(all_pods))
+        out.append(render_subspec_inline(all_pods, separate_subspecs=separate))
 
     chunk_lines = []
     chunk_repos = []
@@ -198,25 +229,15 @@ for line in lines:
 
 flush_chunk()
 
-# Append unmatched pods (pod not matched to any repo)
+# 收集未匹配的 Pod（git 地址不在任何项目仓库列表中）
 unmatched = []
-for key, pods in pod_map.items():
+for key, pods_list in pod_map.items():
     if key not in matched_urls:
-        for pod_info in pods:
-            unmatched.append((key,) + pod_info)
+        for pod_info in pods_list:
+            unmatched.append({**pod_info, 'git': key})
 
 if unmatched:
-    out.append('\n## 未匹配的 Pod\n\n')
-    out.append('| Pod | Summary | Version | Git URL | Source | Visibility | Language |\n')
-    out.append('| --- | ------- | ------- | ------- | ------ | ---------- | -------- |\n')
-    unmatched.sort(key=lambda x: (x[1], x[0]))
-    for key, pod, ver, summary, source, visibility, language in unmatched:
-        esc_summary = summary.replace('|', '\\|')
-        if key == 'N/A':
-            out.append(f'| {pod} | {esc_summary} | {ver} | N/A | {source} | {visibility} | {language} |\n')
-        else:
-            repo = key.rstrip('/').split('/')[-1].replace('.git', '')
-            out.append(f'| {pod} | {esc_summary} | {ver} | [{repo}]({key}) | {source} | {visibility} | {language} |\n')
+    out.append(render_unmatched_table(unmatched))
 
 sys.stdout.writelines(out)
 PYEOF
