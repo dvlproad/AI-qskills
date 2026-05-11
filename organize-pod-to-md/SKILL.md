@@ -117,6 +117,22 @@ sh organize-repos-to-md/scripts/repos_md_append_pods.sh --subspec-min-count 1 --
 | 匹配方式 | 按 git URL 归一化后匹配 |
 | 输出 | 在原始 md 中每个有 pod 的 section 后追加 Pod 情况表格（7 列） |
 
+## 输出路径决策
+
+输出文件的路径（`--json`、`--md`）**必须先问用户确认**，Agent 不能默认选中。
+
+决策顺序：
+
+1. Agent 检查 `项目列表/dvlproad项目列表/data/` 目录是否存在
+2. **存在** → 推荐给用户："输出到 `data/` 目录下，可以吗？"
+3. **不存在** → 问用户："请指定输出路径"
+4. 用户留空或不输入 → 放当前工作目录
+
+Agent 话术模板：
+
+> `pods_all.json` 建议放在 `xxx/dvlproad项目列表/data/`（已检测到该目录），可以吗？
+> 或者你指定其他路径？留空则放当前目录。
+
 ## 注意事项
 
 1. **需要 CocoaPods 环境** — `pods_fetch_to_md.sh` 依赖 `pod` 命令

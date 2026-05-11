@@ -269,6 +269,19 @@ def derive_source(path):
 def parse_podspec(path):
     with open(path, encoding='utf-8', errors='ignore') as f:
         content = f.read()
+
+    # Before stripping comments, extract # comment lines immediately before subspecs
+    # (add_subspec_comments.sh 已将 ss.summary 转为 # 注释)
+    subspec_comments = {}
+    for m in re.finditer(
+        r'^\s*#\s*(.+?)\s*\n\s*s{1,2}\.subspec\s+[\'"]([^\'"]+)[\'"]\s+do',
+        content, re.MULTILINE
+    ):
+        comment = m.group(1).strip()
+        sname = m.group(2)
+        if comment:
+            subspec_comments[sname] = comment
+
     content = re.sub(r'^\s*#.*$', '', content, flags=re.MULTILINE)
     m = re.search(r's\.name\s*=\s*["\'](.+?)["\']', content)
     name = m.group(1) if m else None
@@ -280,19 +293,51 @@ def parse_podspec(path):
     git = m.group(1) if m else 'N/A'
     m = re.search(r's\.swift_version[s]?\s*=\s*["\'](.+?)["\']', content)
     language = 'Swift' if m else 'OC'
-    # Parse subspecs from Ruby podspec
+    # Parse subspecs using stack to track nesting depth
+    # regex 方式无法正确处理嵌套 subspec（eg. Button/GradientButton）
     subspecs = []
-    for m in re.finditer(
-        r"s{1,2}\.subspec\s+['\"]([^'\"]+)['\"]\s+do\s*(?:\|(.+?)\||)(.*?)end",
-        content, re.DOTALL
-    ):
-        body_var = m.group(2)
-        body = m.group(3)
-        sm = re.search(rf'{re.escape(body_var)}\.summary\s*=\s*["\']([^"\']*)["\']', body) if body_var else None
-        if not sm:
-            sm = re.search(r'ss?\.summary\s*=\s*["\']([^"\']*)["\']', body)
-        summary_sub = sm.group(1) if sm else ''
-        subspecs.append({'name': m.group(1), 'summary': summary_sub})
+    stack = []  # each item: {'name': short_name, 'body_var': var_name, 'line_start': int}
+    lines = content.split('\n')
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        m = re.match(
+            r'^(\s*)s{1,2}\.subspec\s+[\'"]([^\'"]+)[\'"]\s+do\s*(?:\|(.+?)\||)',
+            line
+        )
+        if m:
+            sname = m.group(2)
+            body_var = m.group(3) or ''
+            stack.append({'name': sname, 'body_var': body_var, 'line_start': i})
+            i += 1
+            continue
+
+        if re.match(r'^\s*end\s*$', line) and stack:
+            item = stack.pop()
+            sname = item['name']
+            body_var = item['body_var']
+            body_lines = lines[item['line_start'] + 1:i]
+            body = '\n'.join(body_lines)
+
+            # Build full path: Button/GradientButton (not just GradientButton)
+            if stack:
+                path = f"{'/'.join(s['name'] for s in stack)}/{sname}"
+            else:
+                path = sname
+
+            sm = None
+            if body_var:
+                sm = re.search(rf'{re.escape(body_var)}\.summary\s*=\s*["\']([^"\']*)["\']', body)
+            if not sm:
+                sm = re.search(r'ss?\.summary\s*=\s*["\']([^"\']*)["\']', body)
+            summary_sub = sm.group(1) if sm else ''
+            if not summary_sub and sname in subspec_comments:
+                summary_sub = subspec_comments[sname]
+            subspecs.append({'name': path, 'summary': summary_sub})
+            i += 1
+            continue
+
+        i += 1
     return name, version, git, summary, language, subspecs
 
 private_raw = {}  # key: (pod_name, source) — 同名 pod 可能来自不同私有 repo

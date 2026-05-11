@@ -99,7 +99,7 @@ def render_overview(pods, subspec_min_count=None, always_show_subspecs=None):
             buf.append(f'### {pod_name} ({ver})\n\n')
             buf.append('| Subspec | Summary |\n')
             buf.append('| ------- | ------- |\n')
-            for s in subspec_details[pod_name]:
+            for s in sorted(subspec_details[pod_name], key=lambda x: x.get("name", "")):
                 esc = s.get('summary', '').replace('|', '\\|')
                 buf.append(f'| {pod_name}/{s.get("name", "")} | {esc} |\n')
             buf.append('\n')
@@ -170,14 +170,16 @@ def render_subspec_inline(pods, separate_subspecs=False, subspec_min_count=None,
             if not main_header_written:
                 buf.append('**📋 子库详情：**\n\n')
                 main_header_written = True
-            if separate_subspecs or not table_header_written:
+            if not table_header_written:
                 buf.append('| Subspec | Summary |\n')
                 buf.append('| ------- | ------- |\n')
                 table_header_written = True
-            for s in subspecs:
+            for s in sorted(subspecs, key=lambda x: x.get("name", "")):
                 esc = s.get('summary', '').replace('|', '\\|')
                 buf.append(f'| {pod}/{s.get("name", "")} | {esc} |\n')
-            buf.append('\n')
+            if separate_subspecs:
+                buf.append('\n')
+                table_header_written = False
     if main_header_written:
         buf.append('\n')
     return ''.join(buf)

@@ -30,10 +30,21 @@
 
 ## 常用命令
 
+## 输出路径规则
+
+**所有脚本的输出路径必须先问用户确认，Agent 不能默认选中。**
+
+决策逻辑：
+1. 先检查 `项目列表/dvlproad项目列表/data/` 是否存在
+2. 存在 → 推荐给用户
+3. 不存在 → 问用户指定
+4. 用户留空 → 放当前目录
+
 ```bash
 # 完整 pod 工作流（需要代理）
+# ⚠️ 执行前必须先问用户确认 --json/--md 路径
 export https_proxy=http://127.0.0.1:7897 http_proxy=http://127.0.0.1:7897
-sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk,cocoapods,gitee-dvlproad-dvlproadspecs --json pods_all.json --md pods_all.md
+sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk,cocoapods,gitee-dvlproad-dvlproadspecs --json <path> --md <path>
 sh organize-repos-to-md/scripts/repos_md_append_pods.sh --subspec-min-count <N> [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> <pod_json.json>
 ```
 

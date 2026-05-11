@@ -3,7 +3,7 @@
 # 如需中间数据供后续渲染 md/html 等，请用 repos_json_append_pods.sh
 # 用法: sh repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]
 
-SEPARATE=false
+SEPARATE=true
 SUBSPEC_MIN_COUNT=""       # "" → None → 用 Python 默认值(2)
 ALWAYS_SHOW_SUBSPECS=""    # "" → None → 用 Python 默认值(CJBaseHelper,CJBaseUtil,CJBaseUIKit)
 while [ $# -gt 0 ]; do

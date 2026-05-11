@@ -476,7 +476,23 @@ sh repos_json_append_pods.sh <repos_all.json> <pods_all.json> [输出.json]
 
 将 repos_with_pods.json 渲染为 HTML。
 
-## 七、输出文件
+## 七、输出路径决策
+
+输出文件的路径**必须先问用户确认**，Agent 不能默认选中。
+
+决策顺序：
+
+1. Agent 检查 `项目列表/dvlproad项目列表/data/` 目录是否存在
+2. **存在** → 推荐给用户："输出到 `data/` 目录下，可以吗？"
+3. **不存在** → 问用户："请指定输出路径"
+4. 用户留空或不输入 → 放当前工作目录
+
+Agent 话术模板：
+
+> `repos_all.json` 建议放在 `xxx/dvlproad项目列表/data/`（已检测到该目录），可以吗？
+> 或者你指定其他路径？留空则放当前目录。
+
+## 八、输出文件
 
 建议都保存到 Hexo 博客目录：
 
@@ -487,7 +503,7 @@ sh repos_json_append_pods.sh <repos_all.json> <pods_all.json> [输出.json]
 ### repos_all.json（供 organize-pod-to-md 消费）
 
 ```
-/Users/qian/Project/dvlproadHexo/source/_posts/管理相关/项目列表/repos_all.json
+/Users/qian/Project/dvlproadHexo/source/_posts/管理相关/项目列表/data/repos_all.json
 ```
 
 ### dvlproad项目列表.md（可直接查看）

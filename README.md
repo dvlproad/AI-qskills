@@ -149,9 +149,22 @@ description: |
 
 
 
+## 踩坑记录
+
+### 1. `.cocoapods/repos/` 与 source 目录不同步
+
+`pods_fetch_to_md.sh` 扫描的是 `~/.cocoapods/repos/gitee-dvlproad-dvlproadspecs/`（CocoaPods 本地缓存），但用户的手动修改是在 `~/Project/Gitee/dvlproadSpecs/`（源代码目录）。两者不是同一份文件，会导致同一 podspec 在两个目录下有不同内容。
+
+**处理**：修改 podspec 后需要 `rsync` 到 `.cocoapods/repos/`，或者执行 `pod repo push` 更新。
+
+
+
 ## 版本记录
 
 更多版本记录想看每个 SKILL 内部的版本记录
+
+### 0.0.8 (2026-05-12)
+- **坑**: `.cocoapods/repos/` 与 source 目录不同步，需 `rsync`
 
 ### 0.0.7 (2026-05-10)
 - 新增 [organize-pod-to-md](./organize-pod-to-md): 整理自己的公有和私有 CocoaPods 列表为 Markdown 文档，并匹配到项目列表 md 中
