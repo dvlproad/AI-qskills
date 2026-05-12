@@ -121,6 +121,194 @@ function toggleRow(id, iconId) {
 }
 ```
 
+### 7. Typography 层级 — 字体权重递减
+
+视觉重量随层级递减，让用户快速聚焦一级内容：
+
+```
+L1 (Repo)     font-weight: 500    ← 最重，主层级
+L2 (Pod)      font-weight: 400    ← 中等
+L3+ (Subspec) font-weight: 300    ← 默认 td，缩进协助区分
+```
+
+CSS：
+```css
+.l1-row td { font-weight: 500; }
+.l2-row td { font-weight: 400; }
+/* L3+ 无特殊规则，继承 td { font-weight: 300 } */
+```
+
+设计理由：
+- 层数越深权重越轻，符合阅读直觉
+- 二级（L2）与一级（L1）差 100，足够肉眼区分
+- L3+ 用 300（最轻），层级靠缩进，不需要额外权重
+
+### 8. 层级颜色系统 — 表头 + Hover
+
+表头统一带色（标识层级），行级 hover 时高亮。色相随层级变化：**紫 → 蓝 → 青绿**
+
+```
+              表头             Hover
+L1 (Repo)     rgba(83,58,253,0.30)  rgba(83,58,253,0.50)  品牌紫
+L2 (Pod)      rgba(6,95,212,0.25)   rgba(6,95,212,0.35)   蓝色
+L3 (Subspec)  rgba(13,148,136,0.10) rgba(13,148,136,0.22) 青绿
+```
+
+CSS：
+```css
+/* 表头颜色 */
+.l1-table thead { background: rgba(83,58,253, 0.30); }
+.l2-table th { background: rgba(6,95,212, 0.25); }
+.l2-table thead { background: transparent; }   /* 避免 #f8fafc 底色调和 */
+.l3-expand-row th { background: rgba(13,148,136, 0.10); }
+.l3-expand-row table thead { background: transparent; }  /* 同上 */
+
+/* L3 行基线（始终显示） */
+.l3-expand-row table tbody td {
+  background: rgba(13,148,136, 0.10);
+}
+
+/* L3 行基线（始终显示） */
+.l3-expand-row table tbody td {
+  background: rgba(13,148,136, 0.10);
+}
+
+/* Hover 高亮 */
+.l1-row:hover td { background: rgba(83,58,253, 0.50); }
+.l2-row:hover td { background: rgba(6,95,212, 0.35); }
+.l3-expand-row table tbody tr:hover td {
+  background: rgba(13,148,136, 0.22);
+}
+```
+
+设计理由：
+- 用色相区分比单纯透明度变化更直观
+- 紫→蓝→青绿，冷色系同色温顺滑过渡，每级色相不同但调性统一
+- 表头带色不随 hover 变化，稳定标识层级身份
+- L1/L2 行 hover 才亮，L3 因行密集始终亮基线色辅助阅读
+
+### 9. 分类级 Pod / Subspec 三档分段控制（局部刷新）
+
+子分类头部使用**三档分段控件**代替独立开关，三个档位对应三种详细程度：**项目** → **+Pod** → **+Subspec**。档位颜色跟随层级色系（紫 → 蓝 → 青绿）。点击后**只重建该子分类的 DOM**，不影响其他分类。
+
+级别通过 `catDetailLevel` 对象存储，子分类继承父分类级别（`Math.min(selfLevel, parentLevel)`），确保子项不会比父项显示更细。
+
+**优先级规则**：分类级 seg 控件 > 全局 toolbar。如果一个分类显式设置了 seg 档位，则全局 toolbar 的 viewMode 被**忽略**（该分类按 seg 档位渲染）。未设置 seg 的分类则回退到全局 viewMode 作为默认值。
+
+```javascript
+// 全局 viewMode → 级别映射
+function viewModeToLevel(mode) {
+  return mode === 'repo' ? 1 : mode === 'pod' ? 2 : 3;
+}
+// 使用：未设 seg 的分类回退到全局默认
+const level = catDetailLevel[item.type] ?? viewModeToLevel(viewMode);
+```
+
+CSS：
+```css
+.level-seg {
+  display: inline-flex; overflow: hidden;
+  border-radius: 4px; border: 1px solid var(--border);
+}
+.level-seg .seg {
+  font-size: 11px; padding: 2px 8px; cursor: pointer;
+  user-select: none; transition: all .1s;
+  border-right: 1px solid var(--border);
+  background: transparent; color: var(--text-secondary); line-height: 1.8;
+}
+.level-seg .seg:last-child { border-right: none; }
+.level-seg .seg:hover { background: var(--hover-bg); }
+.level-seg .seg.f1 { background: rgba(83,58,253,0.12); color: var(--accent); font-weight: 500; }
+.level-seg .seg.f2 { background: rgba(6,95,212,0.12); color: #1a56db; font-weight: 500; }
+.level-seg .seg.f3 { background: rgba(13,148,136,0.12); color: #0d5e56; font-weight: 500; }
+```
+
+注意：`.intro`（注释行）需要换行到标题下方，避免 seg 被挤到第二行：
+```css
+.subcategory-header { flex-wrap: wrap; }
+.subcategory-header .intro { flex: 0 0 100%; order: 10; margin-top: 2px; }
+```
+
+JS 状态和更新：
+```javascript
+let catDetailLevel = {};
+
+function setCatLevel(type, level) {
+  catDetailLevel[type] = level;
+  updateCat(type);
+}
+
+function updateCat(type) {
+  const item = findItemByType(appData.repos, type);
+  if (!item) return;
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const html = renderSubCategory(item, q, 0);
+  const el = document.getElementById('cat-' + encodeURIComponent(type));
+  if (el && html) el.outerHTML = html;
+}
+
+function findItemByType(items, type) {
+  for (const item of items) {
+    if (item.type === type) return item;
+    if (item.children) {
+      const found = findItemByType(item.children, type);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+```
+
+渲染时，在 `renderCategory`（顶级分类）和 `renderSubCategory`（子分类）的 header 尾部添加分段控件，所有含有 pods 的分类都会渲染（不限深度）：
+
+```javascript
+// 在 renderCategory / renderSubCategory 中
+const level = catDetailLevel[item.type] ?? viewModeToLevel(viewMode);
+// ...
+const hasPods = filtered.some(r => r.pods && r.pods.length > 0);
+if (hasPods) {
+  const labels = ['项目', '+Pod', '+Subspec'];
+  let segHtml = '<span class="level-seg">';
+  for (let i = 0; i < 3; i++) {
+    const filled = level >= i + 1;
+    segHtml += `<span class="seg${filled ? ' f' + (i + 1) : ''}"
+      onclick="setCatLevel('${escapeHtml(item.type)}', ${i + 1})">${labels[i]}</span>`;
+  }
+  segHtml += '</span>';
+  html += segHtml;
+}
+```
+
+级别传递链：`renderCategory`（读取 `catDetailLevel`）→ `renderRepoTable(q, hidePod, hideSubspec)` → `renderPodCompactTable(q, hideSubspec)`。Pod 控制在 `renderRepoTable` 中生效（`showPods = hasPods && viewMode !== 'repo' && !hidePod`），Subspec 控制在 `renderPodCompactTable` 中生效。
+
+子分类通过 `parentLevel` 参数继承父级级别（未显式设置 seg 时）：
+```javascript
+// 父分类设置 seg，子分类继承（或独立设置）
+function renderSubCategory(item, q, depth = 0, parentLevel) {
+  // fallback 链：自身 seg > 父级 seg > 全局 toolbar
+  const level = catDetailLevel[item.type] ?? parentLevel ?? viewModeToLevel(viewMode);
+  // ...
+  // 传递给子级
+  for (const c of item.children) {
+    renderSubCategory(c, q, depth + 1, level);
+  }
+}
+```
+
+三档效果：
+| 档位 | catDetailLevel | hidePod | hideSubspec | 显示内容 |
+|------|---------------|---------|-------------|---------|
+| 项目 | 1 | true | true | 仅仓库列表 |
+| +Pod | 2 (跟随全局) | false | true | 仓库 + Pod |
+| +Subspec | 3 | false | false | 全部 |
+
+设计理由：
+- 三档分段比两个独立开关更紧凑，占据更少空间
+- 档位间互斥，避免「隐藏 Pod 但显示 Subspec」的非法状态
+- 颜色跟随层级色系（紫→蓝→青绿），档位越深颜色越深
+- **优先级链**：此处实现的是抽象 `priority-chain` skill 的具体实例，模型为 `自身 > 父级 > 全局` 三层。显示时高优先覆盖低优先；修改低优先时自动清除高优先。详见 [`priority-chain`](../priority-chain/SKILL.md)
+- 局部 DOM 替换避免全量重渲染
+
 ## 代码模板
 
 以下模板使用通用命名，替换注释标记 `/*...*/` 处的字段名和列名即可适配任意项目。
