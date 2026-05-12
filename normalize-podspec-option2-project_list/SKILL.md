@@ -1,5 +1,5 @@
 ---
-name: public-pod-complete2-project_list
+name: normalize-podspec-option2-project_list
 description: |
   podspec 规范化。如果是公有库还可以选择是否继续同步更新到项目列表
   触发场景：用户输入"规范化podspec"、"完善pod注释"、"完善公有库"
