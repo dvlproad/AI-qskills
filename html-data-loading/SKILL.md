@@ -17,21 +17,24 @@ description: |
 ## 加载策略
 
 ```text
-打开页面 → Phase 0: startApp(DEFAULT_DATA)
-                       │ 用户立刻看到界面，无需等待
-                       ▼
-Phase 1: fetch(data.json)  ─── HTTP 成功 → ✅ 完整渲染
-                       │
-                       └── HTTP 失败
-                       │
-                       ▼
-Phase 2: 动态 <script> 加载 data.js  ─── 成功 → ✅ 完整渲染
-                       │
-                       └── JS 失败
-                       │
-                       ▼
-Phase 3: 显示提示（含创建 JS 的指令）+ 文件选择器
-         用户手动选择 .json → FileReader → ✅ 完整渲染
+打开页面
+  ↓
+Phase 0: DEFAULT_DATA 渲染默认 UI（即时展示，用户立刻看到界面）
+  ↓ async init()
+
+Phase 1: fetch('data.json')
+  ├── HTTP 成功 → startApp(data) → 替换为完整数据 ✅
+  └── HTTP 失败 → 进入 Phase 2
+
+Phase 2: 动态 <script> 加载 data.js
+  ├── JS 加载成功（window.DATA 有值）→ startApp(DATA) → 完整渲染 ✅
+  └── JS 加载失败 → 进入 Phase 3
+
+Phase 3: 显示提示横幅 + 文件选择器
+         提示：
+          • 本地正式测试：创建 data.js（在 data.json 首行加 window.DATA =）
+          • 本地临时测试：点击下方选择 data.json
+         选择文件 → FileReader → startApp(data) → 完整渲染 ✅
 ```
 
 ## 代码模板
@@ -85,7 +88,7 @@ async function init() {
 
   // Phase 1: fetch JSON (HTTP)
   try {
-    const resp = await fetch('./data/repos_with_pods.json');
+    const resp = await fetch('./data/data.json');
     if (!resp.ok) throw new Error();
     startApp(await resp.json());
     return;
@@ -93,13 +96,13 @@ async function init() {
 
   // Phase 2: 动态 JS (file://)
   try {
-    const jsData = await loadJsAsync('./data/repos_with_pods.js');
+    const jsData = await loadJsAsync('./data/data.js');
     if (jsData) { startApp(jsData); return; }
   } catch {}
 
   // Phase 3: 提示 + 文件选择器
-  document.getElementById('data-warning').style.display = '';
-  document.getElementById('file-picker').style.display = '';
+  document.getElementById('data-warning').style.display = 'block';
+  document.getElementById('file-picker').style.display = 'block';
 }
 ```
 
@@ -128,10 +131,10 @@ function loadLocalFile(input) {
 
 ```
 项目根目录/
-├── index.html                ← 渲染器（25 KB）
+├── index.html                ← 渲染器
 ├── data/
-│   ├── repos_with_pods.json  ← 数据源（Phase 1 fetch）
-│   ├── repos_with_pods.js    ← 可选（Phase 2，file:// 用）
+│   ├── data.json             ← 数据源（Phase 1 fetch）
+│   ├── data.js               ← 可选（Phase 2，file:// 用，data.json + 首行 window.DATA =）
 │   └── ...
 ```
 
@@ -142,18 +145,18 @@ function loadLocalFile(input) {
 - 更新 `.json` 后刷新即生效
 
 ### 本地正式测试（双击 HTML）
-创建 `.js` 文件供 Phase 2 使用：
+创建 `.js` 文件供 Phase 2 使用（在 `data.json` 首行加 `window.DATA =`）：
 
 ```bash
-echo 'window.DATA = ' > data/repos_with_pods.js
-cat data/repos_with_pods.json >> data/repos_with_pods.js
+echo 'window.DATA = ' > data/data.js
+cat data/data.json >> data/data.js
 ```
 
 HTML 中 `startApp()` 会根据 `window.DATA` 变量读取数据。
 
 ### 本地临时测试
 - 无需额外文件
-- 打开 HTML → 看到默认数据界面 → 选择 `.json` 文件 → 渲染完整数据
+- 打开 HTML → 看到默认数据界面 → 选择 `data.json` 文件 → 渲染完整数据
 
 ## HTML 提示横幅模板
 
@@ -161,13 +164,13 @@ HTML 中 `startApp()` 会根据 `window.DATA` 变量读取数据。
 <div id="data-warning" class="data-warning">
   <p><strong>⚠️ 数据文件加载失败</strong></p>
   <p><strong>如需本地双击即有完整数据（正式测试）：</strong><br>
-  创建 <code>data/repos_with_pods.js</code> 文件：</p>
-  <pre>echo 'window.DATA = ' > data/repos_with_pods.js
-cat data/repos_with_pods.json >> data/repos_with_pods.js</pre>
+  创建 <code>data/data.js</code> 文件（在 <code>data.json</code> 首行加 <code>window.DATA = </code>）：</p>
+  <pre>echo 'window.DATA = ' > data/data.js
+cat data/data.json >> data/data.js</pre>
   <p><strong>如需临时查看（临时测试）：</strong>请在下方选择文件</p>
 </div>
 <div id="file-picker" class="file-picker">
-  <span>选择 <code>repos_with_pods.json</code>：</span>
+  <span>选择 <code>data.json</code>：</span>
   <input type="file" accept=".json" onchange="loadLocalFile(this)">
 </div>
 ```

@@ -158,16 +158,38 @@ sh organize-repos-to-md/scripts/repos_json_append_pods.sh \
 
 ### 6. 可选：生成 HTML 版项目列表
 
-将 `repos_with_pods.json` 渲染为独立 HTML，与 markdown 版一同使用。
+根据 `dvlproad项目列表_PRD.md` 的设计规范，将 `repos_with_pods.json` 渲染为独立 HTML。
+
+数据加载采用 **html-data-loading** skill 定义的三阶段降级方案（详见 `AI-qskills/html-data-loading/SKILL.md`）。
+
+#### 本地正式测试（生成 .js 文件）
+
+如需本地双击即有完整数据，创建 `repos_with_pods.js`：
 
 ```bash
-# 已有 HTML 文件在：
-dvlproad项目列表.html  # 与 dvlproad项目列表.md 同目录
+DATA_DIR="项目列表/dvlproad项目列表/data"
+echo 'window.DATA = ' > "$DATA_DIR/repos_with_pods.js"
+cat "$DATA_DIR/repos_with_pods.json" >> "$DATA_DIR/repos_with_pods.js"
 ```
 
-前提：`repos_with_pods.json` 已由 Step 5 重建。
+#### 本地临时测试
 
-**注意**：HTML 为独立静态文件，数据通过 JavaScript 嵌入（127 KB）。重新跑 Step 5 后需要重新嵌入 JSON。
+无需额外步骤，打开 HTML 后选择 `.json` 文件即可。
+
+#### 文件位置
+
+```
+项目列表/
+├── dvlproad项目列表.html          ← 渲染器（25 KB，纯逻辑）
+├── dvlproad项目列表_PRD.md        ← 设计规范文档
+├── dvlproad项目列表.md
+└── dvlproad项目列表/
+    └── data/
+        ├── repos_with_pods.json   ← 数据源（Step 5 生成）
+        ├── repos_with_pods.js     ← 可选：file:// 用
+        ├── pods_all.json
+        └── repos.json
+```
 
 ## 参考脚本
 
