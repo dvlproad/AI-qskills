@@ -271,7 +271,7 @@ def parse_podspec(path):
         content = f.read()
 
     # Before stripping comments, extract # comment lines immediately before subspecs
-    # (add_subspec_comments.sh 已将 ss.summary 转为 # 注释)
+    # (podspec_normalize.sh 已将 ss.summary 转为 # 注释)
     subspec_comments = {}
     for m in re.finditer(
         r'^\s*#\s*(.+?)\s*\n\s*s{1,2}\.subspec\s+[\'"]([^\'"]+)[\'"]\s+do',
