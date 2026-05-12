@@ -49,6 +49,7 @@ graph LR
 | Skill                                                  | 描述                                        | 触发场景       | 产出示例   |
 | ------------------------------------------------------ | ------------------------------------------- | -------------- | ---------- |
 | [dev-fw-setting-ai-models](./dev-fw-setting-ai-models) | AI应用通用架构，包含模型选择、API Key管理等 | "创建 AI 网页" | AI聊天应用 |
+| [normalize-podspec-option2-project_list](./normalize-podspec-option2-project_list) | podspec 规范化 & 同步到项目列表 | "规范化podspec"、"完善pod注释" | pods_all.json + repos_with_pods.json |
 ---
 
 ### 💬 创意娱乐
@@ -165,6 +166,10 @@ description: |
 
 ### 0.0.8 (2026-05-12)
 - **坑**: `.cocoapods/repos/` 与 source 目录不同步，需 `rsync`
+
+### 0.0.8 (2026-05-12)
+- 新增 [normalize-podspec-option2-project_list](./normalize-podspec-option2-project_list): podspec 规范化（子库注释 + description），可选同步到项目列表，还支持直接生 HTML 版项目列表（dvlproad项目列表.html），与 markdown 版同类名同目录
+- 生成了 `dvlproad项目列表.html`，从 `repos_with_pods.json` 直接渲染项目列表，包含分类导航、搜索、公有/私有筛选、Pod 展示及子库详情折叠功能
 
 ### 0.0.7 (2026-05-10)
 - 新增 [organize-pod-to-md](./organize-pod-to-md): 整理自己的公有和私有 CocoaPods 列表为 Markdown 文档，并匹配到项目列表 md 中

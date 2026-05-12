@@ -156,6 +156,19 @@ sh organize-repos-to-md/scripts/repos_json_append_pods.sh \
 - `quit` / `q` → 退出
 - 其他 → 提示重新输入
 
+### 6. 可选：生成 HTML 版项目列表
+
+将 `repos_with_pods.json` 渲染为独立 HTML，与 markdown 版一同使用。
+
+```bash
+# 已有 HTML 文件在：
+dvlproad项目列表.html  # 与 dvlproad项目列表.md 同目录
+```
+
+前提：`repos_with_pods.json` 已由 Step 5 重建。
+
+**注意**：HTML 为独立静态文件，数据通过 JavaScript 嵌入（127 KB）。重新跑 Step 5 后需要重新嵌入 JSON。
+
 ## 参考脚本
 
 | 脚本 | 位置 | 用途 |
@@ -166,5 +179,7 @@ sh organize-repos-to-md/scripts/repos_json_append_pods.sh \
 | `repos_json_append_pods.sh` | `organize-repos-to-md/scripts/` | 重建 repos_with_pods.json |
 
 ## 版本记录
+
+### 0.1.0 (2026-05-12): 新增 Step 6 HTML 生成流程
 
 ### 0.0.1 (2026-05-12): 初始版本
