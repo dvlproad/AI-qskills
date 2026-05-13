@@ -189,7 +189,7 @@ CSS：
 
 ### 9. 分类级 Pod / Subspec 三档分段控制（局部刷新）
 
-子分类头部使用**三档分段控件**代替独立开关，三个档位对应三种详细程度：**项目** → **+Pod** → **+Subspec**。档位颜色跟随层级色系（紫 → 蓝 → 青绿）。点击后**只重建该子分类的 DOM**，不影响其他分类。
+子分类头部使用**三档分段控件**代替独立开关，三个档位对应三种详细程度：**repo** → **+Pod** → **+Subspec**。档位颜色跟随层级色系（紫 → 蓝 → 青绿）。点击后**只重建该子分类的 DOM**，不影响其他分类。
 
 级别通过 `catDetailLevel` 对象存储，子分类继承父分类级别（`Math.min(selfLevel, parentLevel)`），确保子项不会比父项显示更细。
 
@@ -267,7 +267,7 @@ const level = catDetailLevel[item.type] ?? viewModeToLevel(viewMode);
 // ...
 const hasPods = filtered.some(r => r.pods && r.pods.length > 0);
 if (hasPods) {
-  const labels = ['项目', '+Pod', '+Subspec'];
+  const labels = ['repo', '+Pod', '+Subspec'];
   let segHtml = '<span class="level-seg">';
   for (let i = 0; i < 3; i++) {
     const filled = level >= i + 1;
@@ -298,7 +298,7 @@ function renderSubCategory(item, q, depth = 0, parentLevel) {
 三档效果：
 | 档位 | catDetailLevel | hidePod | hideSubspec | 显示内容 |
 |------|---------------|---------|-------------|---------|
-| 项目 | 1 | true | true | 仅仓库列表 |
+| repo | 1 | true | true | 仅仓库列表 |
 | +Pod | 2 (跟随全局) | false | true | 仓库 + Pod |
 | +Subspec | 3 | false | false | 全部 |
 
@@ -307,6 +307,7 @@ function renderSubCategory(item, q, depth = 0, parentLevel) {
 - 档位间互斥，避免「隐藏 Pod 但显示 Subspec」的非法状态
 - 颜色跟随层级色系（紫→蓝→青绿），档位越深颜色越深
 - **优先级链**：此处实现的是抽象 `priority-chain` skill 的具体实例，模型为 `自身 > 父级 > 全局` 三层。显示时高优先覆盖低优先；修改低优先时自动清除高优先。详见 [`priority-chain`](../priority-chain/SKILL.md)
+- 该 Segmented Control UI 模式是通用 priority-chain 的具象化表达，各档位对应优先级层索引，填充规则遵循累进亮起原则
 - 局部 DOM 替换避免全量重渲染
 
 ## 代码模板
@@ -468,3 +469,76 @@ function toggleRow(id, iconId) {
 
 ### Q: colspan 怎么确定？
 总列数由当前表的表头列数决定。展开行用 `<td colspan="N">`，N 为表头列数。
+
+## 优先级链实例：dvlproad 分类 seg 控件
+
+此处是通用 [`priority-chain`](../priority-chain/SKILL.md) skill 在 dvlproad 项目列表中的具体实现。三层叠配置：**全局 toolbar（层 0）→父分类 seg（层 1）→自身 seg（层 2）**。
+
+### 层级定义
+
+| 层 | 索引 | 名称 | 存储对象 | 修改触发 |
+|----|------|------|---------|---------|
+| global | 0 | 全局视图模式 | `viewMode`（单值） | 页面顶部 toolbar 切换 |
+| parent | 1 | 父分类级别 | `catDetailLevel[parentType]` | 父分类 seg 控件设置 |
+| self | 2 | 自身分类级别 | `catDetailLevel[selfType]` | 自身 seg 控件设置 |
+
+### 数据结构
+
+不用嵌套 layers 数组，层通过不同存储对象区分：
+
+```javascript
+const globalLevel = { value: 2 };  // viewMode 映射后的级别
+const catDetailLevel = {};         // 同时存 parent 和 self 层
+```
+
+读 fallback 通过 `??` 实现：
+
+```javascript
+const level = catDetailLevel[selfType] ?? catDetailLevel[parentType] ?? viewModeToLevel(viewMode);
+//          高优先          ↑              中等优先       ↑              低优先        ↑
+```
+
+写清除通过 `clearDescendantLevels` 实现：
+
+```javascript
+// 写 layer 1（父分类）
+function setCatLevel(type, level) {
+  catDetailLevel[type] = level;
+  const item = findItemByType(appData.repos, type);
+  if (item) clearDescendantLevels(item);
+  updateCat(type);
+}
+function clearDescendantLevels(item) {
+  if (!item.children) return;
+  for (const c of item.children) {
+    delete catDetailLevel[c.type];
+    clearDescendantLevels(c);
+  }
+}
+
+// 写 layer 0（全局）
+function setViewMode(mode) {
+  viewMode = mode;
+  catDetailLevel = {};
+  render();
+}
+```
+
+### 行为追踪
+
+以"基础UI（父分类）→ CJUIKit（子分类）"为例：
+
+| 操作 | layer 0 (global) | layer 1 (基础UI) | layer 2 (CJUIKit) | 显示结果 |
+|------|-----------------|-----------------|------------------|---------|
+| 初始 | `value=2` | `{}` | `{}` | level = `undefined ?? undefined ?? 2` = **2** |
+| CJUIKit → +Subspec | `value=2` | `{}` | `{CJUIKit:3}` | level = `3 ?? undefined ?? 2` = **3** |
+| 基础UI → +Pod | `value=2` | `{基础UI:2}` | CJUIKit 被 delete | level = `undefined ?? 2 ?? 2` = **2** |
+| CJUIKit → +Subspec | `value=2` | `{基础UI:2}` | `{CJUIKit:3}` | level = `3 ?? 2 ?? 2` = **3** |
+| 全局 → repo | `value=1` | 全部清空 | 全部清空 | level = `undefined ?? undefined ?? 1` = **1** |
+
+### 关键代码位置
+
+- 读 fallback: `renderSubCategory` 中 `const level = catDetailLevel[item.type] ?? parentLevel ?? viewModeToLevel(viewMode);`
+- 写 layer 2 + 清除 layer 1: `setCatLevel` → `clearDescendantLevels`
+- 写 layer 0 + 清除全部: `setViewMode` → `catDetailLevel = {}`
+- 全局映射: `viewModeToLevel` 将 `'repo'|'pod'|'subspec'` 映射为 `1|2|3`

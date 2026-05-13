@@ -30,11 +30,14 @@ Phase 2: 动态 <script> 加载 data.js
   ├── JS 加载成功（window.DATA 有值）→ startApp(DATA) → 完整渲染 ✅
   └── JS 加载失败 → 进入 Phase 3
 
-Phase 3: 显示提示横幅 + 文件选择器
-         提示：
+Phase 3: 醒目提示横幅（amber 警告色 + 左色条）
+          内容区域变灰不可交互（opacity + grayscale + pointer-events: none）
+          内容顶部插入「⬇️ 以下为默认示例数据」提示标语
+          文件选择器供用户手动恢复
+          提示：
           • 本地正式测试：创建 data.js（在 data.json 首行加 window.DATA =）
           • 本地临时测试：点击下方选择 data.json
-         选择文件 → FileReader → startApp(data) → 完整渲染 ✅
+          选择文件 → FileReader → startApp(data) → 移除灰化 + 标语 → 完整渲染 ✅
 ```
 
 ## 代码模板
@@ -100,9 +103,14 @@ async function init() {
     if (jsData) { startApp(jsData); return; }
   } catch {}
 
-  // Phase 3: 提示 + 文件选择器
+  // Phase 3: 醒目提示 + 内容灰化 + 文件选择器
   document.getElementById('data-warning').style.display = 'block';
   document.getElementById('file-picker').style.display = 'block';
+  document.getElementById('content').classList.add('data-warning-shown');
+  const banner = document.createElement('div');
+  banner.className = 'default-data-banner';
+  banner.textContent = '⬇️ 以下为默认示例数据，请加载完整数据文件';
+  document.getElementById('content').insertBefore(banner, document.getElementById('content').firstChild);
 }
 ```
 
@@ -118,6 +126,9 @@ function loadLocalFile(input) {
       const data = JSON.parse(e.target.result);
       document.getElementById('data-warning').style.display = 'none';
       document.getElementById('file-picker').style.display = 'none';
+      document.getElementById('content').classList.remove('data-warning-shown');
+      const banner = document.querySelector('.default-data-banner');
+      if (banner) banner.remove();
       startApp(data);
     } catch {
       alert('JSON 格式错误');
@@ -176,10 +187,13 @@ cat data/data.json >> data/data.js</pre>
 ```
 
 ```css
-.data-warning { background: #fff8e1; border: 1px solid #ffe082; padding: 8px 16px; border-radius: 6px; margin-bottom: 8px; font-size: 13px; color: #795548; display: none; line-height: 1.7; }
+.data-warning { background: #fff3cd; border: 1px solid #ffc107; border-left: 4px solid #ff9800; padding: 20px 24px; border-radius: 5px; margin-bottom: 32px; font-size: 14px; color: #6d4c00; display: none; line-height: 1.7; box-shadow: 0 2px 8px rgba(255,152,0,0.15); }
 .data-warning p { margin: 4px 0; }
 .data-warning pre { background: #f0f0f0; padding: 6px 10px; border-radius: 4px; font-size: 12px; overflow-x: auto; margin: 4px 0 8px; }
 .data-warning code { background: #f0f0f0; padding: 1px 4px; border-radius: 3px; }
+
+.data-warning-shown #content { opacity: 0.5; filter: grayscale(0.3); pointer-events: none; }
+.default-data-banner { text-align: center; padding: 12px 16px; font-size: 13px; color: #6d4c00; background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; margin-bottom: 16px; }
 ```
 
 ## 常见问题
