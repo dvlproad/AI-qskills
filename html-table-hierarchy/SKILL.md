@@ -536,6 +536,69 @@ function setViewMode(mode) {
 | CJUIKit → +Subspec | `value=2` | `{基础UI:2}` | `{CJUIKit:3}` | level = `3 ?? 2 ?? 2` = **3** |
 | 全局 → repo | `value=1` | 全部清空 | 全部清空 | level = `undefined ?? undefined ?? 1` = **1** |
 
+> **联动 N层规则**：以上 priority chain 跟踪的是档位级别的读写清除。在此之上，手动展开/收起状态遵循 N层嵌套规则的加减档规则：减档时被减掉层级的展开状态全部丢弃，加档回本层时恢复默认。完整规范见 priority-chain 中的 [N层嵌套表格层级展开规则说明（完整版）](../priority-chain/SKILL.md#n层嵌套表格层级展开规则说明完整版)。
+
+### 10. Seg 级别不锁定手动交互
+
+**核心规则**：渲染始终生成所有下级 DOM，seg 级别只控制初始 `hidden`，不阻断手动点击展开。适用于每一级。
+
+**通用代码模式**：
+
+```javascript
+const hasChildren = data.children && data.children.length > 0;
+const childHidden = segLevel < childMinLevel;  // seg 不够就默认隐藏
+
+// 展开列：有下级就显示数字+图标，图标初始方向由 childHidden 决定
+html += `<td class="toggle-cell" onclick="toggleChild('${id}')">${hasChildren ? data.children.length + ' <span class="toggle-icon" id="icon-' + id + '">' + (childHidden ? '▶' : '▼') + '</span>' : '-'}</td>`;
+
+// 下级行：始终渲染，seg 控制 hidden 类
+if (hasChildren) {
+  html += `<tr class="${childHidden ? 'hidden' : ''}" id="${id}">${renderTable(data.children)}</tr>`;
+}
+```
+
+#### Repo → Pod
+
+| 场景 | Pod 列显示 | Pod 行 DOM | 可点击展开 |
+|------|-----------|-----------|-----------|
+| 有 pod，seg ≥ +Pod | `3 ▼` | 存在，`hidden` 为 false | ✅ |
+| 有 pod，seg = repo | `3 ▶` | 存在，`hidden` 为 true | ✅ |
+| 无 pod | `-` | 无 | — |
+
+```javascript
+const hasPods = r.pods && r.pods.length > 0;
+const showPods = hasPods && !hidePod;          // seg 是否 >= +Pod
+const podInitIcon = hidePod ? '▶' : '▼';       // seg = repo 时初始折叠
+
+// Pod 列：有 pod 就显示数字 + 图标，非链接列全部可点击
+html += `<td${hasPods ? ' class="repo-toggle-cell" onclick="toggleRepoPod(\'' + id + '\')"' : ''}>${hasPods ? r.pods.length + ' <span class="toggle-icon" id="repo-icon-' + id + '">' + podInitIcon + '</span>' : '-'}</td>`;
+// 其他列：可点击条件用 hasPods（非 showPods）
+html += `<td class="desc${hasPods ? ' repo-toggle-cell' : ''}"${hasPods ? ` onclick="toggleRepoPod('${id}')"` : ''}>...</td>`;
+
+// Pod 行：始终渲染，seg 控制 hidden 类
+if (hasPods) {
+  html += `<tr class="repo-pod-row${showPods ? '' : ' hidden'}" id="${id}">...`;
+}
+```
+
+#### Pod → Subspec
+
+| 场景 | Subspec 行 DOM | 可点击展开 |
+|------|---------------|-----------|
+| 有 subspec，seg ≥ +Subspec | 存在，`hidden` 为 false | ✅ |
+| 有 subspec，seg = +Pod | 存在，`hidden` 为 true | ✅ |
+| 无 subspec | 无 | — |
+
+```javascript
+if (hasSub) {
+  const subspecHidden = hideSubspec;  // seg < +Subspec
+  html += `<tr class="pod-subspec-row${subspecHidden ? ' hidden' : ''}" id="${podId}">...`;
+}
+// 不能写成 if (hasSub && showSubspec)
+```
+
+**注意**：手动展开状态不跨档位保留，加/减档时重置。完整规范见 priority-chain 中的 N层嵌套表格层级展开规则说明。
+
 ### 关键代码位置
 
 - 读 fallback: `renderSubCategory` 中 `const level = catDetailLevel[item.type] ?? parentLevel ?? viewModeToLevel(viewMode);`
