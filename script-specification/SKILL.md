@@ -687,10 +687,8 @@ if contains_verbose_in_allArgs:
 - **场景说明**：
 
   - **场景1：日志函数** → 用 `printf`，避免路径等含特殊字符的值输出异常
-
-    ```bash
-      log_error() { printf "%s\n" "$message" >&2; }
-    ```
+    - 日志不含颜色：`printf "%s\n" "$message" >&2`
+    - 日志含颜色：`printf "%b\n" "$message" >&2`（`%b` 会解释 `\033` 等转义序列）
 
   - **场景2：变量输出：终端显示变量内容** → 用 `printf "%s"`，变量中的 `\n` 才能原样显示，而不是被显示成换行，导致看不到`\n`这个内容，丢失了这个信息
 
@@ -737,6 +735,33 @@ if [ $? != 0 ] || [ -z "${iCatalogMap}" ]; then
     exit 1
 fi
 ```
+
+#### 2.4、多行输出（heredoc）
+
+当需要输出多行文本时，使用 heredoc 配合 `log_info`，避免多个 printf 调用：
+
+```bash
+log_info "$(cat <<EOF
+
+请选择操作：
+
+  1. 选项一（推荐）
+     操作说明：xxx
+     后续：xxx
+
+  2. 选项二
+     操作说明：xxx
+     后续：xxx
+
+（退出请输入 Q/q）
+EOF
+)"
+```
+
+**说明**：
+- heredoc 中的内容按原格式输出，方便查看多行结构
+- 配合 `log_info`（封装 `printf "%s\n" >&2`）使用，输出到 stderr，避免被 `$()` 捕获
+- 文本会先被 cat 读取，再传递给 log_info，最终通过 >&2 输出到终端
 
 ### 3、contain代码的要求
 

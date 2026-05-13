@@ -386,6 +386,7 @@ brew upgrade qbase
 
 # 步骤3. 验证 qbase
 qbase --version
+qbase --help
 ```
 
 验证结果：
