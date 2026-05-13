@@ -212,6 +212,7 @@ _log() {
 log_error() { _log "ERROR" "$1"; }
 log_warn() { _log "WARN" "$1"; }
 log_info() { _log "INFO" "$1"; }
+log_color_info() { printf "%b\n" "$message" >&2; }	# 日志含颜色：`%b` 会解释 `\033` 等转义序列
 log_key() { _log "KEY" "$1"; }
 
 # qian_log 函数
@@ -687,9 +688,14 @@ if contains_verbose_in_allArgs:
 - **场景说明**：
 
   - **场景1：日志函数** → 用 `printf`，避免路径等含特殊字符的值输出异常
-    - 日志不含颜色：`printf "%s\n" "$message" >&2`
-    - 日志含颜色：`printf "%b\n" "$message" >&2`（`%b` 会解释 `\033` 等转义序列）
 
+    ```bash
+      log_error() { printf "%s\n" "$message" >&2; }
+      
+      # 日志含颜色：`%b` 会解释 `\033` 等转义序列
+      log_color_info() { printf "%b\n" "$message" >&2; }
+    ```
+  
   - **场景2：变量输出：终端显示变量内容** → 用 `printf "%s"`，变量中的 `\n` 才能原样显示，而不是被显示成换行，导致看不到`\n`这个内容，丢失了这个信息
 
   - **场景3：变量输出：传递给 jq 的变量** → 用 `printf "%s"`，避免对含反斜杠 `\`的字段值（如文件路径 `"C:\Users\test"`），echo 会改变反斜杠，从而影响整个jsonString没法原样传递，而是被处理，导致传给 jq 后，jq 解析失败。
@@ -744,16 +750,13 @@ fi
 log_info "$(cat <<EOF
 
 请选择操作：
-
   1. 选项一（推荐）
      操作说明：xxx
      后续：xxx
-
   2. 选项二
      操作说明：xxx
      后续：xxx
-
-（退出请输入 Q/q）
+ 
 EOF
 )"
 ```
