@@ -212,7 +212,7 @@ _log() {
 log_error() { _log "ERROR" "$1"; }
 log_warn() { _log "WARN" "$1"; }
 log_info() { _log "INFO" "$1"; }
-log_color_info() { printf "%b\n" "$message" >&2; }	# 日志含颜色：`%b` 会解释 `\033` 等转义序列
+log_color_info() { printf "%b\n" "$1" >&2; }	# 日志含颜色：`%b` 会解释 `\033` 等转义序列
 log_key() { _log "KEY" "$1"; }
 
 # qian_log 函数
@@ -997,8 +997,46 @@ else:
 ### 1、参数要求
 
 - 必须使用具名参数（如 `-p`、`--package`）
+
 - 支持短参数和长参数两种形式
+
 - 参数解析使用 `while` + `case` 语句
+
+- 解析出来的全局参数变量，用大写，如 TARGET_ENV_VAR
+
+- **传的值不允许为空** 和 **传的值允许空值**
+
+  ```sh
+  INPUT_DESCRIPT=""
+  INPUT_FOR=""
+  while [ $# -gt 0 ]; do
+      case "$1" in
+          --input-descript) 
+              # 不能为空
+              if [ -z "$2" ] || [[ "$2" =~ ^- ]]; then
+                  echo "错误: --input-descript 必须指定" >&2
+                  exit 1
+              fi
+              INPUT_DESCRIPT="$2"
+              shift 2
+              ;;
+          --input-for)
+              # 允许空值或者不传：检查下一个参数是否为空或者是选项（以 - 开头）
+              if [ -z "$2" ] || [[ "$2" =~ ^- ]]; then
+                  # 没有提供值，或者下一个参数是选项，则设置为空
+                  INPUT_FOR=""
+                  shift 1  # 只消费当前参数
+              else
+                  INPUT_FOR="$2"
+                  shift 2
+              fi
+              ;;
+          *) echo "未知参数: $1" >&2; exit 1 ;;
+      esac
+  done
+  ```
+
+  
 
 ### 2、执行要求
 
@@ -1060,6 +1098,8 @@ elif [ "${option}" -le "${count}" ]; then
   }
   EOF
   ```
+
+- **所有的检查脚本（如xxx_check.sh）都应该使用 json 输出结果。json里面有两个字段是一个status_type代表错误类型，比如如果是文件不存在，则是 file_noexsit，其他的是对应的，还有一个字段是Messsage。这样其他脚本调用的时候，也能根据status_type来判断如果是文件不存在，则可以继续执行某些动作，而不是所有失败，都不执行。且记得是使用 `printf "%s"`  输出**
 
   
 
