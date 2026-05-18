@@ -31,6 +31,7 @@ use skill tool to load ai-qskills/crush-reply
 | Skill | 描述 |
 |-------|------|
 | life-reply-crush | Generate fun, flirty replies to crush messages |
+| opencode-sessions-manager | opencode 会话自动记录与恢复 — 自动保存会话 ID、交互式会话选择器 |
 | record-to-skill | 创建和完善 Skill |
 | record-router | 内容分发路由 — 判断内容类型，路由到对应 Skill |
 | record-to-hexo-blog | 将内容写入 hexo 博客 |
