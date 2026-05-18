@@ -28,7 +28,13 @@ use skill tool to load ai-qskills/crush-reply
 
 ## Available Skills
 
-- **crush-reply**: Generate fun, flirty replies to crush messages
+| Skill | 描述 |
+|-------|------|
+| life-reply-crush | Generate fun, flirty replies to crush messages |
+| record-to-skill | 创建和完善 Skill |
+| record-router | 内容分发路由 — 判断内容类型，路由到对应 Skill |
+| record-to-hexo-blog | 将内容写入 hexo 博客 |
+| record-to-script-repo | 将脚本分类到正确仓库和子目录 |
 
 ## Updating
 

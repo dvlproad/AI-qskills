@@ -15,7 +15,7 @@
 ## 重要规则
 
 - **所有实现决策和踩坑记录都放在 `README.md` 里**（`CLAUDE.md` 的要求）。如果 Agent 发现了 bug 或踩了坑，必须更新 README.md。
-- **技能优化走 `skill-qian-optimize/SKILL.md`**，触发词："完善我的skill"。
+- **技能优化走 `record-to-skill/SKILL.md`**，触发词："完善我的skill"。
 
 ## organize-pod-to-md 脚本注意事项
 

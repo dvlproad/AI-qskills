@@ -1,11 +1,47 @@
 # AI-qskills
 自定义的 Skill 工具集合
 
-**所有 Skill 的完善遵从 [skill-qian-optimize 的 SKILL.md](./skill-qian-optimize/SKILL.md)**，通过输入**"完善我的skill"**即可触发，**优化skill，可生成结构文档**
+**所有 Skill 的完善遵从 [record-to-skill 的 SKILL.md](./record-to-skill/SKILL.md)**，通过输入**"完善我的skill"**即可触发，**优化skill，可生成结构文档**
 
 
 
 ## Skill 分类详解
+
+---
+
+### 📝 内容记录
+
+```mermaid
+graph LR
+    A[📝 record-router<br/>内容分发] --> B[📦 record-to-skill<br/>创建/完善 Skill]
+    A --> C[📝 record-to-hexo-blog<br/>写博客]
+    A --> D[🔧 record-to-script-repo<br/>脚本入库]
+```
+
+| Skill | 描述 | 触发场景 | 产出示例 |
+|-------|------|----------|----------|
+| [record-router](./record-router) | 内容分发路由 — 判断内容类型，路由到对应 Skill | "记录这个"、"保存这个" | 路由到博客/Skill/脚本库 |
+| [record-to-skill](./record-to-skill) | 创建和完善 Skill | "创建skill"、"完善我的skill" | SKILL.md |
+| [record-to-hexo-blog](./record-to-hexo-blog) | 将内容写入 hexo 博客 | "把这个写到博客" | 博客文章 |
+| [record-to-script-repo](./record-to-script-repo) | 将脚本分类入库 | "把这个脚本入库" | 脚本放入正确仓库 |
+
+---
+
+### 📁 内容整理
+
+```mermaid
+graph LR
+    A[📁 organize-code-to-md<br/>整理代码] --> B[qbase/branch.md<br/>产出]
+    C[🧪 organize-md-to-md<br/>生成文档] -.-> A
+    D[📋 organize-repos-to-md<br/>整理仓库] -.-> A
+```
+
+| Skill                                          | 描述                                    | 触发场景           | 产出示例                                                     |
+| ---------------------------------------------- | --------------------------------------- | ------------------ | ------------------------------------------------------------ |
+| [organize-code-to-md](./organize-code-to-md)   | 整理代码目录结构                        | "帮我理下有关 XXX" | [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
+| [organize-md-to-md](./organize-md-to-md)       | 整理文档关系/生成图谱                   | "整理文档关系"     |                                                              |
+| [organize-repos-to-md](./organize-repos-to-md) | 整理仓库列表为分类文档                  | "整理仓库"         | 项目列表.md                                                  |
+| [organize-pod-to-md](./organize-pod-to-md)     | 整理 CocoaPods Pod 列表，匹配到项目列表 | "整理pod"          | pods_all.md                                                  |
 
 ---
 
@@ -27,29 +63,12 @@ graph LR
 
 ---
 
-### 📁 内容整理
-
-```mermaid
-graph LR
-    A[📁 organize-code-to-md<br/>整理代码] --> B[qbase/branch.md<br/>产出]
-    C[🧪 organize-md-to-md<br/>生成文档] -.-> A
-    D[📋 organize-repos-to-md<br/>整理仓库] -.-> A
-```
-
-| Skill | 描述 | 触发场景 | 产出示例 |
-|-------|------|----------|----------|
-| [organize-code-to-md](./organize-code-to-md) | 整理代码目录结构 | "帮我理下有关 XXX" | [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
-| [organize-md-to-md](./organize-md-to-md) | 整理文档关系/生成图谱 | "整理文档关系" | |
-| [organize-repos-to-md](./organize-repos-to-md) | 整理仓库列表为分类文档 | "整理仓库" | 项目列表.md |
-| [organize-pod-to-md](./organize-pod-to-md) | 整理 CocoaPods Pod 列表，匹配到项目列表 | "整理pod" | pods_all.md |
-
----
-
 ### 🔧 功能模块
 | Skill                                                  | 描述                                        | 触发场景       | 产出示例   |
 | ------------------------------------------------------ | ------------------------------------------- | -------------- | ---------- |
 | [dev-fw-setting-ai-models](./dev-fw-setting-ai-models) | AI应用通用架构，包含模型选择、API Key管理等 | "创建 AI 网页" | AI聊天应用 |
 | [normalize-podspec-option2-project_list](./normalize-podspec-option2-project_list) | podspec 规范化 & 同步到项目列表 | "规范化podspec"、"完善pod注释" | pods_all.json + repos_with_pods.json |
+| [opencode-sessions-manager](./opencode-sessions-manager) | opencode 会话自动记录与恢复 | "配置opencode会话管理" | oc.sh + ~/Downloads/我的会话id.md |
 ---
 
 ### 💬 创意娱乐
@@ -178,7 +197,7 @@ description: |
 - 新增 [organize-repos-to-md](./organize-repos-to-md) skill：整理 GitHub 和 Gitee 仓库列表为分类文档
 
 ### 0.0.5 (2026-04-13)
-- 新增 [skill-qian-optimize](./skill-qian-optimize) skill：优化和完善用户创建的 skill
+- 新增 [record-to-skill](./record-to-skill) skill：优化和完善用户创建的 skill
 - 修复 [script-to-homebrew](./script-to-homebrew) skill：修复AI执行skill中断问题，让AI可以按skill自动执行完整个流程
 
 ### 0.0.4 (2026-04-11)
