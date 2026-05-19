@@ -71,6 +71,10 @@ source ~/.zshrc    # zsh
 2. 从 `.zshrc`（或 `.bashrc`）中移除 `source ~/.config/opencode/source_opencode.sh` 行
 3. 重新加载：`source ~/.zshrc`（或 `source ~/.bashrc`）
 
+## 参考博客
+
+[dvlproadHexo的《AI-③opencode会话管理》](https://dvlproad.github.io/AI/AI-③opencode会话管理/)
+
 ## 版本记录
 
 ### 0.0.1 (2026-05-18): 初始版本
