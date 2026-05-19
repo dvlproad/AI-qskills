@@ -208,13 +208,12 @@ category_order:
   - 电脑使用
   - 常识类
   - 编程工具
+  - 开发工具
   - 科学工具
   - 专利
   - 面试
   - 随笔
   - developer
-  - node
-  - protobuf
   - 自动化
 
 # 隐藏分类（侧边栏不展示）
