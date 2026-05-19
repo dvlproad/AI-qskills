@@ -1,53 +1,85 @@
 ---
 name: record-to-skill
 description: |
-  创建和完善 Skill
+  创建、归类整理和完善 Skill
   触发场景：被 record-router 路由至此
 ---
 
-# Skill 创建与完善指南
+# Skill 创建、归类整理与完善指南
 
-帮助用户创建新 Skill，或按要求和规范检查完善已有 Skill。
+帮助用户创建新 Skill、归类整理已有 Skill，或按要求和规范检查完善已有 Skill。
 
 ## 触发条件
 
-- 被 record-router 路由"创建 Skill"或"完善 Skill"任务时
+- **被 record-router 路由"创建 Skill"任务时** → 走写作流程（A）
+- **被 record-router 路由"完善 Skill"任务时** → 走完善流程（C）
+- **用户输入"整理技能" / "归类 skill" / "重命名技能" 等指令时** → 走归类整理流程（B）
 
----
+## 引用规范
 
-## 一、创建新技能
+当涉及命名约定或流程对比时，优先参考以下规范：
 
-### 1. 创建流程
+- 分类归属规则：暂无
+- 命名约定：[《命名规范.md》](../命名规范.md)
+- 流程对比：[《流程对比规范.md》](../流程对比规范.md)
 
-```text
-用户提出需求 / 被 record-router 路由至此
-          │
-          ▼
-AI 描述 Skill 的用途和内容，询问用户是否确认创建
-          │
-          ├── 确认 → 进入下一步
-          └── 拒绝 → 停止
-          │
-          ▼
-按命名规范确定目录名，按模板撰写 SKILL.md 内容
-          │
-          ▼
-按三~六节（基本检查项、章节结构顺序检查等）逐条检查 skill 规范性
-          │
-          ▼
-展示给用户审核内容
-          │
-          ├── 确认 → 创建目录和 SKILL.md 文件
-          └── 修改 → 按反馈调整后重新审核
-          │
-          ▼
-更新 README.md + .opencode/INSTALL.md（注册条目）
-          │
-          ▼
-询问用户是否还需要别的修改
+## 流程概览
+
+```mermaid
+flowchart TD
+    I[收到指令] --> J{命中入口}
+
+    J -->|创建Skill| A1[A1: 分类判断]
+    J -->|归类整理| B1[B1: 分类判断]
+    J -->|完善Skill| c1[ ]
+
+    A1 --> A2[A2: 新建目录]
+    B1 --> B2[B2: 重命名/移动目录]
+    c1 --> c2[ ]
+
+    A2 --> A3[A3: 撰写+检查完善]
+    B2 --> B3[B3: 无]
+    c2 --> C3[C3: 撰写+检查完善]
+
+    A3 --> A4[A4: 注册索引]
+    B3 --> B4[B4: 更新索引]
+
+    C3 --> c3[ ]
+
+    A4 --> A5[A5/B5/C5: 用户确认]
+    B4 --> B5[A5/B5/C5: 用户确认]
+    c3 --> C5[A5/B5/C5: 用户确认]
+
+    A5 --> END[结束]
+    B5 --> END
+    C5 --> END
+
+    class A1,A2,A3,A4,A5 a
+    class B1,B2,B3,B4,B5 b
+    class C3,C5 c
+    class J,END shared
+    class c1,c2,c3 hide
+
+    classDef a fill:#e8f5e9,stroke:#4caf50
+    classDef b fill:#e3f2fd,stroke:#2196f3
+    classDef c fill:#fff3e0,stroke:#ff9800
+    classDef shared fill:#f5f5f5,stroke:#9e9e9e,stroke-dasharray: 5 5
+    classDef hide fill:none,stroke:none
 ```
 
-### 2. SKILL.md 内容规范
+## 流程细则
+
+[A1: 分类判断] → 判断新 Skill 的命名和位置，对照命名规范确定目录名，不确定时询问用户
+[B1: 分类判断] → 判断已有 Skill 的目标命名和位置，对照命名规范确定目录名，不确定时询问用户
+[A2: 新建目录] → 按命名规范创建 skill 目录
+[B2: 重命名/移动目录] → 修改目录名，更新 SKILL.md 中的 name，涉及删除源目录时先向用户确认
+[B3: 无] → 此步无操作（占位对齐）
+[A3/C3: 撰写+检查完善] → 按模板撰写 SKILL.md 内容，同时按三~六节逐条检查并修复
+[A4: 注册索引] → 在 README.md 对应分类表格中新增一行，在 .opencode/INSTALL.md 的 Available Skills 中新增条目
+[B4: 更新索引] → 修改 README.md 和 .opencode/INSTALL.md 中对应的条目
+[A5/B5/C5: 用户确认] → 展示所有修改让用户确认，确认后再结束
+
+### SKILL.md 内容模板
 
 ```yaml
 ---
@@ -71,31 +103,6 @@ description: |
 ## 卸载步骤（如涉及文件修改）
 
 ## 版本记录
-```
-
-### 3. 创建 Skill 后的注册步骤
-
-1. **README.md**：在对应分类表格中新增一行（如创建流程已做则跳过）
-2. **.opencode/INSTALL.md**：在 Available Skills 列表中新增条目（如创建流程已做则跳过）
-3. **提交代码前先让用户确认**
-
----
-
-## 二、完善技能
-
-### 1. 完善流程
-
-```text
-加载已有 Skill 的 SKILL.md
-          │
-          ▼
-按三~六节（基本检查项、章节结构顺序检查等）逐条检查并修复
-          │
-          ▼
-展示给用户审核修改
-          │
-          ├── 确认 → 完成
-          └── 修改 → 按反馈调整后重新审核
 ```
 
 ---
@@ -314,6 +321,7 @@ script-qbase/branch.md
 
 ## 版本记录
 
+- 0.0.6 (2026-05-19): 重构为 A 写作 / B 归类整理 / C 完善三流程，增加流程概览图
 - 0.0.5 (2026-05-18): 重构为创建/完善双流程，检查项拆为独立章节（三~六）
 - 0.0.4 (2026-05-18): 新增"创建新技能"流程；重构章节标题层级
 - 0.0.3 (2026-04-15): 新增执行流程和文档结构检查规范
