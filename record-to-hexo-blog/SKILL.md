@@ -60,7 +60,10 @@ description: |
 参照现有文章风格：
 - 简洁，附代码/命令
 - 记录核心知识和关键要点
-- 提及对应的 Skill 路径（如有）
+- 提及 Skill 路径时使用 HTTP 链接，禁止用本地绝对路径。
+  - 如引用 AI-qskills 中的 Skill，格式：[AI-qskills 中的 xxx](https://github.com/dvlproad/AI-qskills/blob/main/xxx/SKILL.md)
+  - 如引用其他仓库中的 Skill，使用该仓库对应的 HTTP 链接
+- Skill 引用放在读者理解「方案是什么」之后、文章收尾之前。读者先了解问题与方案，再得知去哪里获取，自然引导行动。不要放在开头（读者还没理解背景）或末尾收尾后才出现
 - 不写无意义的废话
 
 ### 4. 更新 总目录.md

@@ -68,7 +68,7 @@ graph LR
 | ------------------------------------------------------ | ------------------------------------------- | -------------- | ---------- |
 | [dev-fw-setting-ai-models](./dev-fw-setting-ai-models) | AI应用通用架构，包含模型选择、API Key管理等 | "创建 AI 网页" | AI聊天应用 |
 | [normalize-podspec-option2-project_list](./normalize-podspec-option2-project_list) | podspec 规范化 & 同步到项目列表 | "规范化podspec"、"完善pod注释" | pods_all.json + repos_with_pods.json |
-| [opencode-sessions-manager](./opencode-sessions-manager) | opencode 会话自动记录与恢复 | "配置opencode会话管理" | oc.sh + ~/Downloads/我的会话id.md |
+| [opencode-sessions-manager](./opencode-sessions-manager) | opencode 会话自动记录与恢复 | "配置opencode会话管理" | source_opencode.sh + ~/Downloads/我的会话id.md |
 ---
 
 ### 💬 创意娱乐

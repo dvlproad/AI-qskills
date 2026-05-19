@@ -23,11 +23,11 @@ description: |
 
 ### 1. 复制脚本文件
 
-脚本位于 [`scripts/oc.sh`](scripts/oc.sh)，复制到 `~/.config/opencode/`：
+脚本位于 [`scripts/source_opencode.sh`](scripts/source_opencode.sh)，复制到 `~/.config/opencode/`：
 
 ```bash
 mkdir -p ~/.config/opencode
-cp scripts/oc.sh ~/.config/opencode/source_opencode.sh
+cp scripts/source_opencode.sh ~/.config/opencode/source_opencode.sh
 ```
 
 > **平台说明**：macOS（Intel/M 芯片）和统信 UOS 均适用。如使用 bash，将 `~/.zshrc` 替换为 `~/.bashrc`。

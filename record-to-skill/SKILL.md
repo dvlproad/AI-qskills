@@ -198,6 +198,8 @@ script-qbase/branch.md
 
 ------
 
+> **引用规范**：SKILL.md 中引用 AI-qskills 内的其他项目必须使用 GitHub 链接，格式：[AI-qskills 中的 xxx](https://github.com/dvlproad/AI-qskills/blob/main/xxx/SKILL.md)，禁止使用本地绝对路径。
+>
 > **注意**：以下过渡语仅适用于非 skill 环境（如直接复制给 DeepSeek 等使用）。在 OpenCode 等 skill 环境中，此段落不生效。
 >
 > **过渡语**：以后我输入 "营商环境主题: xxx" 的格式，你就直接生成回复。明白请回复"明白"
