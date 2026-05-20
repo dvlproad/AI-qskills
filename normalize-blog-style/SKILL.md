@@ -117,6 +117,38 @@ Step 11: [可选] 检查代码块配色
 
 **验证：** 发布一篇测试文章并设置不同的 freshness / freshness_days / top 值，确认首页顺序符合预期即可。
 
+#### 1. 排序层级
+
+按以下优先级排列，一篇文章只出现在满足条件的最高层级：
+
+| 序   | 含义       | 层级               | 条件                                                       | 层内排序                |
+| ---- | ---------- | ------------------ | ---------------------------------------------------------- | ----------------------- |
+| 1    | **新鲜**   | **freshness**      | 全局最新 N 篇（`freshness: N`）                            | 按 date 倒序            |
+| 2    | **新鲜日** | **freshness_days** | N 天内的文章（`freshness_days: N`），排除已出现在 fresh 的 | 按 date 倒序            |
+| 3    | **评分**   | **top**            | `top` 值 > 0 的文章，排除已出现在前两层的                  | 按 top 降序 → date 倒序 |
+| 4    | **日期**   | **rest**           | 其余所有                                                   | 按 date 倒序            |
+
+#### 2. 评分机制
+
+在 front matter 中添加 `top: N` 字段（1-100），N 越大评分越高。无 `top` 字段等同于 `top: 0`。
+
+#### 3. 配置
+
+在主题 `_config.yml` 中定义：
+
+```yaml
+# 首页新鲜期（优先级: freshness > freshness_days > top > date）
+freshness: 0          # 0 = 不启用，正整数 = 最新 N 篇
+freshness_days: 0     # 0 = 不启用，正整数 = N 天内的文章
+```
+
+在博客根 `_config.yml` 中设置全局排序：
+
+```yaml
+index_generator:
+  order_by: -top,-date
+```
+
 ### Step 5: 配置迁移
 
 ### Step 6: 独立 HTML 文件处理
@@ -554,58 +586,97 @@ category_exclude:
 
 ### archive.ejs — 首页文章排序
 
-#### 排序层级
+在主题的 `layout/_partial/archive.ejs`：
 
-按以下优先级排列，一篇文章只出现在满足条件的最高层级：
+```ejs
+<% if (pagination == 2){ %>
+  <%
+  var freshN = theme.freshness || 0;
+  var freshDays = theme.freshness_days || 0;
+  var posts = page.posts.toArray();
 
-| 层级 | 条件 | 层内排序 |
-|------|------|---------|
-| 1. **fresh** | 全局最新 N 篇（`freshness: N`） | 按 date 倒序 |
-| 2. **fresh_days** | N 天内的文章（`freshness_days: N`），排除已出现在 fresh 的 | 按 date 倒序 |
-| 3. **top** | `top` 值 > 0 的文章，排除已出现在前两层的 | 按 top 降序 → date 倒序 |
-| 4. **rest** | 其余所有 | 按 date 倒序 |
+  // Sort by date descending for freshness calculations
+  var byDate = [].concat(posts).sort(function(a, b) { return b.date - a.date; });
 
-#### 配置
+  // Layer 1: freshness (top N by date)
+  var layerFresh = [];
+  if (freshN > 0) {
+    layerFresh = byDate.slice(0, Math.min(freshN, byDate.length));
+  }
 
-在主题 `_config.yml` 中定义：
+  // Layer 2: freshness_days (within N days, exclude layerFresh)
+  var layerFdays = [];
+  if (freshDays > 0) {
+    var now = new Date();
+    var cutoff = new Date(now.getTime() - freshDays * 86400000);
+    for (var i = 0; i < byDate.length; i++) {
+      if (layerFresh.indexOf(byDate[i]) === -1 && byDate[i].date >= cutoff) {
+        layerFdays.push(byDate[i]);
+      }
+    }
+    layerFdays.sort(function(a, b) { return b.date - a.date; });
+  }
 
-```yaml
-# 首页新鲜期（优先级: freshness > freshness_days > top > date）
-freshness: 0          # 0 = 不启用，正整数 = 最新 N 篇
-freshness_days: 0     # 0 = 不启用，正整数 = N 天内的文章
-```
+  // Remaining (from original -top,-date order, exclude assigned)
+  var rest = [];
+  for (var i = 0; i < posts.length; i++) {
+    if (layerFresh.indexOf(posts[i]) === -1 && layerFdays.indexOf(posts[i]) === -1) {
+      rest.push(posts[i]);
+    }
+  }
 
-在博客根 `_config.yml` 中设置全局排序：
+  // Layer 3: top > 0 from remaining
+  var layerTop = [];
+  while (rest.length > 0 && rest[0].top > 0) {
+    layerTop.push(rest.shift());
+  }
 
-```yaml
-index_generator:
-  order_by: -top,-date
-```
+  // Layer 4: rest
+  var layerRest = rest;
 
-#### 评分机制
-
-在 front matter 中添加 `top: N` 字段（1-100），N 越大评分越高。无 `top` 字段等同于 `top: 0`。
-
-#### 实现参考（伪代码）
-
-换主题时，按以下逻辑在主题的首页模板中实现：
-
-```
-posts = page.posts
-by_date = posts sorted by date descending
-
-// 分配层级
-fresh_layer   = by_date[0..freshness-1]
-freshday_layer = posts in [today - freshness_days, today] 且不在 fresh_layer
-remaining      = posts 中排除 fresh_layer + freshday_layer 的（保持原序）
-top_layer      = remaining 中 top > 0 的连续段
-rest_layer     = remaining 中剩余
-
-// 渲染
-render fresh_layer（按 date 降序）
-render freshday_layer（按 date 降序）
-render top_layer（按 top 降序 → date 降序）
-render rest_layer（按 date 降序）
+  // Render layers in order
+  function renderLayer(layer) {
+    for (var j = 0; j < layer.length; j++) {
+  %>
+      <%- partial('article', {post: layer[j], index: true}) %>
+  <%
+    }
+  }
+  renderLayer(layerFresh);
+  renderLayer(layerFdays);
+  renderLayer(layerTop);
+  renderLayer(layerRest);
+  %>
+<% } else { %>
+  <% var last; %>
+  <% page.posts.each(function(post, i){ %>
+    <% var year = post.date.year(); %>
+    <% if (last != year){ %>
+      <% if (last != null){ %>
+        </div></section>
+      <% } %>
+      <% last = year; %>
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="<%- url_for(config.archive_dir + '/' + year) %>" class="archive-year"><%= year %></a>
+        </div>
+        <div class="archives">
+    <% } %>
+    <%- partial('archive-post', {post: post, even: i % 2 == 0}) %>
+  <% }) %>
+  <% if (page.posts.length){ %>
+    </div></section>
+  <% } %>
+<% } %>
+<% if (page.total > 1){ %>
+  <nav id="page-nav">
+    <% var prev_text = "&laquo; " + __('prev');var next_text = __('next') + " &raquo;"%>
+    <%- paginator({
+      prev_text: prev_text,
+      next_text: next_text
+    }) %>
+  </nav>
+<% } %>
 ```
 
 ---
