@@ -198,7 +198,7 @@ category_exclude:
 部分文章（如 `dvlproad项目列表`）有独立的 `.html` 版本，比 markdown 渲染效果更好。
 首页默认显示 markdown excerpt，可通过以下方案用 HTML 替代。
 
-**方案 A（iframe 嵌入）：** 在首页文章卡片中嵌入 iframe 展示 `.html`，同时加提示引导用户点击标题查看完整页面。
+**方案 A（iframe 嵌入 + 遮罩）：** 在首页文章卡片中嵌入 iframe 展示 `.html`，iframe 上方覆盖半透明遮罩防止误以为内容完整，点击遮罩或蓝色按钮跳转到独立页面。
 
 **① 创建 filter 脚本：** `scripts/asset-html.js`
 
@@ -232,22 +232,66 @@ hexo.extend.filter.register('after_post_render', function(post) {
 <% } else { %>
 ```
 
-**③ 首页内容改用 iframe 展示：** `layout/_partial/article.ejs`
+**③ 首页内容改用 iframe + 遮罩展示：** `layout/_partial/article.ejs`
 
 ```ejs
 <% if (index && post.index_html_url){ %>
-  <p style="color:#999;font-size:0.9em;margin-bottom:8px;">
-    <a href="<%- url_for(post.path + post.index_html_url) %>" style="color:#999;text-decoration:underline;">
-      ⬇ 以下仅展示部分内容，点击此处或上方标题查看完整页面
-    </a>
-  </p>
   <div class="article-html-wrap">
     <iframe src="<%- url_for(post.path + post.index_html_url) %>" style="width:100%;height:70vh;border:none;overflow:auto;"></iframe>
+    <a class="article-html-overlay" href="<%- url_for(post.path + post.index_html_url) %>">
+      <span class="article-html-overlay-btn">
+        👆 点击查看完整独立页面
+      </span>
+    </a>
   </div>
 <% } else if (post.excerpt && index){ %>
 ```
 
-**效果：** 有 `.html` 文件时，首页展示 iframe + 提示文字 + 标题链到 HTML 页面；没有时照常走 `fixMarkdownImages` → `stripH1` 管线。
+**④ 添加 CSS 样式：** `source/css/_partial/article.styl`
+
+```stylus
+// ── HTML 独立页面预览遮罩 ──
+.article-html-wrap
+  position: relative
+
+.article-html-overlay
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  background: rgba(255,255,255,0.6)
+  backdrop-filter: blur(2px)
+  display: flex
+  align-items: center
+  justify-content: center
+  cursor: pointer
+  text-decoration: none
+  transition: background 0.2s, backdrop-filter 0.2s
+
+  &:hover
+    background: rgba(255,255,255,0.3)
+    backdrop-filter: blur(0px)
+
+.article-html-overlay-btn
+  display: inline-block
+  padding: 12px 28px
+  background: #1a73e8
+  color: #fff
+  border-radius: 6px
+  font-size: 1rem
+  font-weight: 500
+  line-height: 1.4
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15)
+  transition: transform 0.2s, box-shadow 0.2s
+  user-select: none
+
+  .article-html-overlay:hover &
+    transform: scale(1.05)
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2)
+```
+
+**效果：** 有 `.html` 文件时，首页展示 iframe + 半透明遮罩（内容虚化不可交互）+ 居中蓝色按钮；用户必须点击按钮或遮罩才能跳转到独立页面，不会误以为 iframe 内容就是全部。没有 `.html` 时照常走 `fixMarkdownImages` → `stripH1` 管线。
 
 ### Step 7: 本地全站搜索
 
