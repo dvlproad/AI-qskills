@@ -242,7 +242,7 @@ hexo.extend.filter.register('after_post_render', function(post) {
     </a>
   </p>
   <div class="article-html-wrap">
-    <iframe src="<%- url_for(post.path + post.index_html_url) %>" style="width:100%;height:600px;border:none;overflow:auto;"></iframe>
+    <iframe src="<%- url_for(post.path + post.index_html_url) %>" style="width:100%;height:70vh;border:none;overflow:auto;"></iframe>
   </div>
 <% } else if (post.excerpt && index){ %>
 ```

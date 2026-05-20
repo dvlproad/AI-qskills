@@ -19,6 +19,19 @@ description: |
 
 本方案以 **dvlproad 项目列表**（仓库 → Pod → Subspec）为示例数据，但所有设计规则和代码模板均通用。
 
+## 设计前提：响应式约束
+
+层级表格列数多（5–7+ 列），窄屏时必然溢出。套用本方案前必须同时规划响应式策略，否则大屏 OK、小屏体验崩塌。
+
+**四点约束：**
+
+1. **布局用 `rem` 而非 `px`** — 通过 `--font-base` + `@media` 断点实现全局缩放。改一处根字体，所有 `rem` 间距/字体联动
+2. **`table-layout: fixed`** — 强制表不超过容器宽度，列宽按比例分配。这是防溢出的唯一 CSS 方案，其他方式（`max-width`、`overflow`）都不可靠
+3. **长内容列预设截断** — 如描述列需预设：大屏换行全显示，小屏 `ellipsis` 截断 + `title` 悬浮查看
+4. **侧栏与主内容联动** — 窄屏时侧栏逐级缩窄或隐藏，主内容边距同步
+
+> 详细实现见本章末尾「响应式适配」一节。
+
 ## 设计规则
 
 ### 1. 列序 — 名称列后紧跟展开列
@@ -605,3 +618,111 @@ if (hasSub) {
 - 写 layer 2 + 清除 layer 1: `setCatLevel` → `clearDescendantLevels`
 - 写 layer 0 + 清除全部: `setViewMode` → `catDetailLevel = {}`
 - 全局映射: `viewModeToLevel` 将 `'repo'|'pod'|'subspec'` 映射为 `1|2|3`
+
+## 12. 响应式适配
+
+### 12.1 整页断点缩放
+
+通过 `--font-base` + `rem` 在多断点联动缩放布局和字体：
+
+**CSS：**
+```css
+:root { --font-base: 16px; }
+body { font-size: var(--font-base); }
+/* 所有字体、间距、边距用 rem 而非 px */
+
+@media (max-width: 1200px) {
+  :root { --font-base: 15px; }
+  .sidebar { width: 240px; }
+  .main { margin-left: 240px; }
+}
+@media (max-width: 1000px) {
+  :root { --font-base: 14px; }
+  .sidebar { width: 200px; }
+  .main { margin-left: 200px; }
+}
+@media (max-width: 800px) {
+  :root { --font-base: 13px; }
+  .sidebar { width: 160px; }
+  .main { margin-left: 160px; }
+}
+@media (max-width: 600px) {
+  :root { --font-base: 12px; }
+  .sidebar { display: none; }      /* 移动端隐藏侧栏 */
+  .main { margin-left: 0; }
+}
+@media (max-width: 480px) {
+  th, td { padding: 0.4rem 0.533rem; }  /* 更紧凑 */
+  .toolbar input { min-width: 120px; }
+}
+```
+
+侧栏与主内容边距同步（`margin-left = sidebar width`），保证右侧内容始终可见。
+
+### 12.2 `table-layout: fixed` 防溢出
+
+```css
+table { width: 100%; table-layout: fixed; }
+th, td { word-break: break-word; }
+```
+
+配合同步列宽比例，让重要列获得更多宽度：
+```css
+.table-main th:nth-child(1) { width: 22%; }    /* 名称 */
+.table-main th:nth-child(2) { width: 10%; }    /* 展开列 */
+.table-main th:nth-child(3) { width: 32%; }    /* 描述 */
+.table-main th:nth-child(7) { width: 10%; }    /* 次要列 */
+/* 其余列自动均分剩余空间 */
+```
+
+`table-layout: fixed` 后，浏览器按固定分配列宽，内容超出由 `word-break: break-word` 换行处理。表的实际宽度 = 容器宽度，不再受内容撑大。
+
+### 12.3 描述列截断
+
+大屏显示全文，小屏截断 + `title` 悬浮查看：
+
+```css
+.desc { white-space: normal; word-break: break-word; }
+
+@media (max-width: 800px) {
+  .desc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+```
+
+JS 渲染时加 `title` 属性：
+```javascript
+html += `<td class="desc" title="${escapeHtml(text)}">${escapeHtml(text)}</td>`;
+```
+
+### 12.4 CSS 代码模板中的备注
+
+如果从本章的**代码模板**部分拷贝 CSS，需注意：模板里用的是 `px`（如 `width: 18px; font-size: 10px`），套用本方案时应改为 `rem`：
+```css
+/* px → rem（假设 16px 基准） */
+.toggle-icon {
+  width: 1.2rem;     /* 18px → 1.2rem */
+  font-size: 0.667rem; /* 10px → 0.667rem */
+}
+```
+
+## 13. 完整实现示例
+
+**`dvlproad项目列表.html`** 是本 skill 的完整实现，位于：
+```
+source/_posts/管理相关/项目列表/dvlproad项目列表/dvlproad项目列表.html
+```
+
+该文件覆盖了本 skill 的全部设计规则：
+
+| 规则 | 实现位置/方式 |
+|------|--------------|
+| 列序（名称后紧跟展开列） | 仓库名列第 1 列，Pod 展开图标列第 2 列 |
+| toggle 位置（数字+符号） | 有 Pod 的行显示 `2 ▼`，有 Subspec 的 Pod 行显示 `3 ▶` |
+| 整行可点展开 | `.repo-row` 整行 `onclick="toggleRepoPod(id)"` |
+| 层级缩进 | Pod 行 `padding-left: 2rem`，Subspec 行 `padding-left: 4rem` |
+| CSS 动画 | `.repo-pod-row { transition: all 0.2s ease; }` |
+| 优先级链 | `viewMode`(layer 0) × `catDetailLevel`(layer 2) — `clearDescendantLevels` 递归清除 |
+| 响应式适配 | `--font-base` + 5 断点 + `table-layout: fixed` + 描述列截断 |
+
+**使用方法：** 替换 `data/` 目录下的 JSON 数据源，调整列定义和 `render()` 中的表头，即可适配任意 N 级层级结构。
+```
