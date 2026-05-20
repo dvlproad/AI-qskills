@@ -155,9 +155,41 @@ category_exclude:
 
 **参考代码：** 见 landscape 主题的 `search-local.js` 和 `style.styl` 中的搜索样式。
 
+### Step 8: 引用块（blockquote）样式
+
+**预期行为：**
+- 标准引用样式：左侧竖线、正常字号、左对齐
+- 非主题默认的名言居中样式（大字号 + 居中）
+
+**检查方法：** 查看 `source/css/_partial/article.styl` 或其他 CSS 文件中的 `blockquote` 样式定义。
+
+**主题默认样式（需修改）：**
+```stylus
+blockquote
+    font-family: font-serif
+    font-size: 1.4em
+    margin: line-height 20px
+    text-align: center
+    /* 无 padding, 无 border-left */
+```
+
+**修改后样式：**
+```stylus
+blockquote
+    font-family: font-serif
+    margin: line-height 20px
+    padding: 0 15px
+    border-left: 3px solid color-border
+    /* 移除 font-size: 1.4em 和 text-align: center */
+```
+
+**注意：** 如果主题的 blockquote 是单独样式文件，在对应文件修改；如果混在 `article.styl` 中，找到 `.article-entry blockquote` 嵌套块修改。
+
 ---
 
 ## 版本记录
+
+### 0.0.4 (2026-05-20): 新增 Step 8 引用块（blockquote）样式规范化
 
 ### 0.0.3 (2026-05-20): 新增 Step 7 本地全站搜索 + 三种搜索方式对比
 
