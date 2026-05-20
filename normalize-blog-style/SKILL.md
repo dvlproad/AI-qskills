@@ -217,26 +217,36 @@ blockquote
 
 **检查方法：** 找一篇正文以 `# 标题` 开头的文章，确认页面上没有两个相同的标题。
 
-**不支持时实现：** 在主题的 `layout/_partial/article.ejs` 中，在 `<%- content %>` 输出前添加以下逻辑：
+**不支持时实现：** 在主题的 `layout/_partial/article.ejs` 中，定义 `stripH1` 函数，在 `post.excerpt`（首页截断）和 `post.content`（全文）输出前统一处理：
 
 ```ejs
 <%
-var content = post.content;
 var h1Regex = /<h1[^>]*>([\s\S]*?)<\/h1>/;
-var titleMatch = content.match(h1Regex);
-if (titleMatch) {
-  // 去掉 h1 内部的 anchor 等标签后再比较，防止 headerlink 干扰
-  var innerText = titleMatch[1].replace(/<[^>]*>/g, '').trim();
-  if (innerText === post.title.trim()) {
-    content = content.replace(h1Regex, '');
+function stripH1(text, title) {
+  var m = text.match(h1Regex);
+  if (m) {
+    // 去掉 h1 内部的 anchor 等标签后再比较，防止 headerlink 干扰
+    var inner = m[1].replace(/<[^>]*>/g, '').trim();
+    if (inner === title.trim()) text = text.replace(h1Regex, '');
   }
+  return text;
 }
 %>
+<% if (post.excerpt && index){ %>
+  <%- stripH1(post.excerpt, post.title) %>
+  <% if (theme.excerpt_link){ %>
+    <p class="article-more-link">
+      <a href="<%- url_for(post.path) %>#more"><%= theme.excerpt_link %></a>
+    </p>
+  <% } %>
+<% } else { %>
+  <%- stripH1(post.content, post.title) %>
+<% } %>
 ```
 
-**原理：** `post.content` 是 markdown 渲染后的完整 HTML。用正则匹配第一个 `<h1>`，取其内部文本（去掉 `<a class="headerlink">` 等标签）与 `post.title` 比较，匹配则移除该 `<h1>` 块。
+**原理：** `post.content`（或 `post.excerpt`）是 markdown 渲染后的完整 HTML。用正则匹配第一个 `<h1>`，取其内部文本（去掉 `<a class="headerlink">` 等标签）与 `post.title` 比较，匹配则移除该 `<h1>` 块。
 
-**注意：** 只在 `<%- content %>` 输出前做处理，不修改 `.md` 源文件。对没有 `<h1>` 的文章无影响。
+**注意：** 只输出前做处理，不修改 `.md` 源文件。对没有 `<h1>` 的文章无影响。`stripH1` 函数同时处理 `post.excerpt`（首页截断）和 `post.content`（文章页、无截断的首页），保证重复标题无处可逃。
 
 ### Step 10: [toc] 文字清理
 
@@ -246,32 +256,46 @@ if (titleMatch) {
 
 **检查方法：** 找一篇使用了 `[toc]` 语法的文章，确认页面上不显示 `[toc]` 字样。
 
-**不支持时实现：** 在 Step 9 的 `<%- content %>` 输出前，追加一行：
+**不支持时实现：** 将 `[toc]` 清理加到 Step 9 的 `stripH1` 函数中：
 
 ```ejs
-content = content.replace(/<p>\[toc\]<\/p>/gi, '');
-```
-
-完整代码块（H1 + [toc] 合一）：
-
-```ejs
-<%
-var content = post.content;
-// Step 9: 去重 H1
-var h1Regex = /<h1[^>]*>([\s\S]*?)<\/h1>/;
-var titleMatch = content.match(h1Regex);
-if (titleMatch) {
-  var innerText = titleMatch[1].replace(/<[^>]*>/g, '').trim();
-  if (innerText === post.title.trim()) {
-    content = content.replace(h1Regex, '');
+function stripH1(text, title) {
+  var m = text.match(h1Regex);
+  if (m) {
+    var inner = m[1].replace(/<[^>]*>/g, '').trim();
+    if (inner === title.trim()) text = text.replace(h1Regex, '');
   }
+  return text.replace(/<p>\[toc\]<\/p>/gi, '');
 }
-// Step 10: 清理 [toc]
-content = content.replace(/<p>\[toc\]<\/p>/gi, '');
-%>
 ```
 
-**注意：** 只移除独立 `<p>[toc]</p>`，不会误删代码块或其他上下文中的 `[toc]` 文字。两者放在同一段 `<% %>` 中避免重复声明变量。
+完整 `stripH1` + `[toc]` 合一（`article.ejs` 中的完整改动）：
+
+```ejs
+    <div class="article-entry" itemprop="articleBody">
+      <%
+      var h1Regex = /<h1[^>]*>([\s\S]*?)<\/h1>/;
+      function stripH1(text, title) {
+        var m = text.match(h1Regex);
+        if (m) {
+          // 去掉 h1 内部的 anchor 等标签后再比较，防止 headerlink 干扰
+          var inner = m[1].replace(/<[^>]*>/g, '').trim();
+          if (inner === title.trim()) text = text.replace(h1Regex, '');
+        }
+        // 清理 [toc]
+        return text.replace(/<p>\[toc\]<\/p>/gi, '');
+      }
+      %>
+      <% if (post.excerpt && index){ %>
+        <%- stripH1(post.excerpt, post.title) %>
+        ...
+      <% } else { %>
+        <%- stripH1(post.content, post.title) %>
+      <% } %>
+    </div>
+```
+
+**注意：** `stripH1` 在 `if/else` 之前定义一次，两个分支共用。`post.excerpt`（首页截断有 `<!-- more -->` 的文章）和 `post.content`（文章页 + 无截断首页）统一处理。
 
 ---
 
