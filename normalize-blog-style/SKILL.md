@@ -123,6 +123,48 @@ category_exclude:
   - 面试
 ```
 
+### Step 7: 本地全站搜索
+
+**目的：** 让博客支持全站搜索，不依赖第三方服务。
+
+#### 三种搜索对比
+
+| 类型 | 搜什么 | 如何工作 | 是否需要配置 |
+|------|--------|----------|:-----------:|
+| Ctrl+F | 当前页面文字 | 浏览器原生功能，按 Ctrl+F 搜索当前已打开的页面 | ❌ 不需要 |
+| 搜索表单（search_form） | Google 站内搜索 | 填关键字后跳转 Google，搜 site:你的域名 关键字 | ✅ 主题自带，无需额外配置 |
+| 本地全站搜索（hexo-generator-searchdb） | 全站文章标题+正文 | 安装插件生成 search.xml，JS 在本地解析并实时匹配展示 | ✅ 需装插件 + 加 JS + 加样式 |
+
+**检查方法：**
+- `npm list hexo-generator-searchdb` 确认已安装
+- `_config.yml` 中有 search 配置（path / field / content）
+- 主题包含搜索 JS + overlay 样式
+
+**不支持时实现：**
+1. `npm install hexo-generator-searchdb --save`
+2. `_config.yml` 添加：
+   ```yaml
+   search:
+     path: search.xml
+     field: all
+     content: true
+   ```
+3. 在主题 `source/js/` 下创建 `search-local.js`（拦截搜索按钮，加载 search.xml，实时匹配展示结果）
+4. 在布局文件中引用 search-local.js（如 landscape 的 `after-footer.ejs`、next 的 `layout.njk`）
+5. 在主题 `source/css/` 中添加 overlay 样式（遮罩层、面板、搜索框、结果列表）
+
+**参考代码：** 见 landscape 主题的 `search-local.js` 和 `style.styl` 中的搜索样式。
+
+---
+
+## 版本记录
+
+### 0.0.3 (2026-05-20): 新增 Step 7 本地全站搜索 + 三种搜索方式对比
+
+### 0.0.2 (2026-05-20): 新增 Step 6 独立 HTML 文件处理规范
+
+---
+
 ## 参考代码
 
 ### date.ejs — 中文日期显示
