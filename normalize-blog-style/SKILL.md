@@ -56,15 +56,20 @@ Step 8: 检查引用块（blockquote）样式
           ├── 已经是左竖线标准引用 → 跳过
           └── 还是居中/大字号名言样式 → 按参考代码修改
 
-Step 9: 检查重复标题
+Step 9: 检查重复标题 + [toc] 文字
           │
-          ├── article.ejs 已有 H1 去重逻辑 → 跳过
-          └── 没有 → 按参考代码在输出前添加去重
+          ├── article.ejs 已有处理逻辑 → 跳过
+          └── 没有 → 按参考代码在输出前处理
 
-Step 10: 检查 [toc] 文字
+Step 10: 检查 Asset 图片路径
           │
-          ├── 页面不显示 [toc] → 跳过
-          └── 显示 [toc] 字样 → 按参考代码在输出前清理
+          ├── 无此模式 → 跳过
+          └── 有此模式 → 按参考代码修正
+
+Step 11: [可选] 检查代码块配色
+          │
+          ├── 配色协调 → 跳过
+          └── 突兀 → 按参考代码调整 highlight.styl 变量
 ```
 
 ### Step 1: 日期显示格式
@@ -209,7 +214,7 @@ blockquote
 
 **注意：** 如果主题的 blockquote 是单独样式文件，在对应文件修改；如果混在 `article.styl` 中，找到 `.article-entry blockquote` 嵌套块修改。
 
-### Step 9: 重复标题自动去除
+### Step 9: 重复标题自动去除 + [toc] 文字清理
 
 **预期行为：** 文章标题仅由 `title.ejs` 渲染一次，markdown 正文中的 `# 标题` 不再重复显示。
 
@@ -248,66 +253,166 @@ function stripH1(text, title) {
 
 **注意：** 只输出前做处理，不修改 `.md` 源文件。对没有 `<h1>` 的文章无影响。`stripH1` 函数同时处理 `post.excerpt`（首页截断）和 `post.content`（文章页、无截断的首页），保证重复标题无处可逃。
 
-### Step 10: [toc] 文字清理
+#### [toc] 文字清理
 
-**预期行为：** 页面上不显示 `[toc]` 字样。
+`[toc]` 是 Typora 等本地编辑器的目录语法，Hexo 不认识，渲染为 `<p>[toc]</p>`。
 
-**背景：** `[toc]` 是 Typora 等本地编辑器的目录语法。Hexo 默认的 markdown 渲染器（`marked`）不认识此语法，将其渲染为 `<p>[toc]</p>`，在博客页面上显示为裸露文字。
+在 `stripH1` 中加一行即可清理：
 
-**检查方法：** 找一篇使用了 `[toc]` 语法的文章，确认页面上不显示 `[toc]` 字样。
-
-**不支持时实现：** 将 `[toc]` 清理加到 Step 9 的 `stripH1` 函数中：
-
-```ejs
-function stripH1(text, title) {
-  var m = text.match(h1Regex);
-  if (m) {
-    var inner = m[1].replace(/<[^>]*>/g, '').trim();
-    if (inner === title.trim()) text = text.replace(h1Regex, '');
-  }
-  return text.replace(/<p>\[toc\]<\/p>/gi, '');
-}
+```js
+text = text.replace(/<p>\[toc\]<\/p>/gi, '');
 ```
-
-完整 `stripH1` + `[toc]` 合一（`article.ejs` 中的完整改动）：
-
-```ejs
-    <div class="article-entry" itemprop="articleBody">
-      <%
-      var h1Regex = /<h1[^>]*>([\s\S]*?)<\/h1>/;
-      function stripH1(text, title) {
-        var m = text.match(h1Regex);
-        if (m) {
-          // 去掉 h1 内部的 anchor 等标签后再比较，防止 headerlink 干扰
-          var inner = m[1].replace(/<[^>]*>/g, '').trim();
-          if (inner === title.trim()) text = text.replace(h1Regex, '');
-        }
-        // 清理 [toc]
-        return text.replace(/<p>\[toc\]<\/p>/gi, '');
-      }
-      %>
-      <% if (post.excerpt && index){ %>
-        <%- stripH1(post.excerpt, post.title) %>
-        ...
-      <% } else { %>
-        <%- stripH1(post.content, post.title) %>
-      <% } %>
-    </div>
-```
-
-**注意：** `stripH1` 在 `if/else` 之前定义一次，两个分支共用。`post.excerpt`（首页截断有 `<!-- more -->` 的文章）和 `post.content`（文章页 + 无截断首页）统一处理。
 
 ---
 
-## 版本记录
+### Step 10: 检查 Asset 图片路径
 
-### 0.0.5 (2026-05-20): 新增 Step 9 重复标题自动去除 + Step 10 [toc] 文字清理
+**文件结构示意：**
 
-### 0.0.4 (2026-05-20): 新增 Step 8 引用块（blockquote）样式规范化
+```
+source/_posts/
+└── 常识类/
+    └── 技术常识/
+        ├── 科学上网_ClashX.md             ← 文章
+        └── 科学上网_ClashX/               ← post_asset_folder（同名文件夹）
+            ├── ClashVerge_3using_1.png  			← 图片
+            └── ClashVerge_3using_2env.png   	← 图片
+```
 
-### 0.0.3 (2026-05-20): 新增 Step 7 本地全站搜索 + 三种搜索方式对比
+**目的**：想让md在本地 Typora中显示正常，又想让 Hexo 正常。
 
-### 0.0.2 (2026-05-20): 新增 Step 6 独立 HTML 文件处理规范
+**背景**：默认情况下：md中路径的不同写法对 Typora 和 Hexo 的显示情况对照表
+
+| 模式名 | 模式特征 | 类型 | Typora | Hexo |
+|------|------|------|:----------:|:----------:|
+| model_img_folder | `<img src="FOLDER/">` | `<img src="技术常识/ClashVerge_3using_1.png">` | ✅ | ❌ |
+| model_img_folder | `<img src="FOLDER/">` | `<img src="image-20250729180443948.png">` | ❌ | ✅ |
+| model_mark_folder | `![](FOLDER/)` | `![](科学上网_ClashX/clashx_2setting_2.png)` | ✅ | ❌ |
+| model_mark_folder | `![](FOLDER/)` | `![](clashx_2setting_2.png)` | ❌ | ✅ |
+
+**图片路径模式分类**
+
+在 `stripH1` 中用 `getImageModel(src, folderName)` 统一判断：
+
+| 模式 | 条件 | 处理 |
+|------|------|:----:|
+| `model_http` | `src` 以 `http://` 或 `https://` 开头 | 跳过 |
+| `model_warning_current1` | `src` 中无 `/`（无文件夹前缀） | 跳过 |
+| `model_warning_current2` | `src` 以 `./` 开头 | 跳过 |
+| `model_warning_parent` | `src` 以 `../` 开头 | 跳过 |
+| `model_img_folder` | `<img src="FOLDER/xxx">`，FOLDER = asset 文件夹名 | 补 `post.slug` |
+| `model_mark_folder` | `![](FOLDER/xxx)` 渲染为 `<img src="/FOLDER/xxx">`，FOLDER = asset 文件夹名 | 去前导 `/` 后补 `post.slug` |
+| `mode_other` | FOLDER ≠ asset 文件夹名 | 跳过 |
+
+**判断函数：**
+
+```js
+function getImageModel(src, folderName) {
+  if (src.match(/^https?:\/\//)) return 'model_http';
+  if (src.indexOf('/') < 0)       return 'model_warning_current1';
+  if (src.match(/^\.\//))         return 'model_warning_current2';
+  if (src.match(/^\.\.\//))       return 'model_warning_parent';
+
+  var raw = src;
+  var isMarkFolder = false;
+  if (raw.charAt(0) === '/') {
+    isMarkFolder = true;
+    raw = raw.substring(1);
+  }
+
+  var folder = raw.split('/')[0];
+  if (decodeURIComponent(folder) === folderName || folder === folderName) {
+    return isMarkFolder ? 'model_mark_folder' : 'model_img_folder';
+  }
+  return 'mode_other';
+}
+```
+
+**替换处理（在 `stripH1` 中）：**
+
+```js
+var folderName = (post.slug || '').replace(/.*\//, '');
+if (folderName) {
+  text = text.replace(
+    /(<img[^>]+src=")([^"]+)/g,
+    function(m0, prefix, src) {
+      var imageMode = getImageModel(src, folderName);
+      if (imageMode === 'model_img_folder' || imageMode === 'model_mark_folder') {
+        var raw = src;
+        if (raw.charAt(0) === '/') raw = raw.substring(1);
+        var folder = raw.split('/')[0];
+        var rest = raw.slice(folder.length + 1);
+        return prefix + '/' + post.slug + '/' + rest;
+      }
+      return m0;
+    }
+  );
+}
+```
+
+**变换过程（以 `科学上网_ClashX` 为例）：**
+
+```
+原始: <img src="科学上网_ClashX/ClashVerge_3using_1.png">
+                    └─ getImageModel → 'model_img_folder'
+
+     step 1: 删掉 folderName/
+     <img src="ClashVerge_3using_1.png">
+
+     step 2: 补上 post.slug/
+     <img src="/常识类/技术常识/科学上网_ClashX/ClashVerge_3using_1.png">
+```
+
+```
+原始: ![](科学上网_ClashX/clashx_2setting_2.png)
+      → 渲染为 <img src="/科学上网_ClashX/clashx_2setting_2.png">
+                                         └─ getImageModel → 'model_mark_folder'
+
+     step 1: 去掉前导 /
+     <img src="科学上网_ClashX/clashx_2setting_2.png">
+
+     step 2: 删掉 folderName/，补上 slug/
+     <img src="/常识类/技术常识/科学上网_ClashX/clashx_2setting_2.png">
+```
+
+**注意事项**
+
+- `model_mark_folder` 的前导 `/` 来自 marked 对 `![]()` 的默认渲染，`getImageModel` 中用 `isMarkFolder` 标记区分，但不做 `/？` 跳脱匹配，防止 `model_img_folder` 的路径被二次处理
+- URL 编码的文件夹名（如 `%E7%A7%91%E5%AD%A6/`）会先 `decodeURIComponent` 再比较
+- `model_warning_current1`（无文件夹前缀）的图片由 Hexo 的 `post_asset_folder` 自行处理，`stripH1` 不干涉
+
+---
+
+### Step 11: [可选] 代码块配色
+
+**说明：** 此步骤为**可选**。每个主题的代码块配色可能已经配合自身风格，你不一定需要修改。只有当你觉得当前配色不协调时才按需调整。
+
+**检查方法：** 找一篇包含代码块的文章，观察代码块背景色是否与页面整体风格协调。
+
+- 白底简洁主题 + 深色代码块 → 可能突兀，建议调整
+- 主题自带配色已经协调 → 跳过
+
+**调整方法：** 修改主题 `source/css/_partial/highlight.styl` 中的颜色变量。以 landscape 主题为例，默认是深色 Tomorrow 主题，可切换为浅色 GitHub 风格：
+
+```stylus
+// 变量定义（文件顶部）
+highlight-background = #f6f8fa      // 代码块背景：浅灰
+highlight-current-line = #eaecef    // 当前行背景
+highlight-selection = #c8e1ff       // 选中色
+highlight-foreground = #24292f      // 默认文字：近黑
+highlight-comment = #6e7781         // 注释：中灰
+highlight-red = #cf222e             // 标签、变量
+highlight-orange = #953800          // 数字、内置对象
+highlight-yellow = #8250df          // 类名
+highlight-green = #0550ae           // 字符串（蓝色）
+highlight-aqua = #0550ae            // CSS 十六进制色
+highlight-blue = #6f42c1            // 函数名（紫色）
+highlight-purple = #cf222e          // 关键字（红色）
+```
+
+如果需要其他配色，参考 [highlight.js 主题](https://highlightjs.org/static/demo/) 挑选。
+
+
 
 ---
 
@@ -447,7 +552,7 @@ category_exclude:
   - 面试
 ```
 
-### 首页文章排序
+### archive.ejs — 首页文章排序
 
 #### 排序层级
 
@@ -507,6 +612,22 @@ render rest_layer（按 date 降序）
 
 ## 版本记录
 
-### 0.0.2 (2026-05-20): 新增 Step 6 独立 HTML 文件处理规范
+**0.0.9 (2026-05-20): Step 10 重构为 getImageModel 分类 + 标准化模式命名**
 
-### 0.0.1 (2026-05-19): 初始版本
+**0.0.8 (2026-05-20): 补充 `![]()` vs `<img>` 处理边界，去掉 `/?` 防止双倍路径**
+
+**0.0.7 (2026-05-20): Step 10 重写为 Asset 图片路径修正，[toc] 合并到 Step 9**
+
+**0.0.6 (2026-05-20): 新增 Step 11 [可选] 代码块配色**
+
+**0.0.5 (2026-05-20): 新增 Step 9 重复标题自动去除 + Step 10 [toc] 文字清理**
+
+**0.0.4 (2026-05-20): 新增 Step 8 引用块（blockquote）样式规范化**
+
+**0.0.3 (2026-05-20): 新增 Step 7 本地全站搜索 + 三种搜索方式对比**
+
+**0.0.2 (2026-05-20): 新增 Step 6 独立 HTML 文件处理规范**
+
+**0.0.2 (2026-05-20): 新增 Step 6 独立 HTML 文件处理规范**
+
+**0.0.1 (2026-05-19): 初始版本**
