@@ -160,6 +160,22 @@ index_generator:
 
 ### Step 5: 配置迁移
 
+将以下配置从 `themes/landscape/_config.yml` 复制到新主题的 `_config.yml`：
+
+```yaml
+# 顶级分类排序
+category_order:
+  - Architecture
+  - 安全与破解
+  - AI
+  - ...（完整列表）
+
+# 隐藏分类
+category_exclude:
+  - 随笔
+  - 面试
+```
+
 ### Step 6: 独立 HTML 文件处理
 
 **目的：** 让 `.html` 文件能被 Hexo 正确输出，并通过 URL 访问到。
@@ -177,21 +193,61 @@ index_generator:
 3. 无需加 `skip_render` 配置
 4. 不影响本地双击打开
 
-将以下配置从 `themes/landscape/_config.yml` 复制到新主题的 `_config.yml`：
+#### 首页展示 HTML 内容
 
-```yaml
-# 顶级分类排序
-category_order:
-  - Architecture
-  - 安全与破解
-  - AI
-  - ...（完整列表）
+部分文章（如 `dvlproad项目列表`）有独立的 `.html` 版本，比 markdown 渲染效果更好。
+首页默认显示 markdown excerpt，可通过以下方案用 HTML 替代。
 
-# 隐藏分类
-category_exclude:
-  - 随笔
-  - 面试
+**方案 A（iframe 嵌入）：** 在首页文章卡片中嵌入 iframe 展示 `.html`，同时加提示引导用户点击标题查看完整页面。
+
+**① 创建 filter 脚本：** `scripts/asset-html.js`
+
+```javascript
+hexo.extend.filter.register('after_post_render', function(post) {
+  var fs = require('fs');
+  var path = require('path');
+  var basename = (post.slug || '').replace(/.*\//, '');
+  if (!basename) return post;
+
+  var htmlFile = path.join(hexo.source_dir, '_posts', post.slug, basename + '.html');
+  if (fs.existsSync(htmlFile)) {
+    post.index_html_url = basename + '.html';
+  }
+
+  return post;
+});
 ```
+
+**② 修改标题链接：** `layout/_partial/post/title.ejs`
+
+```ejs
+<% if (index && post.index_html_url){ %>
+  <h1 itemprop="name">
+    <a class="<%= class_name %>" href="<%- url_for(post.path + post.index_html_url) %>"><%= post.title %></a>
+  </h1>
+<% } else if (index){ %>
+  <h1 itemprop="name">
+    <a class="<%= class_name %>" href="<%- url_for(post.path) %>"><%= post.title %></a>
+  </h1>
+<% } else { %>
+```
+
+**③ 首页内容改用 iframe 展示：** `layout/_partial/article.ejs`
+
+```ejs
+<% if (index && post.index_html_url){ %>
+  <p style="color:#999;font-size:0.9em;margin-bottom:8px;">
+    <a href="<%- url_for(post.path + post.index_html_url) %>" style="color:#999;text-decoration:underline;">
+      ⬇ 以下仅展示部分内容，点击此处或上方标题查看完整页面
+    </a>
+  </p>
+  <div class="article-html-wrap">
+    <iframe src="<%- url_for(post.path + post.index_html_url) %>" style="width:100%;height:600px;border:none;overflow:auto;"></iframe>
+  </div>
+<% } else if (post.excerpt && index){ %>
+```
+
+**效果：** 有 `.html` 文件时，首页展示 iframe + 提示文字 + 标题链到 HTML 页面；没有时照常走 `fixMarkdownImages` → `stripH1` 管线。
 
 ### Step 7: 本地全站搜索
 
