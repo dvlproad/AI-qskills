@@ -56,20 +56,25 @@ Step 8: 检查引用块（blockquote）样式
           ├── 已经是左竖线标准引用 → 跳过
           └── 还是居中/大字号名言样式 → 按参考代码修改
 
-Step 9: 检查重复标题 + [toc] 文字
+Step 9: [可选] 检查代码块配色
+          │
+          ├── 配色协调 → 跳过
+          └── 突兀 → 按参考代码调整 highlight.styl 变量
+
+Step 10: 检查重复标题 + [toc] 文字
           │
           ├── article.ejs 已有处理逻辑 → 跳过
           └── 没有 → 按参考代码在输出前处理
 
-Step 10: 检查 Asset 图片路径
+Step 11: 检查 Asset 图片路径
           │
           ├── 无此模式 → 跳过
           └── 有此模式 → 按参考代码修正
 
-Step 11: [可选] 检查代码块配色
+Step 12: 检查 ![]() 空格文件名修复
           │
-          ├── 配色协调 → 跳过
-          └── 突兀 → 按参考代码调整 highlight.styl 变量
+          ├── 无此模式 → 跳过
+          └── 有空格文件名的图片 → 管线已自动处理，无需额外操作
 ```
 
 ### Step 1: 日期显示格式
@@ -246,7 +251,38 @@ blockquote
 
 **注意：** 如果主题的 blockquote 是单独样式文件，在对应文件修改；如果混在 `article.styl` 中，找到 `.article-entry blockquote` 嵌套块修改。
 
-### Step 9: 重复标题自动去除 + [toc] 文字清理
+### Step 9: [可选] 代码块配色
+
+**说明：** 此步骤为**可选**。每个主题的代码块配色可能已经配合自身风格，你不一定需要修改。只有当你觉得当前配色不协调时才按需调整。
+
+**检查方法：** 找一篇包含代码块的文章，观察代码块背景色是否与页面整体风格协调。
+
+- 白底简洁主题 + 深色代码块 → 可能突兀，建议调整
+- 主题自带配色已经协调 → 跳过
+
+**调整方法：** 修改主题 `source/css/_partial/highlight.styl` 中的颜色变量。以 landscape 主题为例，默认是深色 Tomorrow 主题，可切换为浅色 GitHub 风格：
+
+```stylus
+// 变量定义（文件顶部）
+highlight-background = #f6f8fa      // 代码块背景：浅灰
+highlight-current-line = #eaecef    // 当前行背景
+highlight-selection = #c8e1ff       // 选中色
+highlight-foreground = #24292f      // 默认文字：近黑
+highlight-comment = #6e7781         // 注释：中灰
+highlight-red = #cf222e             // 标签、变量
+highlight-orange = #953800          // 数字、内置对象
+highlight-yellow = #8250df          // 类名
+highlight-green = #0550ae           // 字符串（蓝色）
+highlight-aqua = #0550ae            // CSS 十六进制色
+highlight-blue = #6f42c1            // 函数名（紫色）
+highlight-purple = #cf222e          // 关键字（红色）
+```
+
+如果需要其他配色，参考 [highlight.js 主题](https://highlightjs.org/static/demo/) 挑选。
+
+---
+
+### Step 10: 重复标题自动去除 + [toc] 文字清理
 
 **预期行为：** 文章标题仅由 `title.ejs` 渲染一次，markdown 正文中的 `# 标题` 不再重复显示。
 
@@ -297,7 +333,7 @@ text = text.replace(/<p>\[toc\]<\/p>/gi, '');
 
 ---
 
-### Step 10: 检查 Asset 图片路径
+### Step 11: 检查 Asset 图片路径
 
 **文件结构示意：**
 
@@ -415,36 +451,40 @@ if (folderName) {
 
 ---
 
-### Step 11: [可选] 代码块配色
+### Step 12: `![]()` 空格文件名修复
 
-**说明：** 此步骤为**可选**。每个主题的代码块配色可能已经配合自身风格，你不一定需要修改。只有当你觉得当前配色不协调时才按需调整。
+**问题：** markdown 的 `![]()` 语法中，如果文件名包含空格（如 `Manager 跳转.png`），渲染器无法正确解析 URL，将 `![]()` 输出为原始文本，图片不显示。
 
-**检查方法：** 找一篇包含代码块的文章，观察代码块背景色是否与页面整体风格协调。
+**背景：** `post.content` 中的 `![]()` 已由 Hexo 初步处理，URL 中的 `/` 被编码为 `&#x2F;`。需要先解码再编码空格，才能让 `getImageModel` 正确识别。
 
-- 白底简洁主题 + 深色代码块 → 可能突兀，建议调整
-- 主题自带配色已经协调 → 跳过
+**修复：** 在 `article.ejs` 的 `stripH1` 前增加预处理函数：
 
-**调整方法：** 修改主题 `source/css/_partial/highlight.styl` 中的颜色变量。以 landscape 主题为例，默认是深色 Tomorrow 主题，可切换为浅色 GitHub 风格：
-
-```stylus
-// 变量定义（文件顶部）
-highlight-background = #f6f8fa      // 代码块背景：浅灰
-highlight-current-line = #eaecef    // 当前行背景
-highlight-selection = #c8e1ff       // 选中色
-highlight-foreground = #24292f      // 默认文字：近黑
-highlight-comment = #6e7781         // 注释：中灰
-highlight-red = #cf222e             // 标签、变量
-highlight-orange = #953800          // 数字、内置对象
-highlight-yellow = #8250df          // 类名
-highlight-green = #0550ae           // 字符串（蓝色）
-highlight-aqua = #0550ae            // CSS 十六进制色
-highlight-blue = #6f42c1            // 函数名（紫色）
-highlight-purple = #cf222e          // 关键字（红色）
+```ejs
+function fixMarkdownImages(text) {
+  return text.replace(/!\[([^\]]*)\]\(([^)]*)\)/g, function(m, alt, url) {
+    var clean = url.replace(/&#x2F;/g, '/').replace(/&#47;/g, '/');
+    return '<img src="' + clean.replace(/ /g, '%20') + '" alt="' + alt + '">';
+  });
+}
 ```
 
-如果需要其他配色，参考 [highlight.js 主题](https://highlightjs.org/static/demo/) 挑选。
+**调用位置：**
+```ejs
+<%- stripH1(fixMarkdownImages(post.excerpt), post.title) %>
+<%- stripH1(fixMarkdownImages(post.content), post.title) %>
+```
 
+**完整管线：**
 
+```
+post.content
+  → fixMarkdownImages   (&#x2F; → /，空格 → %20，![]() → <img>)
+  → stripH1             (H1 去重 + [toc] 清理)
+    → getImageModel     (model_warning_current1 → model_img_folder → 重写绝对路径)
+  → 输出 HTML
+```
+
+**注意：** 只修改渲染管线，不修改 `.md` 源文件。
 
 ---
 
@@ -682,6 +722,8 @@ category_exclude:
 ---
 
 ## 版本记录
+
+**0.0.10 (2026-05-21): 新增 Step 12 ![]() 空格文件名修复（fixMarkdownImages）+ Step 9/11 重编号**
 
 **0.0.9 (2026-05-20): Step 10 重构为 getImageModel 分类 + 标准化模式命名**
 
