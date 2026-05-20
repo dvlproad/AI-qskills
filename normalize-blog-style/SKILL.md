@@ -1,7 +1,7 @@
 ---
 name: normalize-blog-style
 description: |
-  规范 Hexo 博客的日期显示格式、分类排序与隐藏
+  规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）
   触发场景：换主题时检查风格一致性
 ---
 
@@ -41,6 +41,30 @@ Step 4: 配置首页排序规则
           └── 需要 → 按排序规则章节配置
 
 Step 5: 确认新主题/配置生效
+
+Step 6: 处理独立 HTML 文件（同目录的资产文件）
+          │
+          └── 检查 _posts/ 下和 .md 同级的 .html → 移入资产目录
+
+Step 7: 配置本地全站搜索（hexo-generator-searchdb）
+          │
+          ├── 不需要 → 跳过
+          └── 需要 → 安装插件 + 添加 JS + 添加样式
+
+Step 8: 检查引用块（blockquote）样式
+          │
+          ├── 已经是左竖线标准引用 → 跳过
+          └── 还是居中/大字号名言样式 → 按参考代码修改
+
+Step 9: 检查重复标题
+          │
+          ├── article.ejs 已有 H1 去重逻辑 → 跳过
+          └── 没有 → 按参考代码在输出前添加去重
+
+Step 10: 检查 [toc] 文字
+          │
+          ├── 页面不显示 [toc] → 跳过
+          └── 显示 [toc] 字样 → 按参考代码在输出前清理
 ```
 
 ### Step 1: 日期显示格式
@@ -185,9 +209,75 @@ blockquote
 
 **注意：** 如果主题的 blockquote 是单独样式文件，在对应文件修改；如果混在 `article.styl` 中，找到 `.article-entry blockquote` 嵌套块修改。
 
+### Step 9: 重复标题自动去除
+
+**预期行为：** 文章标题仅由 `title.ejs` 渲染一次，markdown 正文中的 `# 标题` 不再重复显示。
+
+**背景：** 有些文章在 front-matter 设置了 `title`，正文又以 `# 标题` 开头，导致页面上出现两个相同的标题（一个来自 `title.ejs` 的 `<h1 class="article-title">`，一个来自 markdown 渲染后的 `<h1>`）。
+
+**检查方法：** 找一篇正文以 `# 标题` 开头的文章，确认页面上没有两个相同的标题。
+
+**不支持时实现：** 在主题的 `layout/_partial/article.ejs` 中，在 `<%- content %>` 输出前添加以下逻辑：
+
+```ejs
+<%
+var content = post.content;
+var h1Regex = /<h1[^>]*>([\s\S]*?)<\/h1>/;
+var titleMatch = content.match(h1Regex);
+if (titleMatch) {
+  // 去掉 h1 内部的 anchor 等标签后再比较，防止 headerlink 干扰
+  var innerText = titleMatch[1].replace(/<[^>]*>/g, '').trim();
+  if (innerText === post.title.trim()) {
+    content = content.replace(h1Regex, '');
+  }
+}
+%>
+```
+
+**原理：** `post.content` 是 markdown 渲染后的完整 HTML。用正则匹配第一个 `<h1>`，取其内部文本（去掉 `<a class="headerlink">` 等标签）与 `post.title` 比较，匹配则移除该 `<h1>` 块。
+
+**注意：** 只在 `<%- content %>` 输出前做处理，不修改 `.md` 源文件。对没有 `<h1>` 的文章无影响。
+
+### Step 10: [toc] 文字清理
+
+**预期行为：** 页面上不显示 `[toc]` 字样。
+
+**背景：** `[toc]` 是 Typora 等本地编辑器的目录语法。Hexo 默认的 markdown 渲染器（`marked`）不认识此语法，将其渲染为 `<p>[toc]</p>`，在博客页面上显示为裸露文字。
+
+**检查方法：** 找一篇使用了 `[toc]` 语法的文章，确认页面上不显示 `[toc]` 字样。
+
+**不支持时实现：** 在 Step 9 的 `<%- content %>` 输出前，追加一行：
+
+```ejs
+content = content.replace(/<p>\[toc\]<\/p>/gi, '');
+```
+
+完整代码块（H1 + [toc] 合一）：
+
+```ejs
+<%
+var content = post.content;
+// Step 9: 去重 H1
+var h1Regex = /<h1[^>]*>([\s\S]*?)<\/h1>/;
+var titleMatch = content.match(h1Regex);
+if (titleMatch) {
+  var innerText = titleMatch[1].replace(/<[^>]*>/g, '').trim();
+  if (innerText === post.title.trim()) {
+    content = content.replace(h1Regex, '');
+  }
+}
+// Step 10: 清理 [toc]
+content = content.replace(/<p>\[toc\]<\/p>/gi, '');
+%>
+```
+
+**注意：** 只移除独立 `<p>[toc]</p>`，不会误删代码块或其他上下文中的 `[toc]` 文字。两者放在同一段 `<% %>` 中避免重复声明变量。
+
 ---
 
 ## 版本记录
+
+### 0.0.5 (2026-05-20): 新增 Step 9 重复标题自动去除 + Step 10 [toc] 文字清理
 
 ### 0.0.4 (2026-05-20): 新增 Step 8 引用块（blockquote）样式规范化
 
