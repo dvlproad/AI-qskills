@@ -23,33 +23,37 @@ description: |
 
 ### 1. 复制脚本文件
 
-脚本位于 [`scripts/source_opencode.sh`](scripts/source_opencode.sh)，复制到 `~/.config/opencode/`：
+将 [`scripts/source_opencode.sh`](scripts/source_opencode.sh) 复制到 `~/.config/opencode/source_opencode.sh`：
 
 ```bash
 mkdir -p ~/.config/opencode
 cp scripts/source_opencode.sh ~/.config/opencode/source_opencode.sh
 ```
 
-> **平台说明**：macOS（Intel/M 芯片）和统信 UOS 均适用。如使用 bash，将 `~/.zshrc` 替换为 `~/.bashrc`。
+### 2. 自动配置 shell
 
-### 2. 添加到 shell 配置
+自动检测当前 shell，选择对应的 rc 文件并写入 source 行：
 
-根据使用的 shell，在对应配置文件的末尾追加：
+```bash
+case "$SHELL" in
+    */zsh) RC_FILE="$HOME/.zshrc" ;;
+    */bash) RC_FILE="$HOME/.bashrc" ;;
+    *) echo "错误：不支持 Shell: $SHELL"; exit 1 ;;
+esac
 
-| Shell | 配置文件 |
-|-------|----------|
-| zsh（macOS / UOS 默认） | `~/.zshrc` |
-| bash | `~/.bashrc` |
+if [ ! -f "$RC_FILE" ]; then
+    echo "错误：$RC_FILE 不存在"
+    exit 1
+fi
 
-```zsh
-source ~/.config/opencode/source_opencode.sh
+echo "source ~/.config/opencode/source_opencode.sh" >> "$RC_FILE"
+echo "✅ 已添加到 $RC_FILE"
 ```
 
 ### 3. 生效
 
 ```bash
-source ~/.zshrc    # zsh
-# source ~/.bashrc  # bash（如使用 bash）
+source "$RC_FILE"
 ```
 
 ## 使用说明
@@ -68,13 +72,18 @@ source ~/.zshrc    # zsh
 ## 卸载步骤
 
 1. 删除脚本文件：`rm ~/.config/opencode/source_opencode.sh`
-2. 从 `.zshrc`（或 `.bashrc`）中移除 `source ~/.config/opencode/source_opencode.sh` 行
-3. 重新加载：`source ~/.zshrc`（或 `source ~/.bashrc`）
+2. 从 rc 文件中移除 `source ~/.config/opencode/source_opencode.sh` 行
+3. 重新加载：`source ~/.bashrc` 或 `source ~/.zshrc`
 
 ## 参考博客
 
 [dvlproadHexo的《AI-③opencode会话管理》](https://dvlproad.github.io/AI/AI-③opencode会话管理/)
 
 ## 版本记录
+
+### 0.0.2 (2026-05-20): 改进版本
+
+- 脚本兼容 bash + zsh（1 处 if/else + 数组补空元素技巧）
+- 安装步骤自动检测 `$SHELL` 选择 rc 文件
 
 ### 0.0.1 (2026-05-18): 初始版本

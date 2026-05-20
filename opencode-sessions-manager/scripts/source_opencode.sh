@@ -68,8 +68,17 @@ opencode_list() {
 
     while true; do
         local offset=$(( (page - 1) * per_page ))
-        local rows=("${(@f)$(_oc_session_q $per_page $offset)}")
-        local page_count=${#rows[@]}
+        local rows
+        local page_count
+        if [ -n "$ZSH_VERSION" ]; then
+            rows=("${(@f)$(_oc_session_q $per_page $offset)}")
+            page_count=${#rows[@]}
+        else
+            rows=()
+            while IFS= read -r line; do rows+=("$line"); done < <(_oc_session_q $per_page $offset)
+            page_count=${#rows[@]}
+            rows=("" "${rows[@]}")
+        fi
 
         echo "=== 最近的会话 (第${page}/${total_pages}页，共${total}条) ==="
         for ((i=page_count; i>=1; i--)); do
