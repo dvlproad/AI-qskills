@@ -35,7 +35,12 @@ Step 3: 检查分类隐藏
           ├── 已支持 → 跳过
           └── 不支持 → 按参考代码实现
 
-Step 4: 确认新主题/配置生效
+Step 4: 配置首页排序规则
+          │
+          ├── 不需要 → 确保 freshness / freshness_days 值为 0
+          └── 需要 → 按排序规则章节配置
+
+Step 5: 确认新主题/配置生效
 ```
 
 ### Step 1: 日期显示格式
@@ -68,7 +73,22 @@ Step 4: 确认新主题/配置生效
 
 **不支持时实现：** category.ejs 参考代码已包含此功能，与 Step 2 同一文件。
 
-### Step 4: 配置迁移
+### Step 4: 首页排序
+
+**预期行为：**
+- 首页文章按「新鲜 → 新鲜日 → 评分 → 日期」四层排序
+- `freshness` 控制最新 N 篇置顶
+- `freshness_days` 控制 N 天内的文章置顶
+- `top` 字段控制评分文章排序
+
+**检查方法：** 查看主题的 `_config.yml` 中是否有 `freshness` / `freshness_days` 配置。
+首页模板中是否有对应的排序逻辑。
+
+**不支持时实现：** 按「首页文章排序」章节的规则和伪代码实现。
+
+**验证：** 发布一篇测试文章并设置不同的 freshness / freshness_days / top 值，确认首页顺序符合预期即可。
+
+### Step 5: 配置迁移
 
 将以下配置从 `themes/landscape/_config.yml` 复制到新主题的 `_config.yml`：
 
@@ -221,6 +241,64 @@ category_exclude:
   - 随笔
   - 面试
 ```
+
+### 首页文章排序
+
+#### 排序层级
+
+按以下优先级排列，一篇文章只出现在满足条件的最高层级：
+
+| 层级 | 条件 | 层内排序 |
+|------|------|---------|
+| 1. **fresh** | 全局最新 N 篇（`freshness: N`） | 按 date 倒序 |
+| 2. **fresh_days** | N 天内的文章（`freshness_days: N`），排除已出现在 fresh 的 | 按 date 倒序 |
+| 3. **top** | `top` 值 > 0 的文章，排除已出现在前两层的 | 按 top 降序 → date 倒序 |
+| 4. **rest** | 其余所有 | 按 date 倒序 |
+
+#### 配置
+
+在主题 `_config.yml` 中定义：
+
+```yaml
+# 首页新鲜期（优先级: freshness > freshness_days > top > date）
+freshness: 0          # 0 = 不启用，正整数 = 最新 N 篇
+freshness_days: 0     # 0 = 不启用，正整数 = N 天内的文章
+```
+
+在博客根 `_config.yml` 中设置全局排序：
+
+```yaml
+index_generator:
+  order_by: -top,-date
+```
+
+#### 评分机制
+
+在 front matter 中添加 `top: N` 字段（1-100），N 越大评分越高。无 `top` 字段等同于 `top: 0`。
+
+#### 实现参考（伪代码）
+
+换主题时，按以下逻辑在主题的首页模板中实现：
+
+```
+posts = page.posts
+by_date = posts sorted by date descending
+
+// 分配层级
+fresh_layer   = by_date[0..freshness-1]
+freshday_layer = posts in [today - freshness_days, today] 且不在 fresh_layer
+remaining      = posts 中排除 fresh_layer + freshday_layer 的（保持原序）
+top_layer      = remaining 中 top > 0 的连续段
+rest_layer     = remaining 中剩余
+
+// 渲染
+render fresh_layer（按 date 降序）
+render freshday_layer（按 date 降序）
+render top_layer（按 top 降序 → date 降序）
+render rest_layer（按 date 降序）
+```
+
+---
 
 ## 版本记录
 
