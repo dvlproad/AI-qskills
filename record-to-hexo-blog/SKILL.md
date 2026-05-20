@@ -40,14 +40,15 @@ description: |
 - 分类归属规则：[《分类规范.md》](../分类规范.md)
 - 命名约定：[《命名规范.md》](../命名规范.md)
 - 流程对比：[《流程对比规范.md》](../流程对比规范.md)
+- 独立 HTML 文件处理：[《normalize-blog-style》](../normalize-blog-style/SKILL.md)
 
 ## 写作流程（A）
 
-→ A1: 分类判断 → A2: 新建文件 → A3: 写入 front matter → A4: 新增总目录 → A5: 目录索引 README → A6: 用户确认
+→ A1: 分类判断 → A2: 新建文件 → A3: 写入 front matter → A4: 新增总目录 → A5: 目录索引 README → A6: 独立 HTML 文件（如有）→ A7: 用户确认
 
 ## 归类整理流程（B）
 
-→ B1: 分类判断 → B2: 移动/重命名 → B3: 更新 front matter → B4: 修改总目录 → B5: 目录索引 README → B6: 用户确认
+→ B1: 分类判断 → B2: 移动/重命名 → B3: 更新 front matter → B4: 修改总目录 → B5: 目录索引 README → B6: 独立 HTML 文件（如有）→ B7: 用户确认
 
 ## 流程细则
 
@@ -62,7 +63,8 @@ description: |
   - 文件名: `目录名_README.md`
   - 内容: 内容链接列表 + 待补充提醒
   - 总目录: 新增或更新 `* [前言](目录/目录名_README)` 条目
-[A6/B6: 用户确认] → 展示结果让用户确认，确认后再结束
+[A6/B6: 独立 HTML 文件] → 文章可能需要附带独立 HTML 页面（如 demo、项目列表），需要确保它被 Hexo 正确输出。按 normalize-blog-style 的《Step 6: 独立 HTML 文件处理》执行
+[A7/B7: 用户确认] → 展示结果让用户确认，确认后再结束
 
 ## 规范细则
 
@@ -87,6 +89,8 @@ description: |
 ```
 
 ## 版本记录
+
+### 0.0.9 (2026-05-20): 新增 A6/B6 独立 HTML 文件处理步，引用 normalize-blog-style
 
 ### 0.0.8 (2026-05-19): 新增 A5/B5 目录索引 README 流程步
 

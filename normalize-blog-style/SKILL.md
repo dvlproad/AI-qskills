@@ -90,6 +90,23 @@ Step 5: 确认新主题/配置生效
 
 ### Step 5: 配置迁移
 
+### Step 6: 独立 HTML 文件处理
+
+**目的：** 让 `.html` 文件能被 Hexo 正确输出，并通过 URL 访问到。
+
+**背景：** `_posts/` 下与 `.md` 同级的 `.html` 文件，因 `post_asset_folder: true`
+机制被纳入 PostAsset 处理。但 Hexo 对此类文件的 slug 计算错误（带前导 `/`），
+导致文件不输出到 `public/`，无法通过 URL 访问。
+
+**触发条件：** `_posts/` 下存在和 `.md` 文章同级的独立 `.html` 页面。
+
+**处理方法：**
+
+1. 将 `.html` 移入 `.md` 的资产目录（同名文件夹）中
+2. 更新 `.html` 内的相对路径（图片/fetch 等改为相对于新位置）
+3. 无需加 `skip_render` 配置
+4. 不影响本地双击打开
+
 将以下配置从 `themes/landscape/_config.yml` 复制到新主题的 `_config.yml`：
 
 ```yaml
@@ -301,5 +318,7 @@ render rest_layer（按 date 降序）
 ---
 
 ## 版本记录
+
+### 0.0.2 (2026-05-20): 新增 Step 6 独立 HTML 文件处理规范
 
 ### 0.0.1 (2026-05-19): 初始版本
