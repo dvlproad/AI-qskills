@@ -116,6 +116,8 @@ async function init() {
 
 ### 5. 文件选择器
 
+**基础模式：** 单个 `<input type="file">`，选择后直接加载：
+
 ```javascript
 function loadLocalFile(input) {
   const file = input.files[0];
@@ -137,6 +139,52 @@ function loadLocalFile(input) {
   reader.readAsText(file);
 }
 ```
+
+**增强模式（双按钮）：** 需要"可见/所有"两种加载方式时，使用两个按钮 + 隐藏 input：
+
+```javascript
+var fileKeepHidden = false;
+
+function pickFile(keepHidden) {
+  fileKeepHidden = keepHidden;
+  document.getElementById('json-file').click();
+}
+
+function loadLocalFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      document.getElementById('data-warning').style.display = 'none';
+      document.getElementById('file-picker').style.display = 'none';
+      document.getElementById('content').classList.remove('data-warning-shown');
+      const banner = document.querySelector('.default-data-banner');
+      if (banner) banner.remove();
+      startApp(data, fileKeepHidden);
+    } catch {
+      alert('JSON 格式错误');
+    }
+  };
+  reader.readAsText(file);
+}
+```
+
+对应 HTML：
+
+```html
+<div id="file-picker" class="file-picker">
+  <span>选择文件：</span>
+  <button class="picker-btn" onclick="pickFile(false)">选择文件(显示仅可见的)</button>
+  <button class="picker-btn" onclick="pickFile(true)">选择文件(显示所有的，仅供个人本地查看使用)</button>
+  <input type="file" id="json-file" accept=".json" style="display:none" onchange="loadLocalFile(this)">
+</div>
+```
+
+`startApp(data, keepHidden)` 第二个参数控制是否过滤隐藏数据（如 `hideFromWeb` 字段）。Phase 1/2 自动加载时默认不过滤。`init()` 中需初始化 `fileKeepHidden = false`。
+
+可按需配合 `showStars` 变量同步控制整列的显示/隐藏：`pickFile` 中令 `showStars = keepHidden`，渲染时整列（包括 `<th>` 和 `<td>`）仅在 `showStars` 为 `true` 时输出。
 
 ## 文件结构
 
@@ -184,6 +232,8 @@ cat data/data.json >> data/data.js</pre>
   <span>选择 <code>data.json</code>：</span>
   <input type="file" accept=".json" onchange="loadLocalFile(this)">
 </div>
+
+如需"可见/所有"双模式，用按钮替代 input（详见 §5 增强模式）。
 ```
 
 ```css
