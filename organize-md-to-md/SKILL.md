@@ -78,7 +78,7 @@ graph TD
 ```markdown
 | 分类 | 用途 | Skills |
 |------|------|--------|
-| 💬 聊天 | 回复 crush | [crush-reply](./crush-reply) |
+| 💬 聊天 | 回复 crush | [life-reply-crush](./life-reply-crush) |
 | 🎮 游戏 | 猜成语 | [emoji-idiom](./emoji-idiom) |
 ```
 
@@ -104,7 +104,7 @@ graph LR
 ```
 | Skill | 描述 | 触发场景 |
 |-------|------|----------|
-| crush-reply | 生成幽默回复 | crush: xxx |
+| life-reply-crush | 生成幽默回复 | crush: xxx |
 | emoji-idiom | 猜成语 | 猜成语 |
 ```
 

@@ -23,7 +23,7 @@ AI-qskills skills will be automatically triggered based on their descriptions in
 To manually use a skill:
 
 ```
-use skill tool to load ai-qskills/crush-reply
+use skill tool to load ai-qskills/life-reply-crush
 ```
 
 ## Available Skills

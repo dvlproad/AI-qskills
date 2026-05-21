@@ -139,7 +139,7 @@ Fetch and follow instructions from https://raw.githubusercontent.com/dvlproad/AI
 ln -s "/Users/用户名/Project/AI/AI-qskills" ~/.config/opencode/skills/ai-qskills
 
 # 或者链接单个 skill
-ln -s "/Users/用户名/Project/AI/AI-qskills/crush-reply" ~/.config/opencode/skills/crush-reply
+ln -s "/Users/用户名/Project/AI/AI-qskills/life-reply-crush" ~/.config/opencode/skills/life-reply-crush
 ```
 
 
@@ -220,6 +220,6 @@ description: |
 
 ### 0.0.2 (2026-04-1)
 
-- 新增 [crush-reply](./crush-reply) skill：生成幽默撩人、有情绪张力的回复，让对方笑、脸红、想继续聊
+- 新增 [life-reply-crush](./life-reply-crush) skill：生成幽默撩人、有情绪张力的回复，让对方笑、脸红、想继续聊
 - 新增 [emoji-idiom](./emoji-idiom) skill：根据emoji符号猜成语，支持谐音法、象形法、组合法
 

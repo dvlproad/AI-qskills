@@ -51,7 +51,7 @@ export const AIQskillsPlugin = async ({ client, directory }) => {
   const configDir = envConfigDir || path.join(homeDir, '.config/opencode');
 
   const getBootstrapContent = () => {
-    const skillPath = path.join(skillsDir, 'crush-reply', 'SKILL.md');
+    const skillPath = path.join(skillsDir, 'life-reply-crush', 'SKILL.md');
     if (!fs.existsSync(skillPath)) return null;
 
     const fullContent = fs.readFileSync(skillPath, 'utf8');
@@ -60,7 +60,7 @@ export const AIQskillsPlugin = async ({ client, directory }) => {
     return `<EXTREMELY_IMPORTANT>
 You have AI-qskills.
 
-**IMPORTANT: The crush-reply skill content is included below. It is ALREADY LOADED - you are currently following it. Do NOT use the skill tool to load "crush-reply" again - that would be redundant.**
+**IMPORTANT: The life-reply-crush skill content is included below. It is ALREADY LOADED - you are currently following it. Do NOT use the skill tool to load "life-reply-crush" again - that would be redundant.**
 
 ${content}
 </EXTREMELY_IMPORTANT>`;

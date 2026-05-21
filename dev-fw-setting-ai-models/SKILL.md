@@ -208,7 +208,7 @@ const PLATFORMS = {
 
 | 文件 | 功能 |
 |------|------|
-| `crush-reply/example/crush-reply-generator.html` | Crush 回复生成器 |
+| `life-reply-crush/example/crush-reply-generator.html` | Crush 回复生成器 |
 | `emoji-idiom/example/emoji-idiom-guess.html` | Emoji 猜成语 |
 
 ---
