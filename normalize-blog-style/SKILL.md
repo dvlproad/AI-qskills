@@ -640,6 +640,10 @@ post.content
   import { fairyDustCursor } from "https://unpkg.com/cursor-effects@latest/dist/esm.js";
   new fairyDustCursor();
 </script>
+<style>
+  /* 防止被页内元素（卡片内容、侧边栏等）压住 */
+  canvas { z-index: 999999 !important; }
+</style>
 ```
 
 **自定义颜色和符号：**
@@ -652,7 +656,12 @@ post.content
     fairySymbol: "✨"
   });
 </script>
+<style>
+  canvas { z-index: 999999 !important; }
+</style>
 ```
+
+**z-index 说明：** fairyDustCursor 生成的 canvas 默认被页面元素（article-entry、sidebar 等）遮盖导致不可见，需强制提至顶层。`canvas` 通配选择器即可（页面一般无其他 canvas，无冲突）。如有其他 canvas 需要用更精确选择器 `canvas[style*="pointer-events"] { z-index: 999999 !important; }`。
 
 **效果：** 鼠标移动时，光标后跟随飘落的彩色星光颗粒，适合科技/创意类博客首页。
 
@@ -953,6 +962,9 @@ category_exclude:
   import { fairyDustCursor } from "https://unpkg.com/cursor-effects@latest/dist/esm.js";
   new fairyDustCursor();
 </script>
+<style>
+  canvas { z-index: 999999 !important; }
+</style>
 
 <!-- B. clickLove.js — 鼠标点击爱心 -->
 <script type="text/javascript">
