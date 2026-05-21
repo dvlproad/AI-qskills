@@ -483,6 +483,32 @@ function toggleRow(id, iconId) {
 ### Q: colspan 怎么确定？
 总列数由当前表的表头列数决定。展开行用 `<td colspan="N">`，N 为表头列数。
 
+### Q: 展开子行为什么必须包 `<tr><td colspan="N">`？
+子行（展开行）是插入到父表 `<tbody>` 中的新行，必须用标准的 `<tr><td>` 结构包裹，**不能**直接将 `<div>/<table>` 拼在 `</tr>` 之后。
+
+```
+✗ 错误：结构破碎，后续所有行脱离表格上下文
+  </tr><div class="pod-compact"><table>...</table></div></td></tr>
+
+✓ 正确：标准表格行结构
+  </tr>
+  <tr class="sub-row" id="expand-id"><td colspan="N" style="padding:0;">
+    <div class="pod-compact"><table>...</table></div>
+  </td></tr>
+```
+
+**典型踩坑**：`colspan` 变量定义了但只用于闭合标签，忘记拼开标签。后果是当前 repo 之后的所有行（无论有无子项）全部串为纯文本，列分隔符消失。
+
+**模板参考**：见「L1 表渲染」第 371 行和「L2 表渲染」第 397 行，子行结构如下：
+
+```javascript
+if (hasChildren) {
+  html += `<tr class="sub-row${initHidden ? ' hidden' : ''}" id="${id}"><td colspan="${totalCols}" style="padding:0;">`;
+  html += renderSubTable(children, ...);
+  html += `</td></tr>`;
+}
+```
+
 ## 优先级链实例：dvlproad 分类 seg 控件
 
 此处是通用 [`priority-chain`](../priority-chain/SKILL.md) skill 在 dvlproad 项目列表中的具体实现。三层叠配置：**全局 toolbar（层 0）→父分类 seg（层 1）→自身 seg（层 2）**。
