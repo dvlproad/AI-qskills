@@ -10,7 +10,7 @@
 - `organize-pod-to-md/scripts/` — 最复杂的脚本，分两步：
    1. `pods_fetch_to_md.sh` — 扫描 CocoaPods trunk + 私有 dvlproadSpecs → JSON/MD（通过 `--json`/`--md` 指定）
    2. `repos_md_append_pods.sh` — 把 pod 数据匹配到项目列表的 markdown 表格中
-- `priority-chain/SKILL.md` — 优先级链模式：多层配置层叠覆盖，低优先修改时自动刷新高优先
+- `优先级链模式.md` — 优先级链：多层配置层叠覆盖，低优先修改时自动刷新高优先
 
 ## 重要规则
 

@@ -160,7 +160,9 @@ sh organize-repos-to-md/scripts/repos_json_append_pods.sh \
 
 根据 `dvlproad项目列表_PRD.md` 的设计规范，将 `repos_with_pods.json` 渲染为独立 HTML。
 
-数据加载采用 **html-data-loading** skill 定义的三阶段降级方案（详见 `AI-qskills/html-data-loading/SKILL.md`）。
+数据加载采用 **数据加载(HTML)规范** 方案（详见《[数据加载(HTML)规范.md](../数据加载(HTML)规范.md)》）。
+
+层级表格（仓库 → Pod → Subspec 展开/收起）采用 **层级数据表格展示规范** 的嵌套可展开表格方案（详见《[层级数据表格展示规范.md](../层级数据表格展示规范.md)》）。
 
 #### 本地正式测试（生成 .js 文件）
 
