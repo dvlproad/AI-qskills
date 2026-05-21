@@ -177,11 +177,25 @@ description: |
 
 **处理**：修改 podspec 后需要 `rsync` 到 `.cocoapods/repos/`，或者执行 `pod repo push` 更新。
 
+### 2. `dvlproad项目列表.html` Pod 展开行缺少 `<tr>` 开标签
+
+`renderRepoTable()` 中 pod 子行（有 Pod 的 repo 下的子表）拼接 HTML 时，只输出了 `</td></tr>` 闭合标签，缺少了 `<tr class="pod-subspec-row"><td colspan="N">` 开标签。导致有 Pod 的 repo 后的所有后续行 HTML 结构破碎，渲染为纯文本粘合在一起。
+
+**表现**：有 Pod 的 repo（如 `001-UIKit-CQDemo-iOS`）之后的每一个 repo 行（如 `001-UIKit-CQDemo-Flutter`）全部串成一行文本，列分隔符消失。
+
+**根因**：`colspan` 变量定义了但未用于开标签，`renderPodCompactTable()` 返回的 `<div>` 直接跟在 `</tr>` 之后，脱离了表格上下文。
+
+**修复**：在 `renderPodCompactTable()` 前加回 `<tr class="pod-subspec-row" id="..."><td colspan="..." style="padding:0;">`，用 `hidePod` 控制初始 hidden 状态。
+
 
 
 ## 版本记录
 
 更多版本记录想看每个 SKILL 内部的版本记录
+
+### 0.0.9 (2026-05-21)
+- **坑**: `dvlproad项目列表.html` renderRepoTable pod 子行缺少 `<tr>` 开标签，有 Pod 的 repo 后所有行 HTML 结构破碎
+- 优化 [normalize-blog-style](./normalize-blog-style): 标题改为「博客风格与视觉美化」；新增 Step 14 视觉美化特效（scrollReveal.js / fairyDustCursor / clickLove.js）
 
 ### 0.0.8 (2026-05-12)
 - **坑**: `.cocoapods/repos/` 与 source 目录不同步，需 `rsync`
