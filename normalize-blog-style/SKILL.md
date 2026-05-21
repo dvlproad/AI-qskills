@@ -1,19 +1,22 @@
 ---
 name: normalize-blog-style
 description: |
-  规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）
-  触发场景：换主题时检查风格一致性
+   规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击）
+   触发场景：换主题时检查风格一致性；加特效时参考视觉美化方案
 ---
 
-# 博客风格规范
+# 博客风格与视觉美化
 
-定义博客的视觉风格规范，换主题时逐项检查新主题是否支持，缺失则按参考代码补充。
+定义博客的视觉风格与美化规范，换主题时逐项检查新主题是否支持，缺失则按参考代码补充；需要添加特效时参考视觉美化方案。
 
 ## 触发条件
 
 - "换主题" — 切换 Hexo 主题时，检查并修复风格一致性
 - "博客风格" — 查看当前博客风格的规范项
 - "规范博客" — 按规范整理博客主题风格
+- "博客效果" / "博客美化" / "博客特效" — 添加视觉美化特效
+- "鼠标特效" — 添加鼠标光标特效
+- "滚动动画" — 添加页面滚动元素动画
 
 ## 执行流程
 
@@ -606,6 +609,105 @@ post.content
 
 ---
 
+### Step 14: [可选] 视觉美化特效
+
+**说明：** 此步骤为**可选**。按需添加以下效果，互不冲突，可单独选一或全部添加。
+
+```
+├── 不需要 → 跳过
+└── 需要 → 按需选择以下效果添加
+    ├── A. fairyDustCursor — 星光粉尘鼠标跟随
+    ├── B. clickLove.js — 鼠标点击弹出彩色爱心
+    └── C. scrollReveal.js — 滚动淡入/滑入动画（轻量推荐）
+```
+
+**检查方法：** 首页下滑，观察文章卡片/图片/标题是否带入场动画；移动鼠标看是否有星光轨迹；点击页面看是否有爱心弹出。
+
+**加载位置（以 landscape 主题为例）：**
+
+所有特效脚本统一在主题的 `layout/_partial/after-footer.ejs` 中添加（或其他主题的 `layout/_partial/footer.ejs` / `layout.njk` 底部）。确保在 `</body>` 前加载。
+
+---
+
+#### A. fairyDustCursor — 星光粉尘鼠标跟随
+
+**用途：** 鼠标移动时，在光标位置产生彩色星光/魔法粉尘的拖尾效果。
+
+**接入方式（ESM，推荐）：** 在 `after-footer.ejs` 中添加：
+
+```html
+<script type="module">
+  import { fairyDustCursor } from "https://unpkg.com/cursor-effects@latest/dist/esm.js";
+  new fairyDustCursor();
+</script>
+```
+
+**自定义颜色和符号：**
+
+```html
+<script type="module">
+  import { fairyDustCursor } from "https://unpkg.com/cursor-effects@latest/dist/esm.js";
+  new fairyDustCursor({
+    colors: ["#ff0000", "#ffaa00", "#ffff00"],
+    fairySymbol: "✨"
+  });
+</script>
+```
+
+**效果：** 鼠标移动时，光标后跟随飘落的彩色星光颗粒，适合科技/创意类博客首页。
+
+**注意：** 移动端无 hover 概念不会触发，不影响触屏用户。
+
+---
+
+#### B. clickLove.js — 鼠标点击爱心
+
+**用途：** 鼠标点击页面任意位置时，从点击处弹出彩色浮动爱心。
+
+**接入方式：** 在 `after-footer.ejs` 中添加：
+
+```html
+<script type="text/javascript">
+!function(e,t,a){function n(){c(".heart{width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: fixed;}.heart:after{top: -5px;}.heart:before{left: -5px;}"),o(),r()}function r(){for(var e=0;e<d.length;e++)d[e].alpha<=0?(t.body.removeChild(d[e].el),d.splice(e,1)):(d[e].y--,d[e].scale+=.004,d[e].alpha-=.013,d[e].el.style.cssText="left:"+d[e].x+"px;top:"+d[e].y+"px;opacity:"+d[e].alpha+";transform:scale("+d[e].scale+","+d[e].scale+") rotate(45deg);background:"+d[e].color+";z-index:99999");requestAnimationFrame(r)}function o(){var t="function"==typeof e.onclick&&e.onclick;e.onclick=function(e){t&&t(),i(e)}}function i(e){var a=t.createElement("div");a.className="heart",d.push({el:a,x:e.clientX-5,y:e.clientY-5,scale:1,alpha:1,color:s()}),t.body.appendChild(a)}function c(e){var a=t.createElement("style");a.type="text/css";try{a.appendChild(t.createTextNode(e))}catch(t){a.styleSheet.cssText=e}t.getElementsByTagName("head")[0].appendChild(a)}function s(){return"rgb("+~~(255*Math.random())+","+~~(255*Math.random())+","+~~(255*Math.random())+")"}var d=[];e.requestAnimationFrame=function(){return e.requestAnimationFrame||e.webkitRequestAnimationFrame||e.mozRequestAnimationFrame||e.oRequestAnimationFrame||e.msRequestAnimationFrame||function(e){setTimeout(e,1e3/60)}}(),n()}(window,document);
+</script>
+```
+
+**效果：** 每次鼠标点击产生一个随机颜色的爱心，逐渐上浮 + 缩小 + 淡出消失，叠加多个爱心时呈自然粒子扩散效果。
+
+**注意：** 移动端 tap 事件同样触发，不影响交互。
+
+---
+
+#### C. scrollReveal.js — 滚动动画（轻量方案）
+
+**用途：** 页面滚动时，元素以淡入/滑入方式出场，提升浏览节奏感。
+
+**接入方式：** 在 `after-footer.ejs` 中引入 CDN 并初始化：
+
+```html
+<script src="https://unpkg.com/scrollreveal"></script>
+<script>
+  ScrollReveal({ distance: '40px', duration: 800, easing: 'ease-out' });
+  ScrollReveal().reveal('.article',             { delay: 200, interval: 100, origin: 'bottom' });
+  ScrollReveal().reveal('.article-entry h2',    { origin: 'left' });
+  ScrollReveal().reveal('.article-entry img',   { origin: 'bottom', scale: 0.95 });
+</script>
+```
+
+**选择器说明（按 landscape 主题）：**
+
+| 选择器 | 效果 | 说明 |
+|--------|------|------|
+| `.article` | 底部滑入 + staggered | 首页文章卡片，每张间隔 100ms |
+| `.article-entry h2` | 左侧滑入 | 文章内二级标题 |
+| `.article-entry img` | 底部淡入 + 轻微缩放 | 文章内图片 |
+
+**初始化参数：** `distance` 移动距离、`duration` 动画时长 ms、`easing` 缓动函数。
+
+**注意：** 仅对首页和文章页生效，不影响侧边栏和 footer。对纯内容页面（无大段滚动）无性能影响。
+
+---
+
 ## 参考代码
 
 ### date.ejs — 中文日期显示
@@ -839,7 +941,41 @@ category_exclude:
 
 ---
 
+### after-footer.ejs — 视觉特效统一加载（三个效果同区添加）
+
+在主题的 `layout/_partial/after-footer.ejs` 末尾（`</body>` 前）添加：
+
+```html
+<!-- ====== 视觉美化特效 ====== -->
+
+<!-- A. fairyDustCursor — 星光粉尘鼠标跟随（ESM） -->
+<script type="module">
+  import { fairyDustCursor } from "https://unpkg.com/cursor-effects@latest/dist/esm.js";
+  new fairyDustCursor();
+</script>
+
+<!-- B. clickLove.js — 鼠标点击爱心 -->
+<script type="text/javascript">
+!function(e,t,a){function n(){c(".heart{width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: '';width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: fixed;}.heart:after{top: -5px;}.heart:before{left: -5px;}"),o(),r()}function r(){for(var e=0;e<d.length;e++)d[e].alpha<=0?(t.body.removeChild(d[e].el),d.splice(e,1)):(d[e].y--,d[e].scale+=.004,d[e].alpha-=.013,d[e].el.style.cssText="left:"+d[e].x+"px;top:"+d[e].y+"px;opacity:"+d[e].alpha+";transform:scale("+d[e].scale+","+d[e].scale+") rotate(45deg);background:"+d[e].color+";z-index:99999");requestAnimationFrame(r)}function o(){var t="function"==typeof e.onclick&&e.onclick;e.onclick=function(e){t&&t(),i(e)}}function i(e){var a=t.createElement("div");a.className="heart",d.push({el:a,x:e.clientX-5,y:e.clientY-5,scale:1,alpha:1,color:s()}),t.body.appendChild(a)}function c(e){var a=t.createElement("style");a.type="text/css";try{a.appendChild(t.createTextNode(e))}catch(t){a.styleSheet.cssText=e}t.getElementsByTagName("head")[0].appendChild(a)}function s(){return"rgb("+~~(255*Math.random())+","+~~(255*Math.random())+","+~~(255*Math.random())+")"}var d=[];e.requestAnimationFrame=function(){return e.requestAnimationFrame||e.webkitRequestAnimationFrame||e.mozRequestAnimationFrame||e.oRequestAnimationFrame||e.msRequestAnimationFrame||function(e){setTimeout(e,1e3/60)}}(),n()}(window,document);
+</script>
+
+<!-- C. scrollReveal.js — 滚动淡入/滑入动画 -->
+<script src="https://unpkg.com/scrollreveal"></script>
+<script>
+  ScrollReveal({ distance: '40px', duration: 800, easing: 'ease-out' });
+  ScrollReveal().reveal('.article',             { delay: 200, interval: 100, origin: 'bottom' });
+  ScrollReveal().reveal('.article-entry h2',    { origin: 'left' });
+  ScrollReveal().reveal('.article-entry img',   { origin: 'bottom', scale: 0.95 });
+</script>
+```
+
+**按需注释：** 不需要的效果直接注释或删除对应块即可。
+
+---
+
 ## 版本记录
+
+**0.0.11 (2026-05-21): 标题改为「博客风格与视觉美化」；新增 Step 14 视觉美化特效（scrollReveal.js / fairyDustCursor / clickLove.js）；新增触发词
 
 **0.0.10 (2026-05-21): 新增 Step 12 ![]() 空格文件名修复（fixMarkdownImages）+ Step 9/11 重编号**
 
