@@ -1,71 +1,78 @@
 ---
 name: project-repos-with-pods-draw
 description: |
-  podspec 规范化。如果是公有库还可以选择是否继续同步更新到项目列表
-  触发场景：用户输入"规范化podspec"、"完善pod注释"、"完善公有库"
+  project-repos-with-pods-draw：整合 repos_all.json 和 pods_all.json，
+  渲染为项目列表的各种格式（markdown / HTML / JSON 数据源）
 ---
 
-# podspec 规范化
+# 项目列表渲染（repo + pod 数据配图）
 
-podspec 规范化是公有库和私有库都需要的操作，对于公有库还可以选择是否继续同步更新到项目列表。
+将 repos_all.json（仓库信息）和 pods_all.json（Pod 信息）整合渲染为项目列表的各种格式。
+其中 pod 数据也可先调用 project-pods-action 进行规范化/同步后再整合。
 
 ## 触发条件
 
-- "规范化podspec" — 规范化 podspec 文件（子库注释 + description）
-- "完善pod注释" — 完善 pod 的 subspec 注释
-- "完善公有库" — 完善公有库的 pod 注释并更新到项目列表
-- "给pod加注释" — 给 podspec 加注释
-- 其他表达完善 pod 注释或规范化 podspec 意图的指令
+- `"生成项目列表"` — 从 repos + pod 数据生成/更新项目列表文档
+- `"渲染项目列表"` — 将项目列表渲染为 HTML（含嵌套可展开表格）
+- `"整合repos和pods"` — 合并仓库信息和 Pod 信息为统一数据源
+- `"项目列表配Pod图"` — 在项目列表中追加 Pod 情况表
+- `"规范化podspec"`（兼容）— 规范化 podspec 后继续生成项目列表
+- 其他表达生成/渲染/配图项目列表意图的指令
 
 ## 执行流程
 
 ### 1、获取 repos 信息 `repos_all.json`
 
-询问用户是否获取到了最新的 `repos_all.json` 的信息。
+Agent 检查 `repos_all.json` 是否存在：
 
-- 是 → 进入下一步
+- 检测到 → `检测到 repos_all.json 在 /path/to/file，是否使用？(yes → 使用 / new → 重新获取 / 输入路径)`
+- 未检测到 → `未检测到 repos_all.json，请重新获取或输入路径 (new → 重新获取 / 路径)`
 
-- 否 → 执行【一、获取 repos 信息 `repos_all.json`】，然后提示用户：
+- yes → 进入下一步
+- new → 执行【一、获取 repos 信息 `repos_all.json`】
+- 其他路径 → 尝试使用该路径
 
-  > 恭喜你已更新 repos_all.json。请问是否继续？
-  >
-  > 1. 不 → ✅ 结束
-  >
-  > 2. 继续 → 进入下一步
-  >
+获取完毕后提示用户：
+> 已更新 repos_all.json。请问是否继续？
+>
+> 1. 不 → ✅ 结束
+>
+> 2. 继续 → 进入下一步
 
 
 ### 2、获取 pod 信息 `pods_all.json`
 
-询问用户是否获取到了最新的 `pods_all.json` 的信息。
+Agent 检查 `pods_all.json` 是否存在：
 
-- 是 → 进入下一步
+- 检测到 → `检测到 pods_all.json 在 /path/to/file，是否使用？(yes → 使用 / new → 重新获取 / 输入路径)`
+- 未检测到 → `未检测到 pods_all.json，请重新获取或输入路径 (new → 重新获取 / 路径)`
 
-- 否 → 执行【二、获取 pod 信息 `pods_all.json`】，然后提示用户：
+- yes → 进入下一步
+- new → 执行【二、获取 pod 信息 `pods_all.json`】
+- 其他路径 → 尝试使用该路径
 
-  > 恭喜你已更新 pods_all.json。请问是否继续？
-  >
-  > 1. 不 → ✅ 结束
-  >
-  > 2. 继续：整合 repos_all.json 和 pods_all.json，后续作为 md 或者 html 等的数据源
-  >
-  >    运行 repos_json_append_pods.sh ，重建 `repos_with_pods.json`。
-  >
-  > 3. 继续：对我用 repos_all.json 得到的 项目列表.md 文档，增加更新的 pod
-  >
-  >    运行 repos_md_append_pods.sh ，将 pods_all.json 的更新同步到项目列表 markdown 文档
+获取完毕后提示用户：
+> 已更新 pods_all.json。请问下一步做什么？
+>
+> 1. 不 → ✅ 结束
+>
+> 2. 整合 repos_all.json 和 pods_all.json → 进入下一步（运行 repos_json_append_pods.sh）
+>
+> 3. 追加 Pod 到项目列表.md → 运行 repos_md_append_pods.sh
 
 
 ### 3、整合 repo 和 pod  数据源 `repos_with_pods.json`
 
-询问用户是否获取到了最新的 `repos_with_pods.json` 的信息。
+Agent 检查 `repos_with_pods.json` 是否存在：
 
-- 是 → 进入下一步
-- 否 → ✅ 结束
+- 检测到 → `检测到 repos_with_pods.json 在 /path/to/file，是否使用？(yes → 使用 / new → 重新整合 / 输入路径)`
+- 未检测到 → `未检测到 repos_with_pods.json，请重新整合或输入路径 (new → 重新整合 / 路径)`
 
+- yes → 进入下一步
+- new → 运行 repos_json_append_pods.sh 重建
+- 其他路径 → 尝试使用该路径
 
-
-**用户确认**：展示执行结果。
+**用户确认**：展示整合结果。
 
 - `yes` / `y` → 完成，告知用户全部流程结束
 - `quit` / `q` → 退出
