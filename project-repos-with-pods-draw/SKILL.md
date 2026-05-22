@@ -74,18 +74,27 @@ Agent 检查 `repos_with_pods.json` 是否存在：
 
 **用户确认**：展示整合结果。
 
-- `yes` / `y` → 完成，告知用户全部流程结束
+- `yes` / `y` → 进入下一步
 - `quit` / `q` → 退出
 - 其他 → 提示重新输入
 
+整合完毕后提示用户：
+> 已整合为 repos_with_pods.json。请问下一步做什么？
+>
+> 1. 不 → ✅ 结束
+>
+> 2. 生成 HTML 版项目列表 → ### 4
+>
+> 3. 生成 Markdown 版项目列表 → ### 5
+
 ### 4. 可选：生成 HTML 版项目列表
 
-询问用户：
+询问用户是否将 `repos_with_pods.json` 渲染为独立 HTML（详见【五、生成 HTML 版项目列表】）：
 
-> 是否根据 `dvlproad项目列表_PRD.md` 的设计规范，将 `repos_with_pods.json` 渲染为独立 HTML？
+> 是否生成 HTML 版项目列表？(yes → 生成 / no → 跳过)
 
-- 否 → ✅ 结束
-- 是 → 生成 HTML → ✅ 结束
+- yes → 生成 HTML（输出路径按【七、输出路径决策】）→ ✅ 结束
+- no → ✅ 结束
 
 ### 5. 可选：生成 Markdown 版项目列表
 
@@ -106,6 +115,8 @@ Agent 检查 `repos_with_pods.json` 是否存在：
 
 
 ## 一、获取 repos 信息 `repos_all.json`
+
+调用 [project-repos-action](../project-repos-action/SKILL.md) 获取 repos_all.json，完成后回到本 skill 继续。
 
 
 
@@ -393,6 +404,9 @@ Agent 话术模板：
 
 ## 版本记录
 
+### 0.2.0 (2026-05-22): 重构标题/触发条件/交互模式，修复结构问题
+- 标题改为"项目列表渲染（repo + pod 数据配图）"
+- 触发条件以生成/渲染/配图为主，"规范化podspec"降为兼容入口
 ### 0.1.0 (2026-05-12): 新增 Step 6 HTML 生成流程
 
 ### 0.0.1 (2026-05-12): 初始版本
