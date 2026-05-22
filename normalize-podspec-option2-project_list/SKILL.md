@@ -51,7 +51,7 @@ Step 1: podspec_normalize.sh（公有/私有都做）
 在当前会话中使用以下命令：
 
 ```bash
-sh scripts/podspec_normalize.sh \
+sh ../pod-action/scripts/podspec_normalize.sh \
   --project-dir <用户提供的项目目录>
 ```
 
@@ -107,7 +107,7 @@ sh scripts/podspec_normalize.sh \
 从本地 podspec 文件解析数据，合并到 `pods_all.json`。
 
 ```bash
-python3 scripts/public-pod-complete2-pods_json.py \
+python3 ../pod-action/scripts/public-pod-complete2-pods_json.py \
   <本地 podspec 路径> \
   <pods_all.json路径>
 ```

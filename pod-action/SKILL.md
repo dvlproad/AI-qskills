@@ -145,13 +145,13 @@ flowchart TD
 - **Pod 仓库**（嵌套模式）→ 使用 `--spec-dir`：
 
   ```bash
-  sh normalize-podspec-option2-project_list/scripts/podspec_normalize.sh \
+  sh scripts/podspec_normalize.sh \
     --spec-dir <目录>
 
 - **Pod 项目**（扁平模式）→ 使用 `--project-dir`：
 
   ```bash
-  sh normalize-podspec-option2-project_list/scripts/podspec_normalize.sh \
+  sh scripts/podspec_normalize.sh \
     --project-dir <目录>
 
 ## 三、同步到 CocoaPods（单个 pod）
@@ -278,7 +278,7 @@ Agent 话术：
 
 | 功能       | 说明                                                         |
 | ---------- | ------------------------------------------------------------ |
-| 脚本路径   | `organize-pod-to-md/scripts/pods_fetch_to_md.sh`             |
+| 脚本路径   | `scripts/pods_fetch_to_md.sh`             |
 | 公有数据源 | `pod trunk me` + 本地 trunk/cocoapods repo 缓存              |
 | 私有数据源 | 扫描 `gitee-dvlproad-dvlproadspecs` 的全部 `.podspec`（Ruby 格式，Python 正则解析） |
 | 输出       | `--json` → JSON / `--md` → Markdown（至少指定一个）          |
@@ -288,7 +288,7 @@ Agent 话术：
 #### 2.2、pods_fetch_to_md.sh 脚本使用
 
 ```bash
-sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos <repo1,repo2,...> [--json path] [--md path]
+sh scripts/pods_fetch_to_md.sh --repos <repo1,repo2,...> [--json path] [--md path]
 ```
 
 必传参数：
@@ -303,10 +303,10 @@ sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos <repo1,repo2,...> [--j
 例如：
 
 ```bash
-sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk --json pods.json                 # 输出到当前目录
-sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk --json ../output/pods.json       # 相对路径
-sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk --json /tmp/pods.json            # 绝对路径（目录必须存在）
-sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk,dvlproad --json data.json --md pods.md  # 同时输出 JSON 和 MD
+sh scripts/pods_fetch_to_md.sh --repos trunk --json pods.json                 # 输出到当前目录
+sh scripts/pods_fetch_to_md.sh --repos trunk --json ../output/pods.json       # 相对路径
+sh scripts/pods_fetch_to_md.sh --repos trunk --json /tmp/pods.json            # 绝对路径（目录必须存在）
+sh scripts/pods_fetch_to_md.sh --repos trunk,dvlproad --json data.json --md pods.md  # 同时输出 JSON 和 MD
 ```
 
 生成文件：
@@ -321,17 +321,10 @@ sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk,dvlproad --json 
 单条更新 `pods_all.json` 中某条 pod 的记录：
 
 ```bash
-python3 normalize-podspec-option2-project_list/scripts/public-pod-complete2-pods_json.py \
+python3 scripts/public-pod-complete2-pods_json.py \
   <本地 podspec 路径> \
   <pods_all.json路径>
 ```
-
-
-
-## 注意事项
-
-1. **podspec_normalize.sh 路径** — 位于 `normalize-podspec-option2-project_list/scripts/podspec_normalize.sh`，非本技能目录下
-2. **public-pod-complete2-pods_json.py 路径** — 位于 `normalize-podspec-option2-project_list/scripts/public-pod-complete2-pods_json.py`，非本技能目录下
 
 
 
