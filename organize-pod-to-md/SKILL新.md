@@ -58,12 +58,12 @@ flowchart TD
 
         SP -->|B| PB[B 同步本地]
         PB --> PB1[B1 覆盖本地]
-        PB1 --> PB_Fetch[获取最新数据 详见四]
+        PB1 --> PB_Fetch[获取最新数据 详见五]
         PB_Fetch --> PB_END[结束]
 
         SP -->|C| PC[C 发布远程]
         PC --> PC1[C1 发布远程]
-        PC1 --> PC_Fetch[获取最新数据 详见四]
+        PC1 --> PC_Fetch[获取最新数据 详见五]
         PC_Fetch --> PC_END[结束]
     end
 
@@ -77,12 +77,12 @@ flowchart TD
 
         SR -->|B| RB[B 同步本地]
         RB --> RB1[B2 覆盖本地]
-        RB1 --> RB_Fetch[获取最新数据 详见四]
+        RB1 --> RB_Fetch[获取最新数据 详见五]
         RB_Fetch --> RB_END[结束]
 
         SR -->|C| RC[C 发布远程]
         RC --> RC1[C2 发布远程]
-        RC1 --> RC_Fetch[获取最新数据 详见四]
+        RC1 --> RC_Fetch[获取最新数据 详见五]
         RC_Fetch --> RC_END[结束]
     end
 
@@ -108,9 +108,9 @@ flowchart TD
 
 [A: 仅规范] → 结束
 
-[B2: 同步本地] → 覆盖本地 .podspec 文件（详见三.1）
+[B2: 同步本地] → 覆盖本地 .podspec 文件（详见四.1）
 
-[C2: 发布远程] → git commit + push + pod repo update（详见三.2）
+[C2: 发布远程] → git commit + push + pod repo update（详见四.2）
 
 ### 2、获取 & 更新 Pod 数据
 
@@ -119,8 +119,8 @@ flowchart TD
    - **不存在** → 告知用户无可用的数据文件，仅提供全量获取
 
 2. 根据用户选择：
-   - **全量获取** → 先确定输出路径（详见四.1），再执行 `pods_fetch_to_md.sh`（详见四.1）
-   - **单条更新** → 执行 `public-pod-complete2-pods_json.py`（详见四.2）
+   - **全量获取** → 先确定输出路径（详见五.1），再执行 `pods_fetch_to_md.sh`（详见五.2）
+   - **单条更新** → 先确定已有文件路径（详见五.1），再执行 `public-pod-complete2-pods_json.py`（详见五.3）
 
 ## 一、pod项目类型判断规则
 
@@ -154,7 +154,7 @@ flowchart TD
   sh normalize-podspec-option2-project_list/scripts/podspec_normalize.sh \
     --project-dir <目录>
 
-## 三、同步到 CocoaPods
+## 三、同步到 CocoaPods（单个 pod）
 
 ### 1、同步到本地 CocoaPods (pod repo)
 
@@ -210,9 +210,38 @@ pod repo push dvlproadSpec <本地.podspec> --allow-warnings
 pod repo update dvlproadSpec
 ```
 
+## 四、同步到 CocoaPods（整个 Spec 仓库，极少情况，且不推荐使用）
 
+> ⚠️ 只针对私有仓库，不对公有仓库处理。且不推荐使用。
 
-## 四、获取 & 更新 Pod 数据
+适用场景：Pod 仓库链的 B2/C2 操作，将整个 spec 仓库同步到本地 CocoaPods 缓存和远程。
+
+### 1、同步到本地 CocoaPods（B2 覆盖本地）
+
+找到 CocoaPods 缓存中对应的 spec 仓库目录（如 `~/.cocoapods/repos/dvlproadSpec/`）：
+
+1. 展示路径，二次询问用户是否真的要进行覆盖
+2. 将本地整个 spec 仓库内容同步到 CocoaPods 缓存：
+
+```bash
+rsync -av <本地 spec 仓库目录>/ ~/.cocoapods/repos/dvlproadSpec/
+```
+
+### 2、同步到远程 CocoaPods（C2 发布远程）
+
+将本地的 spec 仓库变更推送到远程：
+
+```bash
+cd <spec 仓库目录>
+git add .
+git commit -m "update all podspec"
+git push
+
+# 更新本地 CocoaPods 缓存
+pod repo update
+```
+
+## 五、获取 & 更新 Pod 数据
 
 ### 1、pods.json 路径说明
 
@@ -307,6 +336,14 @@ python3 normalize-podspec-option2-project_list/scripts/public-pod-complete2-pods
 
 
 ## 版本记录
+
+### 0.0.4 (2026-05-22): 按 record-to-skill 规范重构
+- 流程概览与展开章节分离：1.4 Mermaid 图 + 1.5 流程细则
+- Mermaid 简化：去除公有/私有判断节点，用 B1/B2、C1/C2 编号区分项目链和仓库链
+- 新增 `### 2、获取 & 更新 Pod 数据` 决策层：全量/单条选择 + pods_all.json 存在检查
+- `## 四` 拆为四.1 路径说明 + 四.2 全量获取 + 四.3 单条更新
+- 输出路径决策归入四.1，区分全量（设置）和单条（定位）两种场景
+- 空节点改用 `classDef hide` 规范
 
 ### 0.0.3 (2026-05-22): 重构为两阶段流程
 - 简化为两阶段：阶段一（规范化）+ 阶段二（获取 & 更新 Pod 数据）
