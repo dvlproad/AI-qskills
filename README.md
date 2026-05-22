@@ -32,13 +32,13 @@ graph LR
 ```mermaid
 graph LR
     A[📁 organize-code-to-md<br/>整理代码] --> B[qbase/branch.md<br/>产出]
-    C[🧪 organize-md-to-md<br/>生成文档] -.-> A
+    C[🧪 organize-skill-to-md<br/>生成文档] -.-> A
     D[📋 project-repos-action<br/>整理仓库] -.-> A
 ```
 
 | Skill                                          | 描述                                    | 触发场景           | 产出示例                                                     |
 | ---------------------------------------------- | --------------------------------------- | ------------------ | ------------------------------------------------------------ |
-| [organize-md-to-md](./organize-md-to-md)       | 整理文档关系/生成图谱                   | "整理文档关系"     |                                                              |
+| [organize-skill-to-md](./organize-skill-to-md)       | 整理 Skill 关系/生成图谱                   | "整理 Skill 关系"     |                                                              |
 | [project-repos-action](./project-repos-action) | 整理仓库列表为分类文档                  | "整理仓库"         | 项目列表.md                                                  |
 | [organize-code-to-md](./organize-code-to-md)   | 整理代码目录结构                        | "帮我理下有关 XXX" | [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
 
@@ -211,7 +211,7 @@ flowchart TD
 
     WRITE_CODE[写代码结构] -->|整理| OCM[organize-code-to-md]
     OCM -->|产出| BRANCH_MD[[qbase/branch.md]]
-    WRITE_MD[写文档结构] -->|整理| OMD[organize-md-to-md]
+    WRITE_MD[写文档结构] -->|整理| OMD[organize-skill-to-md]
     OMD -->|产出| README_SKILL[[本README.md<br/>Skill分类详解]]
 
     POD_LIST[整理Pod列表] -->|进入| S1
