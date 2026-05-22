@@ -190,6 +190,8 @@ description: |
 4. **线型选择**：AI 路由走 `-->`，调用脚本走 `==o`，仅引用方案/模式走 `-..->`
 5. **就近原则**：同一管线的节点在声明顺序上聚在一起（如 `RSR` 紧邻脚本管线 `SH→SQ→ST`），避免同域节点分离难读
 
+### 有引用/调用的 Skill 联动关系
+
 ```mermaid
 flowchart TD
     RR[record-router] -->|脚本入库| RSR[record-to-script-repo]
@@ -212,33 +214,27 @@ flowchart TD
     WRITE_MD[写文档结构] -->|整理| OMD[organize-md-to-md]
     OMD -->|产出| README_SKILL[[本README.md<br/>Skill分类详解]]
 
-    NORMALIZE_POD[规范 podspec] -->|完成后| S13
+    POD_LIST[整理Pod列表] -->|进入| S1
     
     subgraph NP_SKILL["project-repos-with-pods-draw"]
         direction LR
-        S13[Step 1-3\n完善podspec+同步] --> S45[Step 4-5\n生成json匹配列表]
-        S45 --> S6[Step 6\n生成HTML]
+        S1[project-repos-action\n获取repos] --> S2[project-pods-action\n获取pod]
+        S2 --> S3[Step 3\n整合]
+        S3 --> S45[Step 4-5\n匹配+渲染]
+        S45 --> S6[Step 6\nHTML]
     end
 
-    S45 ==o|调用脚本| OR[project-repos-action]
     S6 -..->|数据方案| HL([📄 数据加载【HTML】规范])
     S6 -..->|层级表格| HTH([📄 层级数据表格展示规范])
-    POD_LIST[整理Pod列表] -->|整理| OP[project-repos-with-pods-draw]
-    OP ==o|匹配脚本| OR
 ```
 
-| Skill | 关系 |
-|-------|------|
-| **record-router** | 路由 → record-to-hexo-blog / record-to-skill / record-to-script-repo |
-| **record-to-hexo-blog** | A7/B7 步需将 `_posts/` 下与 `.md` 同级的独立 `.html` 正确输出到 Hexo → 引用 normalize-blog-style 的 Step 6 独立 HTML 文件处理方案 |
-| **[层级数据表格展示规范.md](./层级数据表格展示规范.md)** (📄 规范文件) | 嵌套可展开表格的档位显示/清除逻辑 → 引用 [优先级链模式.md](./优先级链模式.md) 作为底层模型 |
-| **写脚本 → script-specification → script-to-homebrew → script-qtool → script-test-branch-info** | 工作流管线：写脚本 → 按规范校验 → 判断是否在目标目录（否→经 record-router→record-to-script-repo 入库）→ 整合发布到 homebrew → 使用 qtool 操作 → 测试分支信息 |
-| **写代码结构 → organize-code-to-md** | 写代码后整理目录结构，生成代码功能文档，产出如 [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
-| **写文档结构 → organize-md-to-md** | 写文档后整理文档关系/生成图谱，产出如 README.md 的「Skill 分类详解」|
-| **规范 podspec → project-repos-with-pods-draw** | 管线：规范 podspec → Step 1-3 完善+同步 → Step 4-5 调用 project-repos-with-pods-draw/scripts 脚本生成 json 匹配列表 → Step 6 可选生成 HTML，引用 📄 [数据加载(HTML)规范.md](./数据加载(HTML)规范.md) 的数据方案 + 📄 [层级数据表格展示规范.md](./层级数据表格展示规范.md) 的层级表格方案 |
-| **整理Pod列表 → project-repos-with-pods-draw** | 获取 Pod 列表 → 匹配到项目列表（调用 project-repos-with-pods-draw/scripts/repos_md_append_pods.sh）|
+### 独立 Skill（无相互调用）
 
-**独立 Skill**（无相互调用）：`dev-fw-setting-ai-models` `guide-and-config-missing-env` `life-emoji-idiom` `life-reply-crush` `opencode-sessions-manager`
+- `dev-fw-setting-ai-models`
+- `guide-and-config-missing-env`
+- `life-emoji-idiom`
+- `life-reply-crush`
+- `opencode-sessions-manager`
 
 ## 踩坑记录
 
