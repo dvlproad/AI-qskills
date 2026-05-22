@@ -1,5 +1,5 @@
 ---
-name: normalize-podspec-option2-project_list
+name: project-repos-with-pods-draw
 description: |
   podspec 规范化。如果是公有库还可以选择是否继续同步更新到项目列表
   触发场景：用户输入"规范化podspec"、"完善pod注释"、"完善公有库"
@@ -104,14 +104,14 @@ podspec 规范化是公有库和私有库都需要的操作，对于公有库还
 
 ## 二、获取 pod 信息 `pods_all.json`
 
-### 1. 调用 pod-action 完成规范化
+### 1. 调用 project-pods-action 完成规范化
 
-直接调用 [pod-action](../pod-action/SKILL.md) 这个SKILL处理，由它完成：
+直接调用 [project-pods-action](../project-pods-action/SKILL.md) 这个SKILL处理，由它完成：
 - podspec 规范化
 - CocoaPods 同步到本地/远程
 - 获取 & 更新 Pod 数据（pods_all.json）
 
-进入 pod-action 后按正常流程走即可，完成后回到本 skill 继续。
+进入 project-pods-action 后按正常流程走即可，完成后回到本 skill 继续。
 
 
 

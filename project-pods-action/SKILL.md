@@ -1,10 +1,10 @@
 ---
-name: pod-action
+name: project-pods-action
 description: >
-  pod-action：对 pod 做获取全部 pod 信息还是对 podspec 做规范化
+  project-pods-action：对 pod 做获取全部 pod 信息还是对 podspec 做规范化
 ---
 
-# pod-action
+# project-pods-action
 
 当用户想要查看自己的 CocoaPods Pod 列表，或查看哪些仓库发布了对应的 Pod 时触发。
 
@@ -344,7 +344,7 @@ python3 scripts/public-pod-complete2-pods_json.py \
 - 总览流程图简化为一条线
 - 各阶段内部有独立的子流程图
 - 新增阶段一 Step 0-2.5 详细流程
-- 明确引用 `normalize-podspec-option2-project_list` 目录下的脚本
+- 明确引用 `project-repos-with-pods-draw` 目录下的脚本
 
 ### 0.0.2 (2026-05-10): 新增私有 Pod 扫描、来源/可见/语言列
 - `pods_fetch_to_md.sh`: 新增扫描 `dvlproadSpecs` 私有 repo 的 `.podspec` 文件

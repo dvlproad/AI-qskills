@@ -162,7 +162,7 @@ description: |
 **方式二：`### N.` 编号列表**
 - 用 `### N.` 写流程描述（做什么、怎么走向下一步）
 - 通过 `（详见 §X）` 引用技术章节
-- 参考示例：[organize-repos-to-md/SKILL.md](../organize-repos-to-md/SKILL.md) 的"执行流程"概览与"一~四"展开章节
+- 参考示例：[project-repos-action/SKILL.md](../project-repos-action/SKILL.md) 的"执行流程"概览与"一~四"展开章节
 
 **两种方式共同要求：**
 - 概览中不放技术细节

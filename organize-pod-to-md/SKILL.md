@@ -47,13 +47,13 @@ sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk,dvlproad --json 
 ### 2. 将 Pod 匹配到项目列表
 
 ```bash
-sh organize-repos-to-md/scripts/repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md路径>
+sh project-repos-with-pods-draw/scripts/repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md路径>
 ```
 
 例如：
 
 ```bash
-sh organize-repos-to-md/scripts/repos_md_append_pods.sh --subspec-min-count 1 --separate-subspecs /path/to/dvlproad项目列表.md
+sh project-repos-with-pods-draw/scripts/repos_md_append_pods.sh --subspec-min-count 1 --separate-subspecs /path/to/dvlproad项目列表.md
 ```
 
 参数说明：
@@ -111,7 +111,7 @@ sh organize-repos-to-md/scripts/repos_md_append_pods.sh --subspec-min-count 1 --
 
 | 功能 | 说明 |
 |------|------|
-| 脚本路径 | `organize-repos-to-md/scripts/repos_md_append_pods.sh` |
+| 脚本路径 | `project-repos-with-pods-draw/scripts/repos_md_append_pods.sh` |
 | 输入 1 | `pods_all.json`（pod 数据） |
 | 输入 2 | 项目列表 md 文件（如 dvlproad项目列表.md） |
 | 匹配方式 | 按 git URL 归一化后匹配 |

@@ -1,9 +1,9 @@
 ---
-name: organize-repos-to-md
+name: project-repos-action
 description: 整理 GitHub 和 Gitee 仓库列表为分类 JSON
 ---
 
-# organize-repos-to-md
+# project-repos-action
 
 当用户想要整理自己的 GitHub 和 Gitee 仓库列表，并生成分类文档时触发。
 

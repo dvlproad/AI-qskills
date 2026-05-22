@@ -46,7 +46,7 @@
 # ⚠️ 执行前必须先问用户确认 --json/--md 路径
 export https_proxy=http://127.0.0.1:7897 http_proxy=http://127.0.0.1:7897
 sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk,cocoapods,gitee-dvlproad-dvlproadspecs --json <path> --md <path>
-sh organize-repos-to-md/scripts/repos_md_append_pods.sh --subspec-min-count <N> [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> <pod_json.json>
+sh project-repos-with-pods-draw/scripts/repos_md_append_pods.sh --subspec-min-count <N> [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> <pod_json.json>
 ```
 
 ## 这个仓库没有的东西
