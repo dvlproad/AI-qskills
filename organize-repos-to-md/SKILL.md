@@ -1,6 +1,6 @@
 ---
 name: organize-repos-to-md
-description: 整理 GitHub 和 Gitee 仓库列表为分类 JSON，也可直接生成 Markdown 文档
+description: 整理 GitHub 和 Gitee 仓库列表为分类 JSON
 ---
 
 # organize-repos-to-md
@@ -357,150 +357,7 @@ API项目
 
 遍历 JSON 树，对匹配分类下所有 repo 添加 `"hideFromWeb": true`。
 
-## 五、选择repos.json数据流的处理方向
-
-repos_all.json 生成后，有以下两种方案：
-
-### 管线一：面向生成（直接改 md）：
-
-```
-┌─ 管线一 ─────────────────────────────────────────────────────┐
-│                                                              │
-│                    repos_all.json                            │
-│                          │                                   │
-│               按 SKILL 渲染（参见 §5：五、SKILL 渲染）           │
-│                          ↓                                   │
-│                    dvlproad项目列表.md      pods_all.json      │
-│                    （初版 · 无Pod）               │            │
-│                            \                    /             │
-│                             \                  /              │
-│                              \                /               │
-│                               \              /                │
-│                                ↓            ↓                 │
-│                          repos_md_append_pods.sh              │
-│                          (import repo_find_pod)               │
-│                                    │                          │
-│                                    ↓                          │
-│                           dvlproad项目列表.md                 │
-│                           （最终版 · 含Pod表+子库详情）        │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### 管线二：面向数据（JSON 中间格式）
-
-```
-┌─ 管线二 ─────────────────────────────────────────────────────┐
-│                                                              │
-│              repos_all.json        pods_all.json              │
-│                       \                /                     │
-│                        \              /                      │
-│                         \            /                       │
-│                          \          /                        │
-│                           ↓        ↓                         │
-│                       repos_json_append_pods.sh              │
-│                       (import repo_find_pod)                 │
-│                                │                             │
-│                                ↓                             │
-│                          repos_with_pods.json                │
-│                                │                             │
-│      	     按 repos_with_pods_json_to_md.sh 渲染(待实现)       │
-│                                │                             │
-│                                ↓                             │
-│                         dvlproad项目列表.md                   │
-│                        (含Pod表+子库详情+未匹配)                │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
-
-两条管线共用 [`repo_find_pod.py` 的匹配逻辑](#匹配逻辑)，数据源相同，输出目标不同。
-
-`repos_with_pods.json` 格式：
-```json
-{
-  "repos": [ /* 同 repos_all.json 结构，每个叶子节点多一个 "pods" 数组 */ ],
-  "unmatched_pods": [ /* 未匹配到任何 repo 的 pod */ ]
-}
-```
-
-## 六、SKILL 渲染
-
-手动渲染两条管线中的 md 时，按以下规格输出：
-
-### 5.1 Repo 表格格式
-
-| 仓库名 | 描述 | 来源 | 组织 | 可见 | 语言 | Stars |
-| ------ | ---- | ---- | ---- | ---- | ---- | ----- |
-
-- **描述**放在第二列，方便阅读
-- 来源：GitHub / Gitee
-- 可见：公有 / 私有
-
-### 5.2 文档模板
-
-```markdown
----
-title: 标题
-date: YYYY-MM-DD HH:MM:SS
-categories:
-- 分类
-tags:
-- 标签
----
-
-# 标题
-
-> 数据来源: GitHub + Gitee | 更新于 YYYY-MM-DD
-
----
-
-## 分类名称
-
-### 子分类（可选）
-
-| 仓库名 | 描述 | 来源 | 组织 | 可见 | 语言 | Stars |
-|--------|------|------|------|-----------|------|------|
-| [仓库名](链接) | 描述内容 | GitHub | dvlproad | 公有 | Objective-C | 0 |
-```
-
-## 七、脚本渲染
-
-### 6.1 repos_md_append_pods.sh（已有）
-
-当前 md 中按主表追加 Pod 表，适合管线一的第二阶段：
-
-```bash
-# repos_md_append_pods.sh — 直接在 md 中按主表追加 Pod 表（面向生成）
-sh repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]
-```
-
-### 6.2 repos_json_append_pods.sh（已有）
-
-合并 repos_all.json + pods_all.json → repos_with_pods.json，适合管线二的 JSON 中间数据生成：
-
-```bash
-# repos_json_append_pods.sh — 合并 repos_all.json + pods_all.json → repos_with_pods.json
-# 每个 repo 节点追加 pods 字段，顶层含 unmatched_pods 列表
-# 面向数据：输出 JSON 中间格式，可供后续渲染 md/html 等
-sh repos_json_append_pods.sh <repos_all.json> <pods_all.json> [输出.json]
-```
-
-### 6.3 repos_with_pods_json_to_md.sh（待实现）
-
-将 repos_with_pods.json 渲染为含 Pod 表 + 子库详情 + 未匹配 Pod 的完整 dvlproad项目列表.md。
-
-遍历 `repos_with_pods.json` 的 `repos` 树，一次遍历完成所有输出：
-
-- 按层级深度输出 heading → intro → repo 表格（格式见 §5）
-- 如果有 `pods` 字段 → 追加 Pod 表（列序：仓库名│开发的Pod│描述│版本│来源│可见│语言）
-- 子库数 ≥ N 或指定 → 追加子库详情
-- 遍历结束 → 追加 `unmatched_pods` 为未匹配 Pod 表
-
-### 6.4 repos_with_pods_json_to_html.sh（待实现）
-
-将 repos_with_pods.json 渲染为 HTML。
-
-## 八、输出路径决策
+## 五、输出路径决策
 
 输出文件的路径**必须先问用户确认**，Agent 不能默认选中。
 
@@ -516,7 +373,7 @@ Agent 话术模板：
 > `repos_all.json` 建议放在 `xxx/dvlproad项目列表/data/`（已检测到该目录），可以吗？
 > 或者你指定其他路径？留空则放当前目录。
 
-## 九、输出文件
+## 六、输出文件
 
 建议都保存到 Hexo 博客目录：
 
@@ -524,40 +381,11 @@ Agent 话术模板：
 /Users/qian/Project/CQBook/dvlproadHexo/source/_posts/管理相关/
 ```
 
-### repos_all.json（供 organize-pod-to-md 消费）
+### repos_all.json
 
 ```
 /Users/qian/Project/dvlproadHexo/source/_posts/管理相关/项目列表/data/repos_all.json
 ```
-
-### dvlproad项目列表.md（可直接查看）
-
-```
-/Users/qian/Project/dvlproadHexo/source/_posts/管理相关/项目列表/dvlproad项目列表.md
-```
-
-
-
-
-
-<a id="匹配逻辑"></a>
-
-### 附：`repo_find_pod.py` 的匹配逻辑
-
-`repos_all.json` 中每个 repo 的 `url` 用于和 `organize-pod-to-md` 的 `pods_all.json` 做 `git URL` 匹配，决定 Pod 归属。
-
-`[organize-pod-to-md 的 repo_find_pod.py](../organize-pod-to-md/scripts/repo_find_pod.py) 提供 git URL 匹配公共逻辑：
-
-- `build_pod_map(pods)` — 从 `pods_all.json` 构建 `git_url → [pod]` 映射
-- `find_pods_for_repo(repo_url, pod_map)` — 按 `(归一化→去协议前缀→含匹配)` 规则返回 `(matched_pods, matched_urls)`
-
-匹配规则：
-1. 归一化（去掉 `.git` 后缀、末尾 `/`）
-2. 精确匹配
-3. 去掉协议前缀（`https://`）后匹配
-4. 含匹配（归一化后 url 是 pod git 的子串）
-
-被 `repos_md_append_pods.sh` 和 `repos_json_append_pods.sh` 共用。
 
 
 
@@ -570,14 +398,8 @@ Agent 话术模板：
 
 ## 版本记录
 
-### 0.0.4 (2026-05-11): 提取匹配公共库，新增 JSON 中间格式
-- `repo_find_pod.py` — 从 `repos_md_append_pods.sh` 提取匹配逻辑为公共库
-- `repos_json_append_pods.sh` — 新增 JSON 中间格式输出（面向数据），每个 repo 节点追加 `pods` 字段
-- `repos_md_append_pods.sh` — 精简，改用 import `repo_find_pod`
-
-### 0.0.3 (2026-05-10): 改为 JSON 输出
-- 产出物从纯 Markdown 改为 JSON（`repos_all.json`），也可直接生成 Markdown
-- 新增与 organize-pod-to-md 联动说明
+### 0.0.4 (2026-05-22): 改为skill结果只有 JSON 输出
+- 产出物改为只有 JSON（`repos_all.json`）
 
 ### 0.0.2 (2026-04-26): 补充分类原则
 - 添加分类原则：按用途分类、每个仓库只出现一次
