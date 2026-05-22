@@ -19,107 +19,18 @@ podspec 规范化是公有库和私有库都需要的操作，对于公有库还
 
 ## 执行流程
 
-每个步骤都需要用户确认后才能继续。流程分叉如下：
+### 1. 调用 pod-action 完成规范化
 
-```
-Step 0: 确认库信息（公有/私有）
-         │
-         ▼
-Step 1: podspec_normalize.sh（公有/私有都做）
-         │
-         ├── 私有库 → 结束（后续由 pods_fetch_to_md.sh 批量提取）
-         │
-         └── 公有库 + yes → Step 2-5（同步到项目列表）
-```
+直接调用 [pod-action](../pod-action/SKILL.md) 处理，由它完成：
+- podspec 规范化
+- CocoaPods 同步到本地/远程
+- 获取 & 更新 Pod 数据（pods_all.json）
 
-### 0. 确认用户要完善的库
+进入 pod-action 后按正常流程走即可，完成后回到本 skill 继续。
 
-询问用户以下信息：
+### 2. 运行 repos_md_append_pods.sh ，同步到 项目列表.md
 
-- **本地项目目录**（如 `/Users/qian/Project/Github/CJRadio`）
-  - 目录下必须存在 `.podspec` 文件
-  - 确认后用于 Step 1 的 `podspec_normalize.sh --project-dir`
-- **公有/私有** — 判断该 pod 是公有（CocoaPods trunk）还是私有
-  - 公有库：后续可选择同步到项目列表
-  - 私有库：规范化完成后即结束（后续由 `pods_fetch_to_md.sh` 从私有 spec repo 批量提取）
-- **Pod 名称**（仅公有库需要，用于 Step 2 寻找 trunk 仓库路径）
-
-用户确认路径和类型无误后进入 Step 1。
-
-### 1. 运行 podspec_normalize.sh
-
-在当前会话中使用以下命令：
-
-```bash
-sh ../pod-action/scripts/podspec_normalize.sh \
-  --project-dir <用户提供的项目目录>
-```
-
-**用户确认**：展示 podspec 的变更内容（新增的注释、更新的 description），然后根据库类型分叉：
-
-**私有库**：
-- `yes` / `y` → 结束（规范化完成，后续由 `pods_fetch_to_md.sh` 批量提取到项目列表）
-- `no` / `n` → 结束
-- `quit` / `q` → 退出
-- 其他 → 提示重新输入
-
-**公有库**：
-- `yes` / `y` → 继续同步到项目列表（进入 Step 2-5）
-- `no` / `n` → 结束（规范化完成，不同步到项目列表）
-- `quit` / `q` → 退出
-- 其他 → 提示重新输入
-
-### 2. 询问是否同步到 CocoaPods trunk（仅公有库）
-
-> **背景说明**：`pods_fetch_to_md.sh` 是从 `~/.cocoapods/repos/` 下的 trunk 仓库中读取 pod 数据，
-> **不是**从 GitHub 上的单个项目目录读取。如果你只改了本地的 podspec 但 trunk 仓库还是旧版，
-> 后续运行 `pods_fetch_to_md.sh` 时旧数据会重新写回 `pods_all.json`，本地修改就白做了。
-
-询问用户是否将本地修改后的 podspec 通过覆盖方式临时更新到 CocoaPods trunk（即不发布，直接替换本地缓存）：
-
-注意：只有你确认podsepc完全没问题，即没有新增未发布的子pod，只是修改注释的情况下，才建议选择**是**。其他一律建议否，即不覆盖 trunk 仓库。
-
-- **是** → 
-  
-  1. 找到 trunk 中该 pod 最高版本路径（如 ~/.cocoapods/repos/trunk/Specs/.../CJRadio/1.4.0/CJRadio.podspec.json）
-
-  2. 展示路径，二次询问用户是否真的要进行覆盖。
-  
-  3. 如果选择真的要覆盖：则
-  
-     3.1 将本地的 `.podspec` 通过 `pod ipc spec` 转为 `.podspec.json`
-  
-     3.2 用 `.podspec.json` 内容覆盖 trunk 仓库中的 .podspec.json 文件
-  
-     3.3 覆盖完成后，提示用户后续运行 `pods_fetch_to_md.sh` 时，得到的 `pods_all.json`，就会是和本地一样的了。
-  
-  4. 如果选择不是的覆盖：则走本地模式：用 Step 3 从本地 podspec 读取数据更新 `pods_all.json`。
-  
-- **否** → 走本地模式：用 Step 3 从本地 podspec 读取数据更新 `pods_all.json`。
-
-**用户确认**：
-- `yes` / `y` → 继续下一步
-- `quit` / `q` → 退出
-- 其他 → 提示重新输入
-
-### 3. 运行 public-pod-complete2-pods_json.py
-
-从本地 podspec 文件解析数据，合并到 `pods_all.json`。
-
-```bash
-python3 ../pod-action/scripts/public-pod-complete2-pods_json.py \
-  <本地 podspec 路径> \
-  <pods_all.json路径>
-```
-
-**用户确认**：展示 pods_all.json 中该 pod 条目的变化（新增或更新的字段）。
-- `yes` / `y` → 继续下一步
-- `quit` / `q` → 退出
-- 其他 → 提示重新输入
-
-### 4. 运行 repos_md_append_pods.sh
-
-将 pods_all.json 的更新同步到项目列表 markdown 文档。
+调用 `repos_md_append_pods.sh` 将 pods_all.json 的更新同步到项目列表 markdown 文档。
 
 ```bash
 sh organize-repos-to-md/scripts/repos_md_append_pods.sh \
@@ -140,9 +51,7 @@ sh organize-repos-to-md/scripts/repos_md_append_pods.sh \
 - `quit` / `q` → 退出
 - 其他 → 提示重新输入
 
-### 5. 运行 repos_json_append_pods.sh
-
-重建 `repos_with_pods.json`。
+### 3. 运行 repos_json_append_pods.sh 重建 `repos_with_pods.json`。
 
 ```bash
 sh organize-repos-to-md/scripts/repos_json_append_pods.sh \
@@ -156,7 +65,7 @@ sh organize-repos-to-md/scripts/repos_json_append_pods.sh \
 - `quit` / `q` → 退出
 - 其他 → 提示重新输入
 
-### 6. 可选：生成 HTML 版项目列表
+### 4. 可选：生成 HTML 版项目列表
 
 根据 `dvlproad项目列表_PRD.md` 的设计规范，将 `repos_with_pods.json` 渲染为独立 HTML。
 
@@ -187,7 +96,7 @@ cat "$DATA_DIR/repos_with_pods.json" >> "$DATA_DIR/repos_with_pods.js"
 ├── dvlproad项目列表.md
 └── dvlproad项目列表/
     └── data/
-        ├── repos_with_pods.json   ← 数据源（Step 5 生成）
+        ├── repos_with_pods.json   ← 数据源（Step 3 生成）
         ├── repos_with_pods.js     ← 可选：file:// 用
         ├── pods_all.json
         └── repos.json
