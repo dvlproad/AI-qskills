@@ -321,21 +321,22 @@ tags:
 ### 2、脚本渲染：运行 repos_md_append_pods.sh ，追加 `pods_all.json` 到 项目列表.md
 
 当前 md 中按主表追加 Pod 表，适合管线一的第二阶段：
+#### 2.1、脚本介绍
+
+将 Pod 匹配到项目列表，适合管线一的第二阶段
 
 ```bash
 # repos_md_append_pods.sh — 直接在 md 中按主表追加 Pod 表（面向生成）
 sh repos_md_append_pods.sh [--subspec-min-count <N>] [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> [pod数据.json]
 ```
 
-调用 `repos_md_append_pods.sh` 将 pods_all.json 的更新同步到项目列表 markdown 文档。
+脚本会在每个有 Pod 匹配的 section 下追加 Pod 情况表格，主表完全不改。
 
-```bash
-sh scripts/repos_md_append_pods.sh \
-  --subspec-force-show CJBaseHelper,CJBaseUtil,CJBaseUIKit \
-  --separate-subspecs \
-  <项目列表.md> \
-  <pods_all.json>
-```
+参数说明：
+
+- `--subspec-min-count <N>`（可选）— 子库数至少为 N 时展示详情，默认 2
+- `--subspec-force-show PodA,PodB`（可选）— 强制展示这些 pod 的子库，默认 CJBaseHelper,CJBaseUtil,CJBaseUIKit
+- `--separate-subspecs`（可选）— 每个 pod 独立子库表头
 
 **输出路径确认**：按以下规则确定路径
 
@@ -344,9 +345,41 @@ sh scripts/repos_md_append_pods.sh \
 3. 不存在 → 问用户指定
 4. 用户留空 → 放当前目录
 
+**匹配逻辑：**
 
+- 按 **git URL** 匹配（去掉 `.git` 后缀比较）
+- 同一仓库有多个子 pod 时，汇总到同一 Pod 表
+- 无 pod 的 section 不追加任何内容
 
+**加完之后的效果：**
 
+主表不变，每个有 pod 的 section 末尾追加 Pod 情况表：
+
+```markdown
+**Pod 情况：**
+
+| 仓库名 | 开发的Pod | 描述 | 版本 | 来源 | 可见 | 语言 |
+|--------|-----------|------|------|------|--------|------|
+| CJUIKit | CJBaseUIKit | 自定义的基础UI | 0.1.10 | dvlproadSpecs | 私有 | OC |
+| CJPopupView | CJPopupView | a pop view | 1.3.0 | CocoaPods | 公有 | OC |
+```
+
+- **来源**: `CocoaPods`（公有 trunk）或 `dvlproadSpecs`（私有 specs）
+- **可见**: `公有`（CocoaPods）或 `私有`（dvlproadSpecs）
+- **语言**: 根据 podspec 的 `swift_version` 字段判断，有为 Swift，否则 OC
+
+#### 2.2、脚本使用
+
+调用 `repos_md_append_pods.sh` 将 pods_all.json 的更新同步到项目列表 markdown 文档。
+
+```bash
+sh scripts/repos_md_append_pods.sh \
+  --subspec-force-show CJBaseHelper,CJBaseUtil,CJBaseUIKit \
+  --subspec-min-count 1 \
+  --separate-subspecs \
+  <项目列表.md> \
+  <pods_all.json>
+```
 
 ## 七、输出路径决策
 
@@ -384,9 +417,9 @@ Agent 话术模板：
 
 ### 附：`repo_find_pod.py` 的匹配逻辑
 
-`repos_all.json` 中每个 repo 的 `url` 用于和 `organize-pod-to-md` 的 `pods_all.json` 做 `git URL` 匹配，决定 Pod 归属。
+`repos_all.json` 中每个 repo 的 `url` 用于和 `project-pods-action` 的 `pods_all.json` 做 `git URL` 匹配，决定 Pod 归属。
 
-`[organize-pod-to-md 的 repo_find_pod.py](../organize-pod-to-md/scripts/repo_find_pod.py) 提供 git URL 匹配公共逻辑：
+`[project-repos-with-pods-draw 的 repo_find_pod.py](./scripts/repo_find_pod.py) 提供 git URL 匹配公共逻辑：
 
 - `build_pod_map(pods)` — 从 `pods_all.json` 构建 `git_url → [pod]` 映射
 - `find_pods_for_repo(repo_url, pod_map)` — 按 `(归一化→去协议前缀→含匹配)` 规则返回 `(matched_pods, matched_urls)`

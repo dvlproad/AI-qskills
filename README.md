@@ -40,7 +40,6 @@ graph LR
 | ---------------------------------------------- | --------------------------------------- | ------------------ | ------------------------------------------------------------ |
 | [organize-md-to-md](./organize-md-to-md)       | 整理文档关系/生成图谱                   | "整理文档关系"     |                                                              |
 | [project-repos-action](./project-repos-action) | 整理仓库列表为分类文档                  | "整理仓库"         | 项目列表.md                                                  |
-| [organize-pod-to-md](./organize-pod-to-md)     | 整理 CocoaPods Pod 列表，匹配到项目列表 | "整理pod"          | pods_all.md                                                  |
 | [organize-code-to-md](./organize-code-to-md)   | 整理代码目录结构                        | "帮我理下有关 XXX" | [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
 
 ---
@@ -67,7 +66,7 @@ graph LR
 | Skill                                                  | 描述                                        | 触发场景       | 产出示例   |
 | ------------------------------------------------------ | ------------------------------------------- | -------------- | ---------- |
 | [dev-fw-setting-ai-models](./dev-fw-setting-ai-models) | AI应用通用架构，包含模型选择、API Key管理等 | "创建 AI 网页" | AI聊天应用 |
-| [project-repos-with-pods-draw](./project-repos-with-pods-draw) | podspec 规范化 & 同步到项目列表 | "规范化podspec"、"完善pod注释" | pods_all.json + repos_with_pods.json |
+| [project-repos-with-pods-draw](./project-repos-with-pods-draw) | 整合 repos+pod 数据，渲染为项目列表 | "生成项目列表"、"渲染项目列表" | repos_with_pods.json + 项目列表.md/html |
 | [opencode-sessions-manager](./opencode-sessions-manager) | opencode 会话自动记录与恢复 | "配置opencode会话管理" | source_opencode.sh + ~/Downloads/我的会话id.md |
 ---
 
@@ -224,7 +223,7 @@ flowchart TD
     S45 ==o|调用脚本| OR[project-repos-action]
     S6 -..->|数据方案| HL([📄 数据加载【HTML】规范])
     S6 -..->|层级表格| HTH([📄 层级数据表格展示规范])
-    POD_LIST[整理Pod列表] -->|整理| OP[organize-pod-to-md]
+    POD_LIST[整理Pod列表] -->|整理| OP[project-repos-with-pods-draw]
     OP ==o|匹配脚本| OR
 ```
 
@@ -237,7 +236,7 @@ flowchart TD
 | **写代码结构 → organize-code-to-md** | 写代码后整理目录结构，生成代码功能文档，产出如 [qbase/branch.md](https://github.com/dvlproad/qbase/blob/main/branch.md) |
 | **写文档结构 → organize-md-to-md** | 写文档后整理文档关系/生成图谱，产出如 README.md 的「Skill 分类详解」|
 | **规范 podspec → project-repos-with-pods-draw** | 管线：规范 podspec → Step 1-3 完善+同步 → Step 4-5 调用 project-repos-with-pods-draw/scripts 脚本生成 json 匹配列表 → Step 6 可选生成 HTML，引用 📄 [数据加载(HTML)规范.md](./数据加载(HTML)规范.md) 的数据方案 + 📄 [层级数据表格展示规范.md](./层级数据表格展示规范.md) 的层级表格方案 |
-| **整理Pod列表 → organize-pod-to-md** | 整理 CocoaPods 公有/私有列表 → Step2 调用 project-repos-with-pods-draw/scripts/repos_md_append_pods.sh 匹配到项目列表 |
+| **整理Pod列表 → project-repos-with-pods-draw** | 获取 Pod 列表 → 匹配到项目列表（调用 project-repos-with-pods-draw/scripts/repos_md_append_pods.sh）|
 
 **独立 Skill**（无相互调用）：`dev-fw-setting-ai-models` `guide-and-config-missing-env` `life-emoji-idiom` `life-reply-crush` `opencode-sessions-manager`
 
@@ -277,7 +276,7 @@ flowchart TD
 - 生成了 `dvlproad项目列表.html`，从 `repos_with_pods.json` 直接渲染项目列表，包含分类导航、搜索、公有/私有筛选、Pod 展示及子库详情折叠功能
 
 ### 0.0.7 (2026-05-10)
-- 新增 [organize-pod-to-md](./organize-pod-to-md): 整理自己的公有和私有 CocoaPods 列表为 Markdown 文档，并匹配到项目列表 md 中
+- merge organize-pod-to-md → [project-repos-with-pods-draw](./project-repos-with-pods-draw): 获取 Pod + 匹配到项目列表功能合并入 project-repos-with-pods-draw
 
 ### 0.0.6 (2026-04-25)
 - 新增 [project-repos-action](./project-repos-action) skill：整理 GitHub 和 Gitee 仓库列表为分类文档

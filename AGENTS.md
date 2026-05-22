@@ -7,7 +7,7 @@
 ## 目录结构
 
 - `.opencode/` — 插件打包相关（`INSTALL.md`、`package.json`，用 `@opencode-ai/plugin`）
-- `organize-pod-to-md/scripts/` — 最复杂的脚本，分两步：
+- `project-repos-with-pods-draw/scripts/` — 最复杂的脚本，分两步：
    1. `pods_fetch_to_md.sh` — 扫描 CocoaPods trunk + 私有 dvlproadSpecs → JSON/MD（通过 `--json`/`--md` 指定）
    2. `repos_md_append_pods.sh` — 把 pod 数据匹配到项目列表的 markdown 表格中
 - `优先级链模式.md` — 优先级链：多层配置层叠覆盖，低优先修改时自动刷新高优先
@@ -17,7 +17,7 @@
 - **所有实现决策和踩坑记录都放在 `README.md` 里**（`CLAUDE.md` 的要求）。如果 Agent 发现了 bug 或踩了坑，必须更新 README.md。
 - **技能优化走 `record-to-skill/SKILL.md`**，触发词："完善我的skill"。
 
-## organize-pod-to-md 脚本注意事项
+## project-repos-with-pods-draw 脚本注意事项
 
 - `pods_fetch_to_md.sh` 需要代理（`https_proxy=http://127.0.0.1:7897`）才能访问 CocoaPods trunk API 和 Gitee API。
 - `repos_md_append_pods.sh` 是用 heredoc 内嵌 Python3 的脚本，不依赖外部 Python 包，只用 `json`/`re`/`sys`。
@@ -45,7 +45,7 @@
 # 完整 pod 工作流（需要代理）
 # ⚠️ 执行前必须先问用户确认 --json/--md 路径
 export https_proxy=http://127.0.0.1:7897 http_proxy=http://127.0.0.1:7897
-sh organize-pod-to-md/scripts/pods_fetch_to_md.sh --repos trunk,cocoapods,gitee-dvlproad-dvlproadspecs --json <path> --md <path>
+sh project-repos-with-pods-draw/scripts/pods_fetch_to_md.sh --repos trunk,cocoapods,gitee-dvlproad-dvlproadspecs --json <path> --md <path>
 sh project-repos-with-pods-draw/scripts/repos_md_append_pods.sh --subspec-min-count <N> [--subspec-force-show PodA,PodB] [--separate-subspecs] <项目列表.md> <pod_json.json>
 ```
 

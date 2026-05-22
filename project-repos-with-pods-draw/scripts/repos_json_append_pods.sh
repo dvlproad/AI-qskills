@@ -12,12 +12,11 @@ OUT_JSON="${3}"
 [ ! -f "$REPOS_JSON" ] && { echo "文件不存在: $REPOS_JSON"; exit 1; }
 [ ! -f "$POD_JSON" ] && { echo "文件不存在: $POD_JSON"; exit 1; }
 
-POD_SCRIPT_DIR="$(cd "$(dirname "$0")/../../organize-pod-to-md/scripts" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TMP=$(mktemp)
 
-python3 - "$REPOS_JSON" "$POD_JSON" "$POD_SCRIPT_DIR" > "$TMP" << 'PYEOF'
+python3 - "$REPOS_JSON" "$POD_JSON" "$SCRIPT_DIR" > "$TMP" << 'PYEOF'
 import json, sys
-
 sys.path.insert(0, sys.argv[3])
 from repo_find_pod import build_pod_map, find_pods_for_repo
 

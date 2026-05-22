@@ -314,6 +314,12 @@ sh scripts/pods_fetch_to_md.sh --repos trunk,dvlproad --json data.json --md pods
 - `pods.json` — 给脚本用的结构化数据
 - `pods.md` — 给人看的表格
 
+附：pods_all.md 的样式大概会是如下
+
+```markdown
+| Pod | Version | Git URL | Source | Visibility | Language |
+```
+
 ### 3、单条更新：更新或补充某个podspec到已有的pods_all.json
 
 #### 3.1、public-pod-complete2-pods_json.py 脚本使用

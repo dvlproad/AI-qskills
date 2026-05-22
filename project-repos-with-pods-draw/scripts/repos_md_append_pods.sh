@@ -25,18 +25,20 @@ POD_JSON="${2:-$(pwd)/pods_all.json}"
 [ ! -f "$POD_JSON" ] && { echo "文件不存在: $POD_JSON，请先运行 pods_fetch_to_md.sh"; exit 1; }
 
 TMP=$(mktemp)
-POD_SCRIPT_DIR="$(cd "$(dirname "$0")/../../organize-pod-to-md/scripts" && pwd)"
-python3 - "$REPOS_MD" "$POD_JSON" "$POD_SCRIPT_DIR" "$SEPARATE" "$SUBSPEC_MIN_COUNT" "$ALWAYS_SHOW_SUBSPECS" > "$TMP" << 'PYEOF'
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+POD_SCRIPT_DIR="$(cd "$(dirname "$0")/../../project-pods-action/scripts" && pwd)"
+python3 - "$REPOS_MD" "$POD_JSON" "$SCRIPT_DIR" "$POD_SCRIPT_DIR" "$SEPARATE" "$SUBSPEC_MIN_COUNT" "$ALWAYS_SHOW_SUBSPECS" > "$TMP" << 'PYEOF'
 import json, re, sys
 sys.path.insert(0, sys.argv[3])
+sys.path.insert(0, sys.argv[4])
 from pod_to_md import render_project_table, render_unmatched_table, render_subspec_inline
 from repo_find_pod import build_pod_map, find_pods_for_repo
 
 repos_md = sys.argv[1]
 pod_json = sys.argv[2]
-separate = sys.argv[4] == 'true'
-subspec_min_count = int(sys.argv[5]) if sys.argv[5] else None
-always_show_subspecs = sys.argv[6].split(',') if sys.argv[6] else None
+separate = sys.argv[5] == 'true'
+subspec_min_count = int(sys.argv[6]) if sys.argv[6] else None
+always_show_subspecs = sys.argv[7].split(',') if sys.argv[7] else None
 
 def has_md_link(line):
     return re.match(r'^\|\s*\[([^\]]+)\]\(([^)]+)\)', line)
