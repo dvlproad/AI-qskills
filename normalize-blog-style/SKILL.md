@@ -193,8 +193,33 @@ category_exclude:
 
 1. 将 `.html` 移入 `.md` 的资产目录（同名文件夹）中
 2. 更新 `.html` 内的相对路径（图片/fetch 等改为相对于新位置）
-3. 无需加 `skip_render` 配置
+3. 无需加 `skip_render` 配置（HTML 作为 asset 被直接复制）
 4. 不影响本地双击打开
+
+#### 数据生成器脚本
+
+如果 HTML 页面需要动态数据（如目录解析、项目列表），可以将生成器脚本也放在资产目录下：
+
+```
+source/_posts/
+├── 文章.md                              ← post
+└── 文章/                                ← post assets
+    ├── 页面.html                        ← 三阶段加载页面
+    ├── 生成器.sh                        ← 扫描/生成脚本（js/sh 等均可）
+    └── data/
+        └── data.json                    ← 脚本输出
+```
+
+- 脚本放在资产目录，需在 `_config.yml` 加 `skip_render`：
+  ```yaml
+  skip_render:
+    - '_posts/文章/**/*.{json,js,css,html}'
+  ```
+- 数据输出到 `data/` 子目录
+- HTML 内 fetch 用相对路径 `./data/xxx.json`
+- 执行一条命令重建：`node source/_posts/文章/生成器.js` 或 `bash source/_posts/文章/生成器.sh`
+
+**实例参考：** `总目录.md` → `总目录.html` + `parse-catalog.js` + `data/catalog.json`
 
 #### 首页展示 HTML 内容
 
@@ -986,6 +1011,8 @@ category_exclude:
 ---
 
 ## 版本记录
+
+**0.0.12 (2026-05-23): Step 6 新增「数据生成器脚本」子节，补充 JS skip_render + data/ 目录规范**
 
 **0.0.11 (2026-05-21): 标题改为「博客风格与视觉美化」；新增 Step 14 视觉美化特效（scrollReveal.js / fairyDustCursor / clickLove.js）；新增触发词
 

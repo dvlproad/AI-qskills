@@ -64,7 +64,11 @@ description: |
   - 文件名: `目录名_README.md`
   - 内容: 内容链接列表 + 待补充提醒
   - 总目录: 新增或更新 `* [前言](目录/目录名_README)` 条目
-[A7/B7: 独立 HTML 文件] → 文章可能需要附带独立 HTML 页面（如 demo、项目列表），需要确保它被 Hexo 正确输出。按 normalize-blog-style 的《Step 6: 独立 HTML 文件处理》执行
+
+[A7/B7: 独立 HTML 文件] → 当某篇 .md 文章需要附带独立 HTML 页面时（如增强版目录、项目列表、demo 页）：
+
+  1. 使用 skill 工具加载 normalize-blog-style
+  2. 按其中的 Step 6「独立 HTML 文件处理」执行
 [A8/B8: 用户确认] → 展示结果让用户确认，确认后再结束
 
 ## 规范细则
