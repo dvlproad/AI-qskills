@@ -56,14 +56,14 @@ description: |
 
 ### Step 5: 输出评分结果
 
-评分结果保存为 **`rating_目录名.json`**，放在 `总目录/data/` 下。
+评分结果保存为 **`rating_目录名.json`**，放在 `总目录/data/` 下。元数据字段统一使用 `rating_` 前缀，置于 `ratings` 前：
 
 ```json
 {
-  "version": "0.1.0",
-  "rated_at": "2026-05-21",
-  "standard": "blog-posts-rating",
-  "standard_version": "0.0.1",
+  "rating_version": "0.1.0",
+  "rating_rated_at": "2026-05-21",
+  "rating_standard": "blog-posts-rating",
+  "rating_standard_version": "0.0.1",
   "ratings": [
     {
       "path": "Architecture架构/框架相关/网络相关/Client Cache Best Practice.md",
@@ -82,10 +82,12 @@ description: |
 }
 ```
 
-- `version` — 评分版本号，初始 0.1.0，重新评分时递增
-- `rated_at` — 评分日期
-- `standard` — 评分标准名称
-- `standard_version` — 使用的评分标准版本（对应 SKILL.md 版本记录）
+- `rating_version` — 评分版本号，初始 0.1.0，重新评分时递增
+- `rating_rated_at` — 评分日期
+- `rating_standard` — 评分标准名称
+- `rating_standard_version` — 使用的评分标准版本（对应 SKILL.md 版本记录）
+
+合并后 `catalog_with_ratings.json` 的大分类层级也会注入相同的 `rating_*` 字段，紧跟在 `type` 之后。
 
 ---
 
