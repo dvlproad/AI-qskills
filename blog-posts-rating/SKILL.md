@@ -56,13 +56,14 @@ description: |
 
 ### Step 5: 输出评分结果
 
-评分结果保存为 **`ratings_目录名.json`**，放在被评分目录下。
+评分结果保存为 **`rating_目录名.json`**，放在 `总目录/data/` 下。
 
 ```json
 [
   {
-    "url": "Architecture架构/框架相关/网络相关/Client Cache Best Practice",
-    "rating": 86.8,
+    "path": "Architecture架构/框架相关/网络相关/Client Cache Best Practice.md",
+    "title": "Client Cache Best Practice",
+    "total": 86.8,
     "scores": {
       "depth": 85,
       "practical": 88,
