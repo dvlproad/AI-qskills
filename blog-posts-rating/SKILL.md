@@ -59,22 +59,33 @@ description: |
 评分结果保存为 **`rating_目录名.json`**，放在 `总目录/data/` 下。
 
 ```json
-[
-  {
-    "path": "Architecture架构/框架相关/网络相关/Client Cache Best Practice.md",
-    "title": "Client Cache Best Practice",
-    "total": 86.8,
-    "scores": {
-      "depth": 85,
-      "practical": 88,
-      "completeness": 90,
-      "originality": 75,
-      "timeliness": 93,
-      "code_quality": 90
+{
+  "version": "0.1.0",
+  "rated_at": "2026-05-21",
+  "standard": "blog-posts-rating",
+  "standard_version": "0.0.1",
+  "ratings": [
+    {
+      "path": "Architecture架构/框架相关/网络相关/Client Cache Best Practice.md",
+      "title": "Client Cache Best Practice",
+      "total": 86.8,
+      "scores": {
+        "depth": 85,
+        "practical": 88,
+        "completeness": 90,
+        "originality": 75,
+        "timeliness": 93,
+        "code_quality": 90
+      }
     }
-  }
-]
+  ]
+}
 ```
+
+- `version` — 评分版本号，初始 0.1.0，重新评分时递增
+- `rated_at` — 评分日期
+- `standard` — 评分标准名称
+- `standard_version` — 使用的评分标准版本（对应 SKILL.md 版本记录）
 
 ---
 
