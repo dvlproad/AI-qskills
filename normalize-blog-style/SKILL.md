@@ -299,6 +299,19 @@ hexo.extend.filter.register('after_post_render', function(post) {
   });
   ```
 
+- **②-d 总目录.html 链接** — `source/_posts/总目录/总目录.html` + `parse-catalog.js`
+  `总目录.html` 中的 3 处 `escapeHtml(item.url)` 在构建链接时使用 `escapeHtml(item.htmlUrl || item.url)`，
+  `parse-catalog.js` 负责在扫描 `.md` 时检测配对 `.html` 文件并设置 `post.htmlUrl`：
+  ```javascript
+  // 检查是否有 paired HTML 资源文件
+  var pBasename = path.basename(relPath, '.md');
+  var pHtmlDir = path.join(path.dirname(fullPath), pBasename);
+  var pHtmlFile = path.join(pHtmlDir, pBasename + '.html');
+  if (fs.existsSync(pHtmlFile)) {
+    post.htmlUrl = url + '/' + pBasename + '.html';
+  }
+  ```
+
 **③ 首页内容改用 iframe + 遮罩展示：** `layout/_partial/article.ejs`
 
 ```ejs
