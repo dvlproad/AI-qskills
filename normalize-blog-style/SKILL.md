@@ -246,19 +246,30 @@ hexo.extend.filter.register('after_post_render', function(post) {
 });
 ```
 
-**② 修改标题链接：** `layout/_partial/post/title.ejs`
+**② 修改链接：** 将所有指向 `post.path` 的链接改为当 `index && post.index_html_url` 时指向 `.html`。涉及以下模板：
 
-```ejs
-<% if (index && post.index_html_url){ %>
-  <h1 itemprop="name">
-    <a class="<%= class_name %>" href="<%- url_for(post.path + post.index_html_url) %>"><%= post.title %></a>
-  </h1>
-<% } else if (index){ %>
-  <h1 itemprop="name">
-    <a class="<%= class_name %>" href="<%- url_for(post.path) %>"><%= post.title %></a>
-  </h1>
-<% } else { %>
-```
+- **②-a 标题链接** — `layout/_partial/post/title.ejs`
+  ```ejs
+  <% if (index && post.index_html_url){ %>
+    <h1 itemprop="name">
+      <a class="<%= class_name %>" href="<%- url_for(post.path + post.index_html_url) %>"><%= post.title %></a>
+    </h1>
+  <% } else if (index){ %>
+    <h1 itemprop="name">
+      <a class="<%= class_name %>" href="<%- url_for(post.path) %>"><%= post.title %></a>
+    </h1>
+  <% } else { %>
+  ```
+
+- **②-b 日期链接（"发表于"）** — `layout/_partial/post/date.ejs`
+  两处 `<a href="<%- url_for(post.path) %>">`（`post.updated` 分支和 `else` 分支）都要加判断：
+  ```ejs
+  <% if (index && post.index_html_url){ %>
+    <a href="<%- url_for(post.path + post.index_html_url) %>">
+  <% } else { %>
+    <a href="<%- url_for(post.path) %>">
+  <% } %>
+  ```
 
 **③ 首页内容改用 iframe + 遮罩展示：** `layout/_partial/article.ejs`
 
@@ -744,20 +755,28 @@ post.content
 
 ## 参考代码
 
-### date.ejs — 中文日期显示
+### date.ejs — 中文日期显示 + 独立 HTML 链接
 
 在主题的 `layout/_partial/post/date.ejs`：
 
 ```ejs
 <% if (post.updated){ %>
   <span class="<%= class_name %>">
-    <a href="<%- url_for(post.path) %>">
+    <% if (index && post.index_html_url){ %>
+      <a href="<%- url_for(post.path + post.index_html_url) %>">
+    <% } else { %>
+      <a href="<%- url_for(post.path) %>">
+    <% } %>
       <time datetime="<%= date_xml(post.date) %>" itemprop="datePublished">发表于 <%= date(post.date, date_format) %></time>
     </a>
     <span class="article-updated"> · 更新于 <%= date(post.updated, date_format) %></span>
   </span>
 <% } else { %>
-  <a href="<%- url_for(post.path) %>" class="<%= class_name %>">
+  <% if (index && post.index_html_url){ %>
+    <a href="<%- url_for(post.path + post.index_html_url) %>" class="<%= class_name %>">
+  <% } else { %>
+    <a href="<%- url_for(post.path) %>" class="<%= class_name %>">
+  <% } %>
     <time datetime="<%= date_xml(post.date) %>" itemprop="datePublished"><%= date(post.date, date_format) %></time>
   </a>
 <% } %>
