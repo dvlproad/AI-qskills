@@ -271,6 +271,34 @@ hexo.extend.filter.register('after_post_render', function(post) {
   <% } %>
   ```
 
+- **②-c 搜索结果 URL** — `scripts/asset-html.js` 追加 `after_generate` filter
+  修正 `search.xml` 中的 URL，将 `post.path` 替换为 `post.path + post.index_html_url`：
+  ```javascript
+  hexo.extend.filter.register('after_generate', function() {
+    var searchPath = this.config.search ? this.config.search.path : null;
+    if (!searchPath) return;
+
+    var routeData = this.route.routes[searchPath];
+    if (!routeData) return;
+
+    var data = routeData.data;
+    if (typeof data !== 'string') return;
+
+    var root = this.config.root || '/';
+    var Post = this.model('Post');
+
+    Post.find({ published: true }).forEach(function(post) {
+      if (!post.index_html_url) return;
+      var oldUrl = encodeURI(root + post.path);
+      var newUrl = encodeURI(root + post.path + post.index_html_url);
+      if (data.indexOf(oldUrl) !== -1) {
+        data = data.split(oldUrl).join(newUrl);
+      }
+    });
+    routeData.data = data;
+  });
+  ```
+
 **③ 首页内容改用 iframe + 遮罩展示：** `layout/_partial/article.ejs`
 
 ```ejs
