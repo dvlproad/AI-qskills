@@ -2,15 +2,22 @@
 # repos_json_append_pods.sh — 合并 repos_all.json + pods_all.json → repos_with_pods.json
 # 每个 repo 节点追加 pods 字段，顶层含 unmatched_pods 列表
 # 面向数据：输出 JSON 中间格式，可供后续渲染 md/html 等
-# 用法: sh repos_json_append_pods.sh <repos_all.json> <pods_all.json> [输出.json]
+# 用法: sh repos_json_append_pods.sh --repos <repos_all.json> --pods <pods_all.json> --output <输出.json>
 
-REPOS_JSON="${1}"
-POD_JSON="${2}"
-OUT_JSON="${3}"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repos) REPOS_JSON="$2"; shift 2 ;;
+    --pods)  POD_JSON="$2";   shift 2 ;;
+    --output) OUT_JSON="$2";  shift 2 ;;
+    *) echo "未知参数: $1"; exit 1 ;;
+  esac
+done
 
-[ -z "$REPOS_JSON" ] && { echo "用法: sh repos_json_append_pods.sh <repos_all.json> <pods_all.json> [输出.json]"; exit 1; }
+[ -z "$REPOS_JSON" ] && { echo "用法: sh repos_json_append_pods.sh --repos <repos_all.json> --pods <pods_all.json> --output <输出.json>"; exit 1; }
+[ -z "$POD_JSON" ]    && { echo "用法: sh repos_json_append_pods.sh --repos <repos_all.json> --pods <pods_all.json> --output <输出.json>"; exit 1; }
+[ -z "$OUT_JSON" ]    && { echo "用法: sh repos_json_append_pods.sh --repos <repos_all.json> --pods <pods_all.json> --output <输出.json>"; exit 1; }
 [ ! -f "$REPOS_JSON" ] && { echo "文件不存在: $REPOS_JSON"; exit 1; }
-[ ! -f "$POD_JSON" ] && { echo "文件不存在: $POD_JSON"; exit 1; }
+[ ! -f "$POD_JSON" ]   && { echo "文件不存在: $POD_JSON"; exit 1; }
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TMP=$(mktemp)
@@ -79,10 +86,5 @@ result = {
 sys.stdout.write(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
 PYEOF
 
-if [ -n "$OUT_JSON" ]; then
-    mv "$TMP" "$OUT_JSON"
-    echo "Updated: $OUT_JSON"
-else
-    cat "$TMP"
-    rm "$TMP"
-fi
+mv "$TMP" "$OUT_JSON"
+echo "Updated: $OUT_JSON"
