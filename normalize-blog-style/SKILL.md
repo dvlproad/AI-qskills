@@ -90,6 +90,8 @@ Step 13: 验证图片路径是否正确
 - 有 `updated` 字段时：`发表于 2026-05-19 · 更新于 2026-05-20`
 - 无 `updated` 字段时：只显示日期
 
+**前置条件：** 根 `_config.yml` 必须设置 `updated_option: empty`，否则 Hexo 会默认用文件 mtime 自动填充 `updated`，导致"无 updated"的情况不会出现，所有文章都会显示"更新于"。
+
 **检查方法：** 查看主题目录下 `layout/_partial/post/` 中是否有 `date.ejs` 或等效文件。
 
 **不支持时实现：** 将参考代码写入 `<新主题>/layout/_partial/post/date.ejs`。
@@ -135,10 +137,10 @@ Step 13: 验证图片路径是否正确
 
 | 序   | 含义       | 层级               | 条件                                                       | 层内排序                |
 | ---- | ---------- | ------------------ | ---------------------------------------------------------- | ----------------------- |
-| 1    | **新鲜**   | **freshness**      | 全局最新 N 篇（`freshness: N`）                            | 按 date 倒序            |
-| 2    | **新鲜日** | **freshness_days** | N 天内的文章（`freshness_days: N`），排除已出现在 fresh 的 | 按 date 倒序            |
-| 3    | **评分**   | **top**            | `top` 值 > 0 的文章，排除已出现在前两层的                  | 按 top 降序 → date 倒序 |
-| 4    | **日期**   | **rest**           | 其余所有                                                   | 按 date 倒序            |
+| 1    | **新鲜**   | **freshness**      | 全局最新 N 篇（`freshness: N`）                            | 按 date/updated 较新者倒序 |
+| 2    | **新鲜日** | **freshness_days** | N 天内的文章（`freshness_days: N`），排除已出现在 fresh 的 | 按 date/updated 较新者倒序 |
+| 3    | **评分**   | **top**            | `top` 值 > 0 的文章，排除已出现在前两层的                  | 按 top 降序 → date 倒序    |
+| 4    | **日期**   | **rest**           | 其余所有                                                   | 按 date 倒序               |
 
 #### 2. 评分机制
 
@@ -154,18 +156,24 @@ freshness: 0          # 0 = 不启用，正整数 = 最新 N 篇
 freshness_days: 0     # 0 = 不启用，正整数 = N 天内的文章
 ```
 
-在博客根 `_config.yml` 中设置全局排序：
+在博客根 `_config.yml` 中设置全局排序和 `updated` 行为：
 
 ```yaml
 index_generator:
   order_by: -top,-date
+
+# 只有手动设了 updated 的文章才有该值，不被文件 mtime 自动填充
+updated_option: empty
 ```
 
 ### Step 5: 配置迁移
 
-将以下配置从 `themes/landscape/_config.yml` 复制到新主题的 `_config.yml`：
+将以下配置从 `themes/landscape/_config.yml` 和根 `_config.yml` 复制到新主题的 `_config.yml`：
 
 ```yaml
+# 根 _config.yml：不自动填充 updated
+updated_option: empty
+
 # 顶级分类排序
 category_order:
   - Architecture
@@ -949,10 +957,12 @@ category_exclude:
   var freshDays = theme.freshness_days || 0;
   var posts = page.posts.toArray();
 
-  // Sort by date descending for freshness calculations
-  var byDate = [].concat(posts).sort(function(a, b) { return b.date - a.date; });
+  function effectiveTime(p) { return p.updated || p.date; }
 
-  // Layer 1: freshness (top N by date)
+  // Sort by effectiveTime descending for freshness calculations
+  var byDate = [].concat(posts).sort(function(a, b) { return effectiveTime(b) - effectiveTime(a); });
+
+  // Layer 1: freshness (top N by effectiveTime)
   var layerFresh = [];
   if (freshN > 0) {
     layerFresh = byDate.slice(0, Math.min(freshN, byDate.length));
@@ -964,11 +974,11 @@ category_exclude:
     var now = new Date();
     var cutoff = new Date(now.getTime() - freshDays * 86400000);
     for (var i = 0; i < byDate.length; i++) {
-      if (layerFresh.indexOf(byDate[i]) === -1 && byDate[i].date >= cutoff) {
+      if (layerFresh.indexOf(byDate[i]) === -1 && effectiveTime(byDate[i]) >= cutoff) {
         layerFdays.push(byDate[i]);
       }
     }
-    layerFdays.sort(function(a, b) { return b.date - a.date; });
+    layerFdays.sort(function(a, b) { return effectiveTime(b) - effectiveTime(a); });
   }
 
   // Remaining (from original -top,-date order, exclude assigned)
