@@ -1,6 +1,6 @@
 ---
 name: normalize-blog-style
-version: 0.0.20
+version: 0.0.21
 description: |
    规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击、canvas-particles 粒子背景）+ rating 评分排序（front-matter 方式，可选 JSON 注入补充）
     触发场景：换主题时检查风格一致性；加特效时参考视觉美化方案
@@ -1250,36 +1250,41 @@ category_exclude:
   var freshN = theme.freshness || 0;
   var freshDays = theme.freshness_days || 0;
   var posts = page.posts.toArray();
+  var isFirstPage = (page.current === 1 || page.current === undefined);
+  var freshnessIds = page.freshnessIds || {};
 
   function effectiveTime(p) { return p.updated || p.date; }
 
-  // Freshness pool: use all posts globally so freshness is not limited to current page
-  var freshPool = (freshN > 0 || freshDays > 0) ? site.posts.toArray() : posts;
-  var byDate = [].concat(freshPool).sort(function(a, b) { return effectiveTime(b) - effectiveTime(a); });
-
-  // Layer 1: freshness (top N by effectiveTime)
+  // Layer 1 & 2: only on page 1, using global pool so freshness catches articles
+  // pushed to later pages by custom sorting
   var layerFresh = [];
-  if (freshN > 0) {
-    layerFresh = byDate.slice(0, Math.min(freshN, byDate.length));
-  }
-
-  // Layer 2: freshness_days (within N days, exclude layerFresh)
   var layerFdays = [];
-  if (freshDays > 0) {
-    var now = new Date();
-    var cutoff = new Date(now.getTime() - freshDays * 86400000);
-    for (var i = 0; i < byDate.length; i++) {
-      if (layerFresh.indexOf(byDate[i]) === -1 && effectiveTime(byDate[i]) >= cutoff) {
-        layerFdays.push(byDate[i]);
-      }
+  if (isFirstPage && (freshN > 0 || freshDays > 0)) {
+    var pool = site.posts.toArray();
+    var byDate = [].concat(pool).sort(function(a, b) { return effectiveTime(b) - effectiveTime(a); });
+
+    if (freshN > 0) {
+      layerFresh = byDate.slice(0, Math.min(freshN, byDate.length));
     }
-    layerFdays.sort(function(a, b) { return effectiveTime(b) - effectiveTime(a); });
+
+    if (freshDays > 0) {
+      var now = new Date();
+      var cutoff = new Date(now.getTime() - freshDays * 86400000);
+      for (var i = 0; i < byDate.length; i++) {
+        if (layerFresh.indexOf(byDate[i]) === -1 && effectiveTime(byDate[i]) >= cutoff) {
+          layerFdays.push(byDate[i]);
+        }
+      }
+      layerFdays.sort(function(a, b) { return effectiveTime(b) - effectiveTime(a); });
+    }
   }
 
-  // Remaining (from original -top,-date order, exclude assigned)
+  // Remaining: exclude freshness from current page, plus cross-page dedup via freshnessIds
   var rest = [];
   for (var i = 0; i < posts.length; i++) {
-    if (layerFresh.indexOf(posts[i]) === -1 && layerFdays.indexOf(posts[i]) === -1) {
+    if (layerFresh.indexOf(posts[i]) === -1 &&
+        layerFdays.indexOf(posts[i]) === -1 &&
+        (isFirstPage || !freshnessIds[posts[i]._id])) {
       rest.push(posts[i]);
     }
   }
@@ -1355,6 +1360,11 @@ category_exclude:
 <% } %>
 ```
 
+**跨页去重机制：** `index-generator-sort.js` 在构建时计算 freshness-promoted 文章 ID 集（`freshnessIds`），通过 pagination `data` 传入每个分页页面的模板。`archive.ejs` 中：
+- freshness 层（Layer 1 & 2）**仅在 page 1** 从 `site.posts.toArray()` 全局池取文章
+- `rest` 构建时，page 2+ 通过 `freshnessIds` 排除 page 1 已展示的文章
+- 以此避免最新文章同时出现在 page 1（freshness 层）和 page 2+（rest 层）
+
 ---
 
 ### index-generator-sort.js — 自定义分页排序生成器
@@ -1395,12 +1405,39 @@ hexo.extend.generator.register('index', function(locals) {
     return b.date - a.date;
   });
 
+  // Compute freshness-promoted article IDs for cross-page dedup
+  var freshnessIds = {};
+  var freshN = (this.theme && this.theme.config && this.theme.config.freshness) || 0;
+  var freshDays = (this.theme && this.theme.config && this.theme.config.freshness_days) || 0;
+  if (freshN > 0 || freshDays > 0) {
+    function effectiveTime(p) { return p.updated || p.date; }
+    var allPosts = locals.posts.toArray();
+    var byDate = [].concat(allPosts).sort(function(a, b) { return effectiveTime(b) - effectiveTime(a); });
+
+    if (freshN > 0) {
+      var n = Math.min(freshN, byDate.length);
+      for (var i = 0; i < n; i++) {
+        freshnessIds[byDate[i]._id] = true;
+      }
+    }
+
+    if (freshDays > 0) {
+      var now = new Date();
+      var cutoff = new Date(now.getTime() - freshDays * 86400000);
+      for (var i = 0; i < byDate.length; i++) {
+        if (!freshnessIds[byDate[i]._id] && effectiveTime(byDate[i]) >= cutoff) {
+          freshnessIds[byDate[i]._id] = true;
+        }
+      }
+    }
+  }
+
   var paginationDir = config.pagination_dir || 'page';
   return pagination('', posts, {
     perPage: config.index_generator.per_page,
     layout: ['index', 'archive'],
     format: paginationDir + '/%d/',
-    data: { __index: true }
+    data: { __index: true, freshnessIds: freshnessIds }
   });
 });
 ```
@@ -1527,6 +1564,8 @@ hexo.extend.filter.register('before_generate', function() {
 ---
 
 ## 版本记录
+
+**0.0.21 (2026-05-28): 跨页去重 — 生成器计算 freshnessIds 传给模板；freshness 层仅 page 1 全局取；rest 排除 freshnessIds 防 page 2+ 重复**
 
 **0.0.20 (2026-05-28): Step 4.7 新增 inject-ratings.js 注入脚本（全注入 + 冲突检测）；更新 inject-ratings.js 参考代码**
 
