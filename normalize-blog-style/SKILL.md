@@ -88,6 +88,11 @@ Step 13: 检查 ![]() 空格文件名修复
 Step 14: 验证图片路径是否正确
           │
           └── `hexo s` → 打开指定页面确认图片显示正常
+
+Step 15: 修复文章间 `.md` 链接跳转
+          │
+          ├── 无 `.md` 相对链接 → 跳过
+          └── 有 `[xx.md](../dir/xx.md)` 引用 → 将 fix-cross-links.js 放入 scripts/
 ```
 
 ## 一、首页与侧边栏优化
@@ -843,9 +848,98 @@ post.content
 
 ---
 
-## 六、视觉特效
+### Step 15: 修复文章间 `.md` 链接跳转
 
-### Step 15: [可选] 视觉美化特效
+**问题：** 文章之间经常用相对路径相互引用，如 `[图片框架](../框架相关/图片相关/图片框架.md)`。
+问题在于这类相对路径在浏览器中按 **URL 路径**解析，而非按源文件的目录路径解析：
+
+```
+当前页 URL: /Architecture架构/页面加载相关/页面加载体验优化/
+↓ ../框架相关/图片相关/图片框架.md
+错误结果: /Architecture架构/页面加载相关/框架相关/图片相关/图片框架.md  → 404
+```
+
+而按源目录解析才是正确的：
+
+```
+源文件: _posts/Architecture架构/页面加载相关/页面加载体验优化.md
+↓ 从源目录解析 ../框架相关/图片相关/图片框架.md
+正确: _posts/Architecture架构/框架相关/图片相关/图片框架.md  → ✓
+```
+
+**方案：** 在博客根目录创建 `scripts/fix-cross-links.js`，通过 Hexo 的 `after_post_render` 过滤器自动修复：
+
+```js
+// scripts/fix-cross-links.js
+'use strict';
+var path = require('path');
+
+hexo.extend.filter.register('after_post_render', function(data) {
+  var sourceRel = data.source;
+  if (!sourceRel || !data.content) return data;
+  data.content = data.content.replace(
+    /(<a\s[^>]*?href=")([^"]+)("[^>]*?>)/gi,
+    function(m, prefix, href, suffix) {
+      if (/^(https?:|#|\/\/)/i.test(href)) return m;
+
+      var resolved = resolveUrl(sourceRel, href);
+      if (resolved) {
+        return prefix + resolved + suffix;
+      }
+      return m;
+    }
+  );
+  return data;
+});
+
+function resolveUrl(sourceRel, href) {
+  var decoded = decodeURIComponent(href);
+  var hash = '';
+  var hashIdx = decoded.indexOf('#');
+  if (hashIdx >= 0) {
+    hash = decoded.substring(hashIdx);
+    decoded = decoded.substring(0, hashIdx);
+  }
+
+  if (!decoded) return null;
+  if (!decoded.match(/\.\.\//) && !decoded.match(/^\.\//) && !decoded.match(/\.md$/)) {
+    return null;
+  }
+
+  var sourceDir = path.posix.dirname(sourceRel);
+  var resolved = path.posix.normalize(path.posix.join(sourceDir, decoded));
+  resolved = resolved.replace(/\/+$/, '');
+
+  if (!resolved.startsWith('_posts/')) return null;
+
+  var url = resolved.substring('_posts/'.length);
+  url = url.replace(/\.md$/, '');
+  url = url.replace(/\/?index\.html$/, '') + '/';
+  url = hexo.config.root + url;
+
+  return encodeURI(url) + hash;
+}
+```
+
+**工作原理：**
+1. 构建时，Hexo 自动加载 `scripts/` 下的所有 `.js` 文件
+2. `after_post_render` 在每个文章渲染完成后触发
+3. 扫描 `<a href>` 中的相对路径（含 `../`、`./` 或以 `.md` 结尾）
+4. 基于 **源文件目录**（`data.source`）解析相对路径
+5. 去掉 `_posts/` 前缀和 `.md` 后缀，转换为标准 Hexo 永久链接格式
+
+**注意：** 不修改 `.md` 源文件，仅在生成时修正输出。如果作者 `../` 层数本身写少了一级（如 `../Flutter/` 实际需 `../../Flutter/`），脚本无法补足。
+
+**验证方法：**
+1. `hexo clean && hexo generate`
+2. 找一篇含 `[xxx.md](../dir/xxx.md)` 引用文章，打开对应的 `public/.../index.html`
+3. 确认 `<a href>` 中不再有 `../` 或 `.md`，而是正确的绝对 URL（如 `/框架相关/图片相关/图片框架/`）
+
+---
+
+## 七、视觉特效
+
+### Step 16: [可选] 视觉美化特效
 
 **说明：** 此步骤为**可选**。按需添加以下效果，互不冲突，可单独选一或全部添加。
 
@@ -1624,6 +1718,8 @@ hexo.extend.filter.register('before_generate', function() {
 ---
 
 ## 版本记录
+
+**0.0.25 (2026-05-28): 新增 Step 15 `fix-cross-links.js` — 修复文章间 `.md` 相对链接跳转 404；Step 15 视觉美化 → Step 16**
 
 **0.0.24 (2026-05-28): `mode_other` → `model_other` 统一命名；model_other 分支增加 console.warn 控制台告警；新增 Step 12 已知故障排查表**
 
