@@ -40,7 +40,9 @@ Agent 检查 `repos_all.json` 是否存在：
 > 2. 继续 → 进入下一步
 
 
-### 2、获取 pod 信息 `pods_all.json`
+### 2、获取数据源（pod + skill）
+
+#### 2.1 获取 pod 信息 `pods_all.json`
 
 Agent 检查 `pods_all.json` 是否存在：
 
@@ -51,17 +53,26 @@ Agent 检查 `pods_all.json` 是否存在：
 - new → 执行【二、获取 pod 信息 `pods_all.json`】
 - 其他路径 → 尝试使用该路径
 
+#### 2.2 获取 skill 信息 `skills_all.json`
+
+Agent 检查 `skills_all.json` 是否存在：
+
+- 检测到 → `检测到 skills_all.json 在 /path/to/file，是否使用？(yes → 使用 / new → 重新获取 / 输入路径)`
+- 未检测到 → `未检测到 skills_all.json，请重新获取或输入路径 (new → 重新获取 / 路径)`
+
+- yes → 进入下一步
+- new → 运行 `sh scripts/skills_fetch_to_json.sh`，完成后进入下一步
+- 其他路径 → 尝试使用该路径
+
 获取完毕后提示用户：
-> 已更新 pods_all.json。请问下一步做什么？
+> 已获取数据源。请问是否继续？
 >
 > 1. 不 → ✅ 结束
->
-> 2. 整合 repos_all.json 和 pods_all.json → 进入下一步（运行 repos_json_append_pods.sh）
->
-> 3. 追加 Pod 到项目列表.md → 运行 repos_md_append_pods.sh
+> 2. 继续 → 进入下一步
+> 3. 继续 → 进入：追加 Pod 到项目列表.md → 运行 repos_md_append_pods.sh
 
 
-### 3、整合 repo 和 pod  数据源 `repos_with_pods.json`
+### 3、整合 repos、pod、skill 数据源 `repos_with_pods.json`
 
 Agent 检查 `repos_with_pods.json` 是否存在：
 
@@ -69,7 +80,7 @@ Agent 检查 `repos_with_pods.json` 是否存在：
 - 未检测到 → `未检测到 repos_with_pods.json，请重新整合或输入路径 (new → 重新整合 / 路径)`
 
 - yes → 进入下一步
-- new → 运行 repos_json_append_pods.sh 重建
+- new → 运行 repos_json_append_pods.sh 重建（检测到 skills_all.json 时自动用逗号分隔合并）
 - 其他路径 → 尝试使用该路径
 
 **用户确认**：展示整合结果。
@@ -120,20 +131,59 @@ Agent 检查 `repos_with_pods.json` 是否存在：
 
 
 
-## 二、获取 pod 信息 `pods_all.json`
+## 二、获取数据源（`pods_all.json` + `skills_all.json`）
 
-### 1. 调用 project-pods-action 完成规范化
+### 1、获取 pod 信息 `pods_all.json`
 
-直接调用 [project-pods-action](../project-pods-action/SKILL.md) 这个SKILL处理，由它完成：
+调用 [project-pods-action](../project-pods-action/SKILL.md) 完成规范化，由它处理：
 - podspec 规范化
 - CocoaPods 同步到本地/远程
 - 获取 & 更新 Pod 数据（pods_all.json）
 
 进入 project-pods-action 后按正常流程走即可，完成后回到本 skill 继续。
 
+### 2、获取 skill 信息 `skills_all.json`
+
+调用 `scripts/skills_fetch_to_json.sh` 扫描 AI-qskills 目录，提取每个 SKILL.md 的 front-matter（name、version、description），输出与 `pods_all.json` 结构一致的 JSON。
+
+```bash
+sh scripts/skills_fetch_to_json.sh \
+  --skills-dir <AI-qskills路径> \
+  --output <skills_all.json路径>
+```
+
+输出路径按【七、输出路径决策】确定。通常放在 `项目列表/dvlproad项目列表/data/` 下。
+
+输出结构：
+
+```json
+[
+  {
+    "pod": "normalize-blog-style",
+    "version": "0.0.12",
+    "git": "https://github.com/dvlproad/AI-qskills",
+    "summary": "规范 Hexo 博客的日期显示格式..."
+  }
+]
+```
+
+字段：`pod`（skill 名）、`version`（版本）、`git`（固定 AI-qskills URL）、`summary`（描述）。
+
+### 3、合并到 pod 数据
+
+通过 `--pods` 逗号分隔传入两文件，脚本自动合并：
+
+```bash
+sh scripts/repos_json_append_pods.sh \
+  --repos repos_all.json \
+  --pods "pods_all.json,skills_all.json" \
+  --output repos_with_pods.json
+```
+
+skill 会作为 Pod 自动匹配到 `AI-qskills` repo 节点下，在渲染时与普通 Pod 一同展示。
 
 
-## 三、整合 repo 和 pod  数据源 `repos_with_pods.json`
+## 三、整合 repo、pod、skill 数据源 `repos_with_pods.json`
 
 ### 1、脚本介绍
 
