@@ -1,6 +1,6 @@
 ---
 name: normalize-blog-style
-version: 0.0.22
+version: 0.0.23
 description: |
    规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击、canvas-particles 粒子背景）+ rating 评分排序（front-matter 方式，可选 JSON 注入补充）
     触发场景：换主题时检查风格一致性；加特效时参考视觉美化方案
@@ -770,6 +770,49 @@ post.content
 ```
 
 **注意：** 只修改渲染管线，不修改 `.md` 源文件。
+
+#### Step 13.5: 修复 `zoom` CSS 导致图片空白占位
+
+**问题：** 某些 `<img>` 标签使用 `style="zoom:N%;"`（如 `zoom:15%;`），`zoom` 是 CSS 非标准属性，部分浏览器不渲染百分比值，导致图片占据布局空间但不可见。
+
+**修复：** 在 `fixMarkdownImages` 与 `stripH1` 之间插入 `fixImageZoom`，将 `zoom:N%;` 转为 `width:N%;`：
+
+```ejs
+function fixMarkdownImages(text) {
+  return text.replace(/!\[([^\]]*)\]\(([^)]*)\)/g, function(m, alt, url) {
+    var clean = url.replace(/&#x2F;/g, '/').replace(/&#47;/g, '/');
+    return '<img src="' + clean.replace(/ /g, '%20') + '" alt="' + alt + '">';
+  });
+}
+function fixImageZoom(text) {
+  return text.replace(/(<img[^>]+style=")([^"]*)zoom:\s*(\d+)%;/g, function(m, prefix, rest, pct) {
+    return prefix + rest + 'width:' + pct + '%;';
+  });
+}
+function fixImage(text) {
+  return fixImageZoom(fixMarkdownImages(text));
+}
+```
+
+`fixMarkdownImages` 和 `fixImageZoom` 是内部函数，统一对外暴露 `fixImage`。
+
+**调用位置：**
+```ejs
+<%- stripH1(fixImage(post.excerpt), post.title) %>
+<%- stripH1(fixImage(post.content), post.title) %>
+```
+
+**完整管线：**
+
+```
+post.content
+  → fixImage             (fixMarkdownImages + fixImageZoom)
+    → fixMarkdownImages   (&#x2F; → /，空格 → %20，![]() → <img>)
+    → fixImageZoom        (zoom:N%; → width:N%;)
+  → stripH1               (H1 去重 + [toc] 清理)
+    → getImageModel       (model_warning_current1 → model_img_folder → 重写绝对路径)
+  → 输出 HTML
+```
 
 ---
 
@@ -1568,6 +1611,8 @@ hexo.extend.filter.register('before_generate', function() {
 ---
 
 ## 版本记录
+
+**0.0.23 (2026-05-28): 新增 Step 13.5 `fixImageZoom` 函数 — `zoom:N%;` 转为 `width:N%;`，修复非标准 CSS 导致图片空白占位的问题**
 
 **0.0.22 (2026-05-28): 修复含 `&` 文件名的图片路径 — `getImageModel` 解码 `&amp;` → `&`；最终 URL 编码 `&` → `%26`、空格 → `%20`**
 
