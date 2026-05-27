@@ -100,14 +100,25 @@ Agent 检查 `repos_with_pods.json` 是否存在：
 
 ### 4. 可选：生成 HTML 版项目列表
 
-询问用户是否将 `repos_with_pods.json` 渲染为独立 HTML（详见【五、生成 HTML 版项目列表】）：
+Agent 检查 `dvlproad项目列表.html` 是否存在：
 
-> 是否生成 HTML 版项目列表？(yes → 生成 / no → 跳过)
+- 检测到 → `检测到 dvlproad项目列表.html 在 /path/to/file，是否打开？(yes → 打开 / new → 重新生成 / 输入路径)`
+- 未检测到 → `未检测到 dvlproad项目列表.html 文件，是否生成？(yes → 生成 / no → 跳过)`
 
-- yes → 生成 HTML（输出路径按【七、输出路径决策】）→ ✅ 结束
+- yes → ✅ 打开
+- new / yes → 按【五、生成 HTML 版项目列表】渲染，输出路径按【七、输出路径决策】
 - no → ✅ 结束
 
 ### 5. 可选：生成 Markdown 版项目列表
+
+Agent 检查 `dvlproad项目列表.md` 是否存在：
+
+- 检测到 → `检测到 dvlproad项目列表.md 在 /path/to/file，是否打开？(yes → 打开 / new → 重新生成 / 输入路径)`
+- 未检测到 → `未检测到 dvlproad项目列表.md 文件，是否生成？(yes → 生成 / no → 跳过)`
+
+- yes → ✅ 打开
+- new / yes → 按【$5.1 $5.2】渲染，输出路径按【七、输出路径决策】
+- no → ✅ 结束
 
 #### 5.1 SKILL 渲染出只有 `repos_all.json` 的 项目列表.md
 
