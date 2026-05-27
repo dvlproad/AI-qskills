@@ -1,8 +1,8 @@
 ---
 name: normalize-blog-style
-version: 0.0.13
+version: 0.0.14
 description: |
-   规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击、canvas-particles 粒子背景）
+   规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击、canvas-particles 粒子背景）+ rating 评分排序
     触发场景：换主题时检查风格一致性；加特效时参考视觉美化方案
 ---
 
@@ -127,10 +127,11 @@ Step 14: 验证图片路径是否正确
 ### Step 4: 首页排序
 
 **预期行为：**
-- 首页文章按「新鲜 → 新鲜日 → 评分 → 日期」四层排序
+- 首页文章按「新鲜 → 新鲜日 → top → rating → 日期」五层排序
 - `freshness` 控制最新 N 篇置顶
 - `freshness_days` 控制 N 天内的文章置顶
-- `top` 字段控制评分文章排序
+- `top` 字段控制 top 评分文章排序
+- `rating_threshold` 控制 rating 评分文章筛选（`rating >= 阈值` 进入评分层）
 
 **检查方法：** 查看主题的 `_config.yml` 中是否有 `freshness` / `freshness_days` 配置。
 首页模板中是否有对应的排序逻辑。
@@ -147,21 +148,25 @@ Step 14: 验证图片路径是否正确
 | ---- | ---------- | ------------------ | ---------------------------------------------------------- | ----------------------- |
 | 1    | **新鲜**   | **freshness**      | 全局最新 N 篇（`freshness: N`）                            | 按 date/updated 较新者倒序 |
 | 2    | **新鲜日** | **freshness_days** | N 天内的文章（`freshness_days: N`），排除已出现在 fresh 的 | 按 date/updated 较新者倒序 |
-| 3    | **评分**   | **top**            | `top` 值 > 0 的文章，排除已出现在前两层的                  | 按 top 降序 → date 倒序    |
-| 4    | **日期**   | **rest**           | 其余所有                                                   | 按 date 倒序               |
+| 3    | **top**    | **top**            | `top` 值 > 0 的文章，排除已出现在前两层的                  | 按 top 降序 → date 倒序    |
+| 4    | **rating** | **rating**         | `rating` >= `rating_threshold`，排除已出现在前三层         | 按 rating 降序 → date 倒序 |
+| 5    | **日期**   | **rest**           | 其余所有                                                   | 按 date 倒序               |
 
 #### 2. 评分机制
 
-在 front matter 中添加 `top: N` 字段（1-100），N 越大评分越高。无 `top` 字段等同于 `top: 0`。
+**top 评分：** 在 front matter 中添加 `top: N` 字段（1-100），N 越大评分越高。无 `top` 字段等同于 `top: 0`。
+
+**rating 评分：** 在 front matter 中添加 `rating: N` 字段（0-100），通过 `rating_threshold` 配置筛选阈值。无 `rating` 字段等同于 `rating: 0`，不进入 rating 层。
 
 #### 3. 配置
 
 在主题 `_config.yml` 中定义：
 
 ```yaml
-# 首页新鲜期（优先级: freshness > freshness_days > top > date）
-freshness: 0          # 0 = 不启用，正整数 = 最新 N 篇
-freshness_days: 0     # 0 = 不启用，正整数 = N 天内的文章
+# 首页新鲜期（优先级: freshness > freshness_days > top > rating > date）
+freshness: 0               # 0 = 不启用，正整数 = 最新 N 篇
+freshness_days: 0          # 0 = 不启用，正整数 = N 天内的文章
+rating_threshold: 70       # 0 = 不启用，正整数 = rating >= 此值的文章进入评分排序层
 ```
 
 在博客根 `_config.yml` 中设置全局排序和 `updated` 行为：
@@ -1254,7 +1259,23 @@ category_exclude:
     layerTop.push(rest.shift());
   }
 
-  // Layer 4: rest
+  // Layer 4: rating >= threshold from remaining
+  var layerRating = [];
+  var ratingThreshold = theme.rating_threshold || 0;
+  if (ratingThreshold > 0) {
+    var newRest = [];
+    for (var i = 0; i < rest.length; i++) {
+      if (rest[i].rating >= ratingThreshold) {
+        layerRating.push(rest[i]);
+      } else {
+        newRest.push(rest[i]);
+      }
+    }
+    layerRating.sort(function(a, b) { return (b.rating - a.rating) || (effectiveTime(b) - effectiveTime(a)); });
+    rest = newRest;
+  }
+
+  // Layer 5: rest
   var layerRest = rest;
 
   // Render layers in order
@@ -1268,6 +1289,7 @@ category_exclude:
   renderLayer(layerFresh);
   renderLayer(layerFdays);
   renderLayer(layerTop);
+  renderLayer(layerRating);
   renderLayer(layerRest);
   %>
 <% } else { %>
@@ -1343,6 +1365,8 @@ category_exclude:
 ---
 
 ## 版本记录
+
+**0.0.14 (2026-05-27): Step 4 新增 rating 评分排序层（`rating_threshold: 70`），五层排序：freshness → freshness_days → top → rating → rest；同步更新 archive.ejs 参考代码**
 
 **0.0.13 (2026-05-27): Step 15 新增 D. canvas-particles 蓝色粒子背景选项；修正 fairyDustCursor CSS 选择器为 `canvas:not(#canvas-particles)` 避免 z-index 冲突**
 
