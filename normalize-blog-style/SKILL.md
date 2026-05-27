@@ -89,6 +89,8 @@ Step 14: 验证图片路径是否正确
           └── `hexo s` → 打开指定页面确认图片显示正常
 ```
 
+## 一、首页与侧边栏优化
+
 ### Step 1: 日期显示格式
 
 **预期行为：**
@@ -207,6 +209,8 @@ updated_option: empty
 
 ---
 
+## 二、配置与迁移
+
 ### Step 5: 配置迁移
 
 **注意：** Step 4.5（Read More 链接样式）的 `excerpt_link` 配置和 CSS 样式也需一并迁移。
@@ -229,6 +233,8 @@ category_exclude:
   - 随笔
   - 面试
 ```
+
+## 三、功能扩展
 
 ### Step 7: 独立 HTML 文件处理
 
@@ -456,6 +462,8 @@ hexo.extend.filter.register('after_post_render', function(post) {
 
 **参考代码：** 见 landscape 主题的 `search-local.js` 和 `style.styl` 中的搜索样式。
 
+## 四、文章样式优化
+
 ### Step 9: 引用块（blockquote）样式
 
 **预期行为：**
@@ -516,6 +524,8 @@ highlight-purple = #cf222e          // 关键字（红色）
 如果需要其他配色，参考 [highlight.js 主题](https://highlightjs.org/static/demo/) 挑选。
 
 ---
+
+## 五、文章内容处理管线
 
 ### Step 11: 重复标题自动去除 + [toc] 文字清理
 
@@ -736,6 +746,8 @@ post.content
 即检查内容为：其它包含 `![]()` 或 `<img src="FOLDER/">` 模式图片的页面
 
 ---
+
+## 六、视觉特效
 
 ### Step 15: [可选] 视觉美化特效
 
