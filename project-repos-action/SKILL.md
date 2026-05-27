@@ -1,5 +1,6 @@
 ---
 name: project-repos-action
+version: 0.0.4
 description: 整理 GitHub 和 Gitee 仓库列表为分类 JSON
 ---
 

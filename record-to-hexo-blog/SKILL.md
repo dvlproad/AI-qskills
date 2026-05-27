@@ -1,5 +1,6 @@
 ---
 name: record-to-hexo-blog
+version: 0.0.10
 description: |
   将内容写入 hexo 博客 — 根据内容匹配合适分类，按规范创建博客文章
   触发场景：被 record-router 路由至此

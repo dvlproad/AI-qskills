@@ -1,5 +1,6 @@
 ---
 name: dev-fw-setting-ai-models
+version: 0.0.1
 description: 当需要创建一个新的 AI 网页/App 时，用于生成除核心业务功能外的通用架构，包括平台选择、模型切换、API Key 管理、费用显示等功能。
 ---
 

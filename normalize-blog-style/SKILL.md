@@ -1,5 +1,6 @@
 ---
 name: normalize-blog-style
+version: 0.0.12
 description: |
    规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击）
    触发场景：换主题时检查风格一致性；加特效时参考视觉美化方案

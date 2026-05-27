@@ -1,5 +1,6 @@
 ---
 name: script-test-branch-info
+version: 0.0.1
 description: |
   测试分支信息的获取
   触发场景：用户输入"测试分支信息的获取"

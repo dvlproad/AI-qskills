@@ -1,5 +1,6 @@
 ---
 name: script-specification
+version: 0.0.5
 description: |
   当用户输入"创建脚本"时触发，帮助用户创建符合统一要求的脚本
   触发场景：用户输入"创建脚本"

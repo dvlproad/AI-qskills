@@ -137,22 +137,37 @@ Agent 检查 `repos_with_pods.json` 是否存在：
 
 ### 1、脚本介绍
 
-合并 repos_all.json + pods_all.json → repos_with_pods.json，适合管线二的 JSON 中间数据生成：
+合并 repos_all.json + pods_all.json → repos_with_pods.json，适合管线二的 JSON 中间数据生成。
+`--pods` 支持逗号分隔多个文件（如 `"pods.json,skills.json"`），脚本自动合并后处理。
 
 ```bash
 # repos_json_append_pods.sh — 合并 repos_all.json + pods_all.json → repos_with_pods.json
 # 每个 repo 节点追加 pods 字段，顶层含 unmatched_pods 列表
 # 面向数据：输出 JSON 中间格式，可供后续渲染 md/html 等
-sh repos_json_append_pods.sh <repos_all.json> <pods_all.json> [输出.json]
+sh repos_json_append_pods.sh \
+  --repos repos_all.json \
+  --pods pods_all.json \
+  --output repos_with_pods.json
 ```
 
 ### 2、运行 repos_json_append_pods.sh 重建 `repos_with_pods.json`。
 
+同时有 pod 和 skill 数据时，逗号分隔传入：
+
 ```bash
 sh scripts/repos_json_append_pods.sh \
-  repos_all.json \
-  pods_all.json \
-  repos_with_pods.json
+  --repos repos_all.json \
+  --pods "pods_all.json,skills_all.json" \
+  --output repos_with_pods.json
+```
+
+只有 pod 数据时（原流程不变）：
+
+```bash
+sh scripts/repos_json_append_pods.sh \
+  --repos repos_all.json \
+  --pods pods_all.json \
+  --output repos_with_pods.json
 ```
 
 

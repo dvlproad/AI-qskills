@@ -1,5 +1,6 @@
 ---
 name: guide-and-config-missing-env
+version: 0.0.4
 description: |
   当脚本缺少必要的环境变量或配置文件时，提供引导用户补充的完整方案
   触发场景：脚本需要某个环境变量但未设置，或指向的文件不存在

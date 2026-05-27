@@ -1,5 +1,6 @@
 ---
 name: blog-posts-rating
+version: 0.0.1
 description: |
   对 Hexo 博客文章按多维标准评分，用于排序和筛选。
   触发场景：

@@ -1,5 +1,6 @@
 ---
 name: organize-skill-to-md
+version: 0.0.1
 description: 当需要整理 Skill 关系、生成知识图谱、生成索引时触发。支持 Mermaid 可视化和表格输出。
 ---
 

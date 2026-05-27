@@ -1,7 +1,8 @@
 #!/bin/sh
-# repos_json_append_pods.sh — 合并 repos_all.json + pods_all.json → repos_with_pods.json
+# repos_json_append_pods.sh — 合并 repos_all.json + "pods_all.json,skills_all.json" → repos_with_pods.json
 # 每个 repo 节点追加 pods 字段，顶层含 unmatched_pods 列表
 # 面向数据：输出 JSON 中间格式，可供后续渲染 md/html 等
+# --pods 支持逗号分隔多文件（如 "pods.json,skills.json"），自动合并后处理
 # 用法: sh repos_json_append_pods.sh --repos <repos_all.json> --pods <pods_all.json> --output <输出.json>
 
 while [ $# -gt 0 ]; do
@@ -17,7 +18,21 @@ done
 [ -z "$POD_JSON" ]    && { echo "用法: sh repos_json_append_pods.sh --repos <repos_all.json> --pods <pods_all.json> --output <输出.json>"; exit 1; }
 [ -z "$OUT_JSON" ]    && { echo "用法: sh repos_json_append_pods.sh --repos <repos_all.json> --pods <pods_all.json> --output <输出.json>"; exit 1; }
 [ ! -f "$REPOS_JSON" ] && { echo "文件不存在: $REPOS_JSON"; exit 1; }
-[ ! -f "$POD_JSON" ]   && { echo "文件不存在: $POD_JSON"; exit 1; }
+
+# --pods 支持逗号分隔的多个文件，自动合并
+FILES=$(echo "$POD_JSON" | tr ',' ' ')
+FILE_COUNT=$(echo "$FILES" | wc -w | tr -d ' ')
+
+if [ "$FILE_COUNT" -gt 1 ]; then
+  MERGED=$(mktemp)
+  for f in $FILES; do
+    [ ! -f "$f" ] && { echo "文件不存在: $f"; exit 1; }
+  done
+  jq -s 'add' $FILES > "$MERGED"
+  POD_JSON="$MERGED"
+else
+  [ ! -f "$POD_JSON" ] && { echo "文件不存在: $POD_JSON"; exit 1; }
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 TMP=$(mktemp)

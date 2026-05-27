@@ -1,5 +1,6 @@
 ---
 name: organize-code-to-md
+version: 0.0.2
 description: |
   当用户需要整理代码目录结构时触发
   触发场景：

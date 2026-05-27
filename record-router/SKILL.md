@@ -1,5 +1,6 @@
 ---
 name: record-router
+version: 0.0.2
 description: |
   内容分发路由 — 判断内容类型，路由到对应的 Skill 处理
   所有"记录"类指令统一入口，包括明确命令（创建skill、完善skill）也走此路由，

@@ -1,5 +1,6 @@
 ---
 name: script-qtool
+version: 0.0.1
 description: 操作 CQCI 工具集（script-branch-json-file），用于分支管理、代码提交、打包上传等
 ---
 

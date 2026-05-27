@@ -1,5 +1,6 @@
 ---
 name: project-pods-action
+version: 0.0.4
 description: >
   project-pods-action：对 pod 做获取全部 pod 信息还是对 podspec 做规范化
 ---

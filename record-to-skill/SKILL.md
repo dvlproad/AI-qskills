@@ -1,5 +1,6 @@
 ---
 name: record-to-skill
+version: 0.0.1
 description: |
   创建、归类整理和完善 Skill
   触发场景：被 record-router 路由至此

@@ -1,5 +1,6 @@
 ---
 name: record-to-script-repo
+version: 0.0.2
 description: |
   将脚本分类入库 — 判断脚本归属仓库和子目录，放入正确位置
   触发场景：被 record-router 路由至此

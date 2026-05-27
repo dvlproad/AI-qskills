@@ -1,5 +1,6 @@
 ---
 name: opencode-sessions-manager
+version: 0.0.2
 description: |
   交互式 opencode 会话选择器 - 分页浏览恢复历史会话
   触发场景：
