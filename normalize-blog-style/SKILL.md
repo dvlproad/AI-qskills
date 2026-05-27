@@ -1,6 +1,6 @@
 ---
 name: normalize-blog-style
-version: 0.0.23
+version: 0.0.24
 description: |
    规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击、canvas-particles 粒子背景）+ rating 评分排序（front-matter 方式，可选 JSON 注入补充）
     触发场景：换主题时检查风格一致性；加特效时参考视觉美化方案
@@ -651,7 +651,7 @@ source/_posts/
 | `model_warning_parent` | `src` 以 `../` 开头 | 跳过 |
 | `model_img_folder` | `<img src="FOLDER/xxx">`，FOLDER = asset 文件夹名 | 补 `post.slug` |
 | `model_mark_folder` | `![](FOLDER/xxx)` 渲染为 `<img src="/FOLDER/xxx">`，FOLDER = asset 文件夹名 | 去前导 `/` 后补 `post.slug` |
-| `mode_other` | FOLDER ≠ asset 文件夹名 | 跳过 |
+| `model_other` | FOLDER ≠ asset 文件夹名 | 跳过不处理（控制台输出 `[图片警告]`）|
 
 **判断函数：**
 
@@ -674,7 +674,7 @@ function getImageModel(src, folderName) {
   if (cleanFolder === folderName || folder === folderName) {
     return isMarkFolder ? 'model_mark_folder' : 'model_img_folder';
   }
-  return 'mode_other';
+  return 'model_other';
 }
 ```
 
@@ -733,6 +733,19 @@ if (folderName) {
 - 最终 URL 路径中 `&` → `%26`、空格 → `%20`，防止浏览器将 `&` 解释为 query 参数分隔符
 - 其他 HTML entity（`&lt;` `&gt;` `&quot;` `&#39;`）和 URL 特殊字符（`#` `?` `%`）理论上也有类似风险，但文件名中极罕见，当前不做自动编码处理
 - `model_warning_current1`（无文件夹前缀）的图片由 Hexo 的 `post_asset_folder` 自行处理，`stripH1` 不干涉
+
+---
+
+### 已知故障排查：`model_other` 跨文章引用
+
+控制台出现 `[图片警告]` 时，说明图片引用的文件夹名 ≠ 当前文章的 slug，`stripH1` 跳过不处理。
+
+| 子类型 | 原因 | 修复 |
+|--------|------|------|
+| 文件夹存在但名称不匹配 | 引用另一篇文章的 asset 文件夹。若目标文件夹名与 permalink 路径不一致，URL 错位 → 404 | 为当前文章创建同名 asset 文件夹，将图片移入，改为无前缀引用 |
+| 文件夹不存在（死链） | 引用的路径在文件系统上不存在 | 检查路径拼写，或确认图片文件位置 |
+
+**快速定位：** `hexo s` 时观察终端输出的 `[图片警告]`，可直接定位到问题图片。
 
 ---
 
@@ -818,7 +831,7 @@ post.content
 
 ### Step 14: 验证图片路径是否正确
 
-`hexo s` 后打开以下页面，检查 Step 12（Asset 图片路径）和 Step 13（`![]()` 空格文件名修复）是否生效：
+`hexo s` 后**注意观察终端输出**中是否有 `[图片警告]`，有则说明存在跨文章引用。确认无 warning 后打开以下页面检查：
 
 - [首页](http://localhost:4000)
 
@@ -1611,6 +1624,8 @@ hexo.extend.filter.register('before_generate', function() {
 ---
 
 ## 版本记录
+
+**0.0.24 (2026-05-28): `mode_other` → `model_other` 统一命名；model_other 分支增加 console.warn 控制台告警；新增 Step 12 已知故障排查表**
 
 **0.0.23 (2026-05-28): 新增 Step 13.5 `fixImageZoom` 函数 — `zoom:N%;` 转为 `width:N%;`，修复非标准 CSS 导致图片空白占位的问题**
 
