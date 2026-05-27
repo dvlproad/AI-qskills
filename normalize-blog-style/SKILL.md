@@ -1233,8 +1233,9 @@ category_exclude:
 
   function effectiveTime(p) { return p.updated || p.date; }
 
-  // Sort by effectiveTime descending for freshness calculations
-  var byDate = [].concat(posts).sort(function(a, b) { return effectiveTime(b) - effectiveTime(a); });
+  // Freshness pool: use all posts globally so freshness is not limited to current page
+  var freshPool = (freshN > 0 || freshDays > 0) ? site.posts.toArray() : posts;
+  var byDate = [].concat(freshPool).sort(function(a, b) { return effectiveTime(b) - effectiveTime(a); });
 
   // Layer 1: freshness (top N by effectiveTime)
   var layerFresh = [];
@@ -1429,6 +1430,8 @@ hexo.extend.generator.register('index', function(locals) {
 ---
 
 ## 版本记录
+
+**0.0.19 (2026-05-28): 修复 freshness 层仅限当前页导致最新文章丢失的问题 — 改用 `site.posts.toArray()` 全局取最新文章**
 
 **0.0.18 (2026-05-28): Step 4.6 新增自定义 Index Generator（`scripts/index-generator-sort.js`）用于阈值过滤；`order_by` 示例改为 `-top,-rating,-date`；基于 front-matter 方式**
 
