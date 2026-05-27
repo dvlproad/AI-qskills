@@ -1,6 +1,6 @@
 ---
 name: normalize-blog-style
-version: 0.0.21
+version: 0.0.22
 description: |
    规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击、canvas-particles 粒子背景）+ rating 评分排序（front-matter 方式，可选 JSON 注入补充）
     触发场景：换主题时检查风格一致性；加特效时参考视觉美化方案
@@ -670,7 +670,8 @@ function getImageModel(src, folderName) {
   }
 
   var folder = raw.split('/')[0];
-  if (decodeURIComponent(folder) === folderName || folder === folderName) {
+  var cleanFolder = decodeURIComponent(folder).replace(/&amp;/g, '&');
+  if (cleanFolder === folderName || folder === folderName) {
     return isMarkFolder ? 'model_mark_folder' : 'model_img_folder';
   }
   return 'mode_other';
@@ -691,7 +692,7 @@ if (folderName) {
         if (raw.charAt(0) === '/') raw = raw.substring(1);
         var folder = raw.split('/')[0];
         var rest = raw.slice(folder.length + 1);
-        return prefix + '/' + post.slug + '/' + rest;
+        return prefix + '/' + post.slug.replace(/&amp;/g, '&').replace(/&/g, '%26').replace(/ /g, '%20') + '/' + rest;
       }
       return m0;
     }
@@ -728,6 +729,9 @@ if (folderName) {
 
 - `model_mark_folder` 的前导 `/` 来自 marked 对 `![]()` 的默认渲染，`getImageModel` 中用 `isMarkFolder` 标记区分，但不做 `/？` 跳脱匹配，防止 `model_img_folder` 的路径被二次处理
 - URL 编码的文件夹名（如 `%E7%A7%91%E5%AD%A6/`）会先 `decodeURIComponent` 再比较
+- 文件夹名含 `&` 时，marked 渲染器会将其 HTML-entity 编码为 `&amp;`，`getImageModel` 中额外做 `&amp;` → `&` 解码后再比较
+- 最终 URL 路径中 `&` → `%26`、空格 → `%20`，防止浏览器将 `&` 解释为 query 参数分隔符
+- 其他 HTML entity（`&lt;` `&gt;` `&quot;` `&#39;`）和 URL 特殊字符（`#` `?` `%`）理论上也有类似风险，但文件名中极罕见，当前不做自动编码处理
 - `model_warning_current1`（无文件夹前缀）的图片由 Hexo 的 `post_asset_folder` 自行处理，`stripH1` 不干涉
 
 ---
@@ -1564,6 +1568,8 @@ hexo.extend.filter.register('before_generate', function() {
 ---
 
 ## 版本记录
+
+**0.0.22 (2026-05-28): 修复含 `&` 文件名的图片路径 — `getImageModel` 解码 `&amp;` → `&`；最终 URL 编码 `&` → `%26`、空格 → `%20`**
 
 **0.0.21 (2026-05-28): 跨页去重 — 生成器计算 freshnessIds 传给模板；freshness 层仅 page 1 全局取；rest 排除 freshnessIds 防 page 2+ 重复**
 
