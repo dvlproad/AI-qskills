@@ -1,9 +1,9 @@
 ---
 name: normalize-blog-style
-version: 0.0.12
+version: 0.0.13
 description: |
-   规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击）
-   触发场景：换主题时检查风格一致性；加特效时参考视觉美化方案
+   规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击、canvas-particles 粒子背景）
+    触发场景：换主题时检查风格一致性；加特效时参考视觉美化方案
 ---
 
 # 博客风格与视觉美化
@@ -759,7 +759,8 @@ post.content
 └── 需要 → 按需选择以下效果添加
     ├── A. fairyDustCursor — 星光粉尘鼠标跟随
     ├── B. clickLove.js — 鼠标点击弹出彩色爱心
-    └── C. scrollReveal.js — 滚动淡入/滑入动画（轻量推荐）
+    ├── C. scrollReveal.js — 滚动淡入/滑入动画（轻量推荐）
+    └── D. canvas-particles — 蓝色粒子背景（两侧边距飘移）
 ```
 
 **检查方法：** 首页下滑，观察文章卡片/图片/标题是否带入场动画；移动鼠标看是否有星光轨迹；点击页面看是否有爱心弹出。
@@ -855,6 +856,208 @@ post.content
 **初始化参数：** `distance` 移动距离、`duration` 动画时长 ms、`easing` 缓动函数。
 
 **注意：** 仅对首页和文章页生效，不影响侧边栏和 footer。对纯内容页面（无大段滚动）无性能影响。
+
+---
+
+#### D. canvas-particles — 蓝色粒子背景（两侧边距飘移）
+
+**用途：** 页面背景层以 180 个蓝色粒子（#258fb8）在两侧边距和侧边栏空隙中缓缓飘移，鼠标快速掠过时粒子按速度比例逃离，产生动态交互感。
+
+**接入方式：**
+
+1. **创建 `themes/landscape/source/js/canvas-particles.js`**，内容见下方参考代码
+2. **在 `after-footer.ejs` 中添加加载行**（位于视觉美化特效区前）：
+   ```html
+   <!-- ====== 粒子背景 ====== -->
+   <%- js('js/canvas-particles') %>
+   ```
+3. **修正 fairyDustCursor 的 CSS 选择器**，避免 z-index 冲突：
+   ```css
+   /* 旧：canvas { z-index: 999999 !important; } */
+   canvas:not(#canvas-particles) { z-index: 999999 !important; }
+   ```
+
+**参数说明：**
+
+| 参数 | 值 | 说明 |
+|------|:---:|------|
+| COUNT | 180 | 粒子总数 |
+| SPEED | 0.10 | 基础漂移速度 |
+| CONNECT_DIST | 150px | 连线最大距离 |
+| 颜色 | #258fb8 | 博客链接色，蓝绿系 |
+| 阻尼 | 0.995 | 每帧速度衰减，逃离后约 5 秒回落 |
+| mouseSpeed 阈值 | 0.5 | 鼠标移动速度超过此值触发逃离 |
+| 逃离范围 | 100px | 粒子在此半径内受鼠标影响 |
+
+**遮挡规则：**
+
+- 粒子落在 `#main` 或 `.widget-wrap` 的 bounding rect 内时跳过绘制
+- 粒子在左右两侧边距和侧边栏组件之间的空隙可见
+- `updateBlockedRects` 在 resize 和 scroll 时通过 `requestAnimationFrame` 节流重算
+- 连接线只在两个粒子都可绘制时画（双方 `isBlocked` 均为 false）
+
+**z-index 层级：**
+
+| 元素 | z-index | 说明 |
+|------|:-------:|------|
+| canvas#canvas-particles | 2 | 粒子层，固定在内容之上 |
+| #wrap | 1 | 内容容器（需设 `background: #fff` 遮挡底部粒子） |
+| fairyDustCursor canvas | 999999 | 最顶层，用 `:not(#canvas-particles)` 排除粒子 canvas |
+
+**注意：** 移动端无 hover 概念不会触发鼠标逃离，粒子仅做基础漂移。
+
+**参考代码：** `themes/landscape/source/js/canvas-particles.js`
+
+```javascript
+(function() {
+  var canvas = document.createElement('canvas');
+  canvas.id = 'canvas-particles';
+  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:2;pointer-events:none;';
+  document.body.insertBefore(canvas, document.body.firstChild);
+
+  var ctx = canvas.getContext('2d');
+  var width, height;
+  var particles = [];
+  var COUNT = 180;
+  var CONNECT_DIST = 150;
+  var SPEED = 0.10;
+  var mouseX = null, mouseY = null;
+  var lastMX = null, lastMY = null, mouseSpeed = 0;
+  var blockedRects = [];
+  var rectUpdatePending = false;
+
+  function updateBlockedRects() {
+    blockedRects = [];
+    var main = document.querySelector('#main');
+    if (main) blockedRects.push(main.getBoundingClientRect());
+    var widgets = document.querySelectorAll('.widget-wrap');
+    for (var i = 0; i < widgets.length; i++) {
+      blockedRects.push(widgets[i].getBoundingClientRect());
+    }
+    rectUpdatePending = false;
+  }
+
+  function scheduleRectUpdate() {
+    if (!rectUpdatePending) {
+      rectUpdatePending = true;
+      requestAnimationFrame(updateBlockedRects);
+    }
+  }
+
+  function isBlocked(x, y) {
+    for (var i = 0; i < blockedRects.length; i++) {
+      var r = blockedRects[i];
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
+    }
+    return false;
+  }
+
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    scheduleRectUpdate();
+  }
+
+  resize();
+  updateBlockedRects();
+
+  for (var i = 0; i < COUNT; i++) {
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * SPEED,
+      vy: (Math.random() - 0.5) * SPEED,
+      s: 2 + Math.random() * 2.5
+    });
+  }
+
+  function animate() {
+    if (mouseX === null) mouseSpeed = 0;
+    else mouseSpeed *= 0.5;
+    ctx.clearRect(0, 0, width, height);
+
+    for (var i = 0; i < COUNT; i++) {
+      var p = particles[i];
+
+      if (p.x < 0 || p.x > width) { p.vx = -p.vx; p.x = Math.min(Math.max(p.x, 0), width); }
+      if (p.y < 0 || p.y > height) { p.vy = -p.vy; p.y = Math.min(Math.max(p.y, 0), height); }
+
+      if (mouseX !== null && mouseY !== null && mouseSpeed >= 0.5) {
+        var dx = p.x - mouseX, dy = p.y - mouseY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var avoid = 100;
+        if (dist < avoid) {
+          var angle = Math.atan2(dy, dx);
+          var force = (avoid - dist) / avoid * 0.8 * Math.min(mouseSpeed, 2);
+          p.vx += Math.cos(angle) * force * 0.08;
+          p.vy += Math.sin(angle) * force * 0.08;
+          var maxSpeed = 2.0;
+          p.vx = Math.min(Math.max(p.vx, -maxSpeed), maxSpeed);
+          p.vy = Math.min(Math.max(p.vy, -maxSpeed), maxSpeed);
+        }
+      }
+
+      p.vx *= 0.995;
+      p.vy *= 0.995;
+      p.x += p.vx;
+      p.y += p.vy;
+
+      if (isBlocked(p.x, p.y)) continue;
+
+      for (var j = i + 1; j < COUNT; j++) {
+        var q = particles[j];
+        if (isBlocked(q.x, q.y)) continue;
+        var dx = p.x - q.x, dy = p.y - q.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < CONNECT_DIST) {
+          var a = (1 - dist / CONNECT_DIST) * 0.4;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = 'rgba(37,143,184,' + a + ')';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2);
+      var grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s);
+      grad.addColorStop(0, 'rgba(37,143,184,0.75)');
+      grad.addColorStop(1, 'rgba(20,100,140,0.4)');
+      ctx.fillStyle = grad;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = 'rgba(37,143,184,0.45)';
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+  window.addEventListener('resize', resize);
+  window.addEventListener('scroll', scheduleRectUpdate);
+  window.addEventListener('mousemove', function(e) {
+    if (lastMX !== null) {
+      mouseSpeed = Math.sqrt(Math.pow(e.clientX - lastMX, 2) + Math.pow(e.clientY - lastMY, 2));
+    }
+    lastMX = e.clientX;
+    lastMY = e.clientY;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+  window.addEventListener('mouseleave', function() {
+    mouseX = null;
+    mouseY = null;
+    lastMX = null;
+    lastMY = null;
+    mouseSpeed = 0;
+  });
+})();
+```
 
 ---
 
@@ -1101,11 +1304,14 @@ category_exclude:
 
 ---
 
-### after-footer.ejs — 视觉特效统一加载（三个效果同区添加）
+### after-footer.ejs — 视觉特效统一加载（四个效果同区添加）
 
 在主题的 `layout/_partial/after-footer.ejs` 末尾（`</body>` 前）添加：
 
 ```html
+<!-- ====== 粒子背景 ====== -->
+<%- js('js/canvas-particles') %>
+
 <!-- ====== 视觉美化特效 ====== -->
 
 <!-- A. fairyDustCursor — 星光粉尘鼠标跟随（ESM） -->
@@ -1114,7 +1320,7 @@ category_exclude:
   new fairyDustCursor();
 </script>
 <style>
-  canvas { z-index: 999999 !important; }
+  canvas:not(#canvas-particles) { z-index: 999999 !important; }
 </style>
 
 <!-- B. clickLove.js — 鼠标点击爱心 -->
@@ -1137,6 +1343,8 @@ category_exclude:
 ---
 
 ## 版本记录
+
+**0.0.13 (2026-05-27): Step 15 新增 D. canvas-particles 蓝色粒子背景选项；修正 fairyDustCursor CSS 选择器为 `canvas:not(#canvas-particles)` 避免 z-index 冲突**
 
 **0.0.12 (2026-05-23): Step 6 新增「数据生成器脚本」子节，补充 JS skip_render + data/ 目录规范**
 
