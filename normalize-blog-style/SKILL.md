@@ -43,43 +43,48 @@ Step 4: 配置首页排序规则
           ├── 不需要 → 确保 freshness / freshness_days 值为 0
           └── 需要 → 按排序规则章节配置
 
-Step 5: 确认新主题/配置生效
+Step 5: 检查 Read More 链接样式
+          │
+          ├── 已配置 + 样式明显 → 跳过
+          └── 缺失或样式太淡 → 按 Step 4.5 参考代码实现
 
-Step 6: 处理独立 HTML 文件（同目录的资产文件）
+Step 6: 确认新主题/配置生效
+
+Step 7: 处理独立 HTML 文件（同目录的资产文件）
           │
           └── 检查 _posts/ 下和 .md 同级的 .html → 移入资产目录
 
-Step 7: 配置本地全站搜索（hexo-generator-searchdb）
+Step 8: 配置本地全站搜索（hexo-generator-searchdb）
           │
           ├── 不需要 → 跳过
           └── 需要 → 安装插件 + 添加 JS + 添加样式
 
-Step 8: 检查引用块（blockquote）样式
+Step 9: 检查引用块（blockquote）样式
           │
           ├── 已经是左竖线标准引用 → 跳过
           └── 还是居中/大字号名言样式 → 按参考代码修改
 
-Step 9: [可选] 检查代码块配色
+Step 10: [可选] 检查代码块配色
           │
           ├── 配色协调 → 跳过
           └── 突兀 → 按参考代码调整 highlight.styl 变量
 
-Step 10: 检查重复标题 + [toc] 文字
+Step 11: 检查重复标题 + [toc] 文字
           │
           ├── article.ejs 已有处理逻辑 → 跳过
           └── 没有 → 按参考代码在输出前处理
 
-Step 11: 检查 Asset 图片路径
+Step 12: 检查 Asset 图片路径
           │
           ├── 无此模式 → 跳过
           └── 有此模式 → 按参考代码修正
 
-Step 12: 检查 ![]() 空格文件名修复
+Step 13: 检查 ![]() 空格文件名修复
           │
           ├── 无此模式 → 跳过
           └── 有空格文件名的图片 → 管线已自动处理，无需额外操作
 
-Step 13: 验证图片路径是否正确
+Step 14: 验证图片路径是否正确
           │
           └── `hexo s` → 打开指定页面确认图片显示正常
 ```
@@ -166,7 +171,45 @@ index_generator:
 updated_option: empty
 ```
 
+### Step 4.5: 首页 Read More 链接样式
+
+**预期行为：**
+- 文字为 `阅读全文 →`（中文 + 箭头，直观可点击）
+- 颜色为蓝色链接，显著但不突兀
+- hover 时变蓝底白字
+
+**检查方法：**
+1. 主题 `_config.yml` 中是否有 `excerpt_link` 配置项
+2. CSS 中是否有 `.article-more-link a` 样式定义（通常在 `source/css/_partial/article.styl` 或等效文件）
+
+**不支持时实现：**
+1. 在主题 `_config.yml` 中添加：
+   ```yaml
+   excerpt_link: 阅读全文 →
+   ```
+2. 在主题 CSS 文件中添加样式：
+   ```stylus
+   .article-more-link a
+     display: inline-block
+     line-height: 1em
+     padding: 6px 15px
+     border-radius: 15px
+     background: color-background
+     color: color-link
+     text-decoration: none
+     &:hover
+       background: color-link
+       color: #fff
+       text-decoration: none
+   ```
+
+**验证：** 找一篇有 `<!-- more -->` 截断的文章，确认首页底部显示蓝色「阅读全文 →」链接，hover 变蓝底白字。
+
+---
+
 ### Step 5: 配置迁移
+
+**注意：** Step 4.5（Read More 链接样式）的 `excerpt_link` 配置和 CSS 样式也需一并迁移。
 
 将以下配置从 `themes/landscape/_config.yml` 和根 `_config.yml` 复制到新主题的 `_config.yml`：
 
@@ -187,7 +230,7 @@ category_exclude:
   - 面试
 ```
 
-### Step 6: 独立 HTML 文件处理
+### Step 7: 独立 HTML 文件处理
 
 **目的：** 让 `.html` 文件能被 Hexo 正确输出，并通过 URL 访问到。
 
@@ -285,16 +328,16 @@ hexo.extend.filter.register('after_post_render', function(post) {
   hexo.extend.filter.register('after_generate', function() {
     var searchPath = this.config.search ? this.config.search.path : null;
     if (!searchPath) return;
-
+  
     var routeData = this.route.routes[searchPath];
     if (!routeData) return;
-
+  
     var data = routeData.data;
     if (typeof data !== 'string') return;
-
+  
     var root = this.config.root || '/';
     var Post = this.model('Post');
-
+  
     Post.find({ published: true }).forEach(function(post) {
       if (!post.index_html_url) return;
       var oldUrl = encodeURI(root + post.path);
@@ -381,7 +424,7 @@ hexo.extend.filter.register('after_post_render', function(post) {
 
 **效果：** 有 `.html` 文件时，首页展示 iframe + 半透明遮罩（内容虚化不可交互）+ 居中蓝色按钮；用户必须点击按钮或遮罩才能跳转到独立页面，不会误以为 iframe 内容就是全部。没有 `.html` 时照常走 `fixMarkdownImages` → `stripH1` 管线。
 
-### Step 7: 本地全站搜索
+### Step 8: 本地全站搜索
 
 **目的：** 让博客支持全站搜索，不依赖第三方服务。
 
@@ -413,7 +456,7 @@ hexo.extend.filter.register('after_post_render', function(post) {
 
 **参考代码：** 见 landscape 主题的 `search-local.js` 和 `style.styl` 中的搜索样式。
 
-### Step 8: 引用块（blockquote）样式
+### Step 9: 引用块（blockquote）样式
 
 **预期行为：**
 - 标准引用样式：左侧竖线、正常字号、左对齐
@@ -443,7 +486,7 @@ blockquote
 
 **注意：** 如果主题的 blockquote 是单独样式文件，在对应文件修改；如果混在 `article.styl` 中，找到 `.article-entry blockquote` 嵌套块修改。
 
-### Step 9: [可选] 代码块配色
+### Step 10: [可选] 代码块配色
 
 **说明：** 此步骤为**可选**。每个主题的代码块配色可能已经配合自身风格，你不一定需要修改。只有当你觉得当前配色不协调时才按需调整。
 
@@ -474,7 +517,7 @@ highlight-purple = #cf222e          // 关键字（红色）
 
 ---
 
-### Step 10: 重复标题自动去除 + [toc] 文字清理
+### Step 11: 重复标题自动去除 + [toc] 文字清理
 
 **预期行为：** 文章标题仅由 `title.ejs` 渲染一次，markdown 正文中的 `# 标题` 不再重复显示。
 
@@ -525,7 +568,7 @@ text = text.replace(/<p>\[toc\]<\/p>/gi, '');
 
 ---
 
-### Step 11: 检查 Asset 图片路径
+### Step 12: 检查 Asset 图片路径
 
 **文件结构示意：**
 
@@ -643,7 +686,7 @@ if (folderName) {
 
 ---
 
-### Step 12: `![]()` 空格文件名修复
+### Step 13: `![]()` 空格文件名修复
 
 **问题：** markdown 的 `![]()` 语法中，如果文件名包含空格（如 `Manager 跳转.png`），渲染器无法正确解析 URL，将 `![]()` 输出为原始文本，图片不显示。
 
@@ -680,9 +723,9 @@ post.content
 
 ---
 
-### Step 13: 验证图片路径是否正确
+### Step 14: 验证图片路径是否正确
 
-`hexo s` 后打开以下页面，检查 Step 11（Asset 图片路径）和 Step 12（`![]()` 空格文件名修复）是否生效：
+`hexo s` 后打开以下页面，检查 Step 12（Asset 图片路径）和 Step 13（`![]()` 空格文件名修复）是否生效：
 
 - [首页](http://localhost:4000)
 
@@ -694,7 +737,7 @@ post.content
 
 ---
 
-### Step 14: [可选] 视觉美化特效
+### Step 15: [可选] 视觉美化特效
 
 **说明：** 此步骤为**可选**。按需添加以下效果，互不冲突，可单独选一或全部添加。
 
