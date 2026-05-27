@@ -1,8 +1,8 @@
 ---
 name: normalize-blog-style
-version: 0.0.18
+version: 0.0.20
 description: |
-   规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击、canvas-particles 粒子背景）+ rating 评分排序（front-matter 方式）
+   规范 Hexo 博客的日期显示格式、分类排序、内容处理（去重标题/清理[toc]/引用样式/独立HTML/全站搜索）+ 视觉美化（scrollReveal fadeIn 动画、fairyDustCursor 星光鼠标、clickLove 爱心点击、canvas-particles 粒子背景）+ rating 评分排序（front-matter 方式，可选 JSON 注入补充）
     触发场景：换主题时检查风格一致性；加特效时参考视觉美化方案
 ---
 
@@ -222,6 +222,26 @@ updated_option: empty
 - `rating < 70` → 等同于无评分，只按日期排序
 
 **原理：** `effectiveSortRating(p) = rating >= threshold ? rating : 0`，低于阈值的评分在排序时被归一化为 0。
+
+### Step 4.7: inject-ratings.js — 从 JSON 批量注入评分（可选）
+
+**适用场景：** 大部分文章已在 front matter 中手动写了 `rating`，但有少量文章需要从 `catalog_with_ratings.json` 补充评分。或者你已经有一个评分 JSON，希望一次性全量注入。
+
+**工作原理：** `scripts/inject-ratings.js` 在构建时读取 `catalog_with_ratings.json`，将 JSON 中的评分注入到所有匹配文章的 `rating` 字段。
+
+**覆盖策略：** JSON 评分会覆盖 front matter 中的 `rating`。如果某篇文章的 front matter 评分与 JSON 不同，构建时会打印冲突日志：
+```
+[inject-ratings] Conflicts found (2):
+  "文章A": front-matter=85, JSON=72
+  "文章B": front-matter=30, JSON=45
+```
+你可根据冲突日志决定是修改 front matter 还是修正 JSON 数据源。
+
+**使用方式：** 将 `scripts/inject-ratings.js` 放入博客根目录的 `scripts/` 目录即可（Hexo 构建时自动执行）。
+
+**数据源依赖：** `source/_posts/总目录/data/catalog_with_ratings.json` 必须存在，由 `catalog_merge_ratings.sh` 生成。
+
+**注意：** Step 4.6 的 `index-generator-sort.js` 不需要 `sort_rating` 字段，`inject-ratings.js` 只注入 `rating` 即可。
 
 ---
 
@@ -1391,6 +1411,83 @@ hexo.extend.generator.register('index', function(locals) {
 
 ---
 
+### inject-ratings.js — rating 评分注入脚本（可选补充）
+
+在博客根目录的 `scripts/inject-ratings.js`（构建时从 `catalog_with_ratings.json` 自动注入 `rating`，可配合 front matter 混合使用）：
+
+```javascript
+var fs = require('fs');
+var path = require('path');
+
+var ratingMap = null;
+
+function ensureRatingMap() {
+  if (ratingMap) return;
+
+  ratingMap = {};
+  var ratingsPath = path.join(__dirname, '..', 'source', '_posts', '总目录', 'data', 'catalog_with_ratings.json');
+  if (!fs.existsSync(ratingsPath)) return;
+
+  var data = JSON.parse(fs.readFileSync(ratingsPath, 'utf8'));
+  walkCatalog(data.catalog, ratingMap);
+}
+
+function walkCatalog(items, map) {
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    if (item.url && item.rating != null) {
+      map[item.url] = item.rating;
+    }
+    if (item.children) walkCatalog(item.children, map);
+  }
+}
+
+hexo.extend.filter.register('before_generate', function() {
+  ensureRatingMap();
+  if (!ratingMap) return;
+
+  var data = this.model('Post').data;
+  if (!data) return;
+
+  var injected = 0;
+  var conflicts = [];
+
+  for (var id in data) {
+    var item = data[id];
+    if (!item || !item.source) continue;
+
+    var postPath = item.source.replace(/^_posts\//, '').replace(/\.\w+$/, '');
+    var r = ratingMap[postPath];
+    if (r == null) continue;
+
+    if (item.rating != null && item.rating !== r) {
+      conflicts.push({ title: item.title || item.source, front: item.rating, json: r });
+    }
+
+    item.rating = r;
+    injected++;
+  }
+
+  if (conflicts.length > 0) {
+    console.log('[inject-ratings] Conflicts found (' + conflicts.length + '):');
+    conflicts.forEach(function(c) {
+      console.log('  "' + c.title + '": front-matter=' + c.front + ', JSON=' + c.json);
+    });
+  }
+  console.log('[inject-ratings] Injected rating for ' + injected + ' posts, conflicts: ' + conflicts.length);
+});
+```
+
+**工作原理：** `before_generate` 钩子直接修改 Warehouse 模型内部 `data` 存储（`this.model('Post').data`），这是所有查询的数据源。后续 `page.posts.toArray()` 从该存储读取时，`rating` 已注入。
+
+**覆盖策略：** 先用 JSON 评分覆盖所有匹配文章的 `rating`。如果该文章已在 front matter 中设了 `rating` 且与 JSON 不同，构建日志会打印冲突详情，方便你决定是改 front matter 还是修正 JSON。
+
+**数据源依赖：** `source/_posts/总目录/data/catalog_with_ratings.json` 必须存在且包含对应文章的 `url` 和 `rating`。如需重新生成，运行 `catalog_merge_ratings.sh`。
+
+**注意：** 不要使用 `this.model('Post').forEach()` 给 Document 实例赋值，Document 的修改不回写内部存储，后续查询会丢失数据。
+
+---
+
 ### after-footer.ejs — 视觉特效统一加载（四个效果同区添加）
 
 在主题的 `layout/_partial/after-footer.ejs` 末尾（`</body>` 前）添加：
@@ -1430,6 +1527,8 @@ hexo.extend.generator.register('index', function(locals) {
 ---
 
 ## 版本记录
+
+**0.0.20 (2026-05-28): Step 4.7 新增 inject-ratings.js 注入脚本（全注入 + 冲突检测）；更新 inject-ratings.js 参考代码**
 
 **0.0.19 (2026-05-28): 修复 freshness 层仅限当前页导致最新文章丢失的问题 — 改用 `site.posts.toArray()` 全局取最新文章**
 
