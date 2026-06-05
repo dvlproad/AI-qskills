@@ -79,7 +79,14 @@ def parse_skill(d):
         'summary': desc
     }
 
-# Gather all valid skill dirs
+def add_skill(skill, category, subspecs, out, seen):
+    if skill and skill['pod'] not in seen:
+        skill['category'] = category
+        if subspecs:
+            skill['subspecs'] = subspecs
+        out.append(skill)
+        seen.add(skill['pod'])
+
 all_dirs = set()
 for d in os.listdir(skills_dir):
     if os.path.isfile(os.path.join(skills_dir, d, 'SKILL.md')):
@@ -90,19 +97,28 @@ seen = set()
 
 if order_file:
     with open(order_file) as f:
-        order_list = json.load(f)
-    for d in order_list:
-        if d in all_dirs:
-            skill = parse_skill(d)
-            if skill:
-                skills.append(skill)
-                seen.add(d)
-    # Append unlisted dirs at end (alphabetical)
+        groups = json.load(f)
+    for group in groups:
+        category = group.get('category', '')
+        pod_entries = group.get('pod', [])
+        for entry in pod_entries:
+            name = entry['name']
+            subspec_names = entry.get('subspecs', [])
+            sub_objs = []
+            for sub in subspec_names:
+                sub_skill = parse_skill(sub)
+                if sub_skill:
+                    sub_objs.append({'name': sub_skill['pod'], 'summary': sub_skill['summary']})
+                    seen.add(sub)
+            parent = parse_skill(name)
+            add_skill(parent, category, sub_objs if sub_objs else None, skills, seen)
     for d in sorted(all_dirs):
         if d not in seen:
             skill = parse_skill(d)
             if skill:
+                skill['category'] = '未分类'
                 skills.append(skill)
+                seen.add(skill['pod'])
 else:
     for d in sorted(all_dirs):
         skill = parse_skill(d)
