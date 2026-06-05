@@ -1,20 +1,16 @@
 ---
 name: project-repos-action
 version: 0.0.4
-description: 整理 GitHub 和 Gitee 仓库列表为分类 JSON
+description: 获取仓库列表的数据并分类 JSON
 ---
 
 # project-repos-action
 
-当用户想要整理自己的 GitHub 和 Gitee 仓库列表，并生成分类文档时触发。
+当用户想要获取自己的 GitHub 和 Gitee 上所有的仓库列表，并生成分类的JSON数据时触发。
 
 ## 触发条件
 
-- `整理仓库` - 整理 GitHub 和 Gitee 仓库
-- `整理项目列表` - 整理项目列表
-- `整理仓库列表` - 整理仓库列表
-- `get repos` - 获取仓库列表
-- 其他表达整理仓库意图的指令
+- `获取仓库列表的数据`
 
 ## 执行流程
 

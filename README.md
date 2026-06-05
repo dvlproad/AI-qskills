@@ -174,6 +174,8 @@ description: |
 
 跨分类的 Skill 调用/引用关系（仅列出有相互调用的 Skill，其余为独立 Skill）。📄 标记的为规范/方案文件，非 Skill 目录。
 
+> 本图依据 [organize-skill-to-md](./organize-skill-to-md) 对每个 SKILL.md 的跨 skill 引用分析绘制。
+
 ### 图例
 
 | 线型 | 含义 |

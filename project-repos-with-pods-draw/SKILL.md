@@ -1,23 +1,18 @@
 ---
 name: project-repos-with-pods-draw
+version: 0.2.0
 description: |
-  project-repos-with-pods-draw：整合 repos_all.json 和 pods_all.json，
+  整理项目（获取并整合 repos_all.json 和 pods_all.json），
   渲染为项目列表的各种格式（markdown / HTML / JSON 数据源）
 ---
 
 # 项目列表渲染（repo + pod 数据配图）
 
-将 repos_all.json（仓库信息）和 pods_all.json（Pod 信息）整合渲染为项目列表的各种格式。
-其中 pod 数据也可先调用 project-pods-action 进行规范化/同步后再整合。
+获取 repos_all.json（仓库信息）和 pods_all.json（Pod 信息），并将它们整合渲染为项目列表的各种格式。
 
 ## 触发条件
 
-- `"生成项目列表"` — 从 repos + pod 数据生成/更新项目列表文档
-- `"渲染项目列表"` — 将项目列表渲染为 HTML（含嵌套可展开表格）
-- `"整合repos和pods"` — 合并仓库信息和 Pod 信息为统一数据源
-- `"项目列表配Pod图"` — 在项目列表中追加 Pod 情况表
-- `"规范化podspec"`（兼容）— 规范化 podspec 后继续生成项目列表
-- 其他表达生成/渲染/配图项目列表意图的指令
+- `"整理项目"`
 
 ## 执行流程
 
