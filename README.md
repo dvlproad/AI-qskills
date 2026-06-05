@@ -231,7 +231,6 @@ flowchart TD
 ### 独立 Skill（无相互调用）
 
 - `dev-fw-setting-ai-models`
-- `guide-and-config-missing-env`
 - `life-emoji-idiom`
 - `life-reply-crush`
 - `opencode-sessions-manager`
