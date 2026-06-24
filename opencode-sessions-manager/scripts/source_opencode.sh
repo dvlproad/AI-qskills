@@ -1,5 +1,11 @@
 #!/usr/bin/env zsh
 
+# 因为会在 ~/.zshrc 中写 source ~/.config/opencode/source_opencode.sh ，而我们又经常需要在 bash/sh 脚本中执行 source .zshrc 。
+# 从而容易导致 bash/sh 脚本 source .zshrc → .zshrc 又 source 了 source_opencode.sh（含 zsh 语法）→ bash 解析报错
+# 解决办法：在 source_opencode.sh 头部加 $ZSH_VERSION 判断，让非 zsh shell 直接跳过，不执行内容。加在 .zshrc 的 source 行上也可以，但加在被 source 的文件自身更防漏。
+[ -n "$ZSH_VERSION" ] || return 0 2>/dev/null || exit 0
+
+
 # ============================================================
 # Opencode 会话选择器
 # 交互式选择恢复历史会话
