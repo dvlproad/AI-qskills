@@ -1,0 +1,19 @@
+name: CrushReply
+options:
+  bundleIdPrefix: com.dvlproad
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+targets:
+  CrushReply:
+    type: application
+    platform: iOS
+    sources:
+      - path: CrushReply
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dvlproad.CrushReply
+        INFOPLIST_FILE: CrushReply/Info.plist
+        DEVELOPMENT_TEAM: ""
