@@ -73,11 +73,10 @@
 
         <!-- ========== 公共部分: 结果展示 ========== -->
         <div id="modelInfo" class="text-center text-white/50 text-sm mb-4 hidden">使用平台: <span id="platformDisplay"></span> | 模型: <span id="modelDisplay"></span></div>
-        <div id="repliesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div id="tokenUsage" class="bg-white/10 backdrop-blur rounded-lg px-4 py-2 text-center text-white/60 text-sm col-span-2 hidden">
-                本次消耗: <span id="tokenCount" class="font-medium">-</span> tokens (<span id="tokenCost">约 ¥0.00</span>)
-            </div>
+        <div id="tokenUsage" class="bg-white/10 backdrop-blur rounded-lg px-4 py-2 text-center text-white/60 text-sm mb-4 hidden">
+            本次消耗: <span id="tokenCount" class="font-medium">-</span> tokens (<span id="tokenCost">约 ¥0.00</span>)
         </div>
+        <div id="repliesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         <div id="emptyState" class="text-center text-white/70 py-12">
             <div class="text-6xl mb-4">💭</div>
             <p class="text-xl">输入对方说的话，开启你的社交自由</p>
@@ -87,7 +86,7 @@
     </div>
 
     <!-- ========== 公共部分: 引入公共JS ========== -->
-    <script src="../../common-model-struct/resources/common.js"></script>
+    <script src="../../dev-fw-setting-ai-models/resources/common.js"></script>
     
     <!-- ========== 业务特定部分: 业务逻辑 ========== -->
     <script>

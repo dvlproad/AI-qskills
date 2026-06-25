@@ -177,10 +177,10 @@ function updateModelInfoDisplay() {
     const modelInfo = document.getElementById('modelInfo');
     const platformDisplay = document.getElementById('platformDisplay');
     const modelDisplay = document.getElementById('modelDisplay');
-    platformDisplay.textContent = PLATFORMS[currentPlatform].name;
+    if (platformDisplay) platformDisplay.textContent = PLATFORMS[currentPlatform].name;
     const modelConfig = getCurrentModelConfig();
-    modelDisplay.textContent = modelConfig.name || currentModel;
-    modelInfo.classList.remove('hidden');
+    if (modelDisplay) modelDisplay.textContent = modelConfig.name || currentModel;
+    if (modelInfo) modelInfo.classList.remove('hidden');
 }
 
 function updateTokenUsage(data) {
