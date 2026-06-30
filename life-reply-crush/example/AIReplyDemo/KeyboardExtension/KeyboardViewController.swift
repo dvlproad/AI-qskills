@@ -24,7 +24,55 @@ class KeyboardViewController: UIInputViewController {
             setKeyboardHeight: { [weak self] height in
                 self?.setHeight(height)
             },
-            isInputEditable: false
+            isInputEditable: false,
+            onAddPreset: { [weak self] in
+                guard let self = self else { return }
+                let url = URL(string: "aireply://presets")!
+
+                if let app = UIApplication.value(forKey: "sharedApplication") as? UIApplication {
+                    app.open(url, options: [:], completionHandler: nil)
+                } else if self.hasFullAccess {
+                    self.extensionContext?.open(url)
+                } else {
+                    let sel = sel_registerName("openURL:")
+                    var resp: UIResponder? = self
+                    while let r = resp {
+                        if r.responds(to: sel) {
+                            r.perform(sel, with: url)
+                            return
+                        }
+                        resp = r.next
+                    }
+                }
+            },
+            onOpenSettings: { [weak self] in
+                guard let self = self else { return }
+                let url = URL(string: UIApplication.openSettingsURLString)!
+                if let app = UIApplication.value(forKey: "sharedApplication") as? UIApplication {
+                    app.open(url, options: [:], completionHandler: nil)
+                }
+            },
+            onOpenAppSettings: { [weak self] in
+                guard let self = self else { return }
+                let url = URL(string: "aireply://settings")!
+
+                if let app = UIApplication.value(forKey: "sharedApplication") as? UIApplication {
+                    app.open(url, options: [:], completionHandler: nil)
+                } else if self.hasFullAccess {
+                    self.extensionContext?.open(url)
+                } else {
+                    let sel = sel_registerName("openURL:")
+                    var resp: UIResponder? = self
+                    while let r = resp {
+                        if r.responds(to: sel) {
+                            r.perform(sel, with: url)
+                            return
+                        }
+                        resp = r.next
+                    }
+                }
+            },
+            hasFullAccess: hasFullAccess
         )
 
         let hosting = UIHostingController(rootView: keyboardView)

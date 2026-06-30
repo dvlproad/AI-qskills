@@ -239,7 +239,7 @@ public struct PromptPreset: Identifiable, Codable, Equatable {
 // MARK: - Shared UserDefaults
 
 public extension UserDefaults {
-    static let shared = UserDefaults(suiteName: "group.com.dvlproad.AIKeyboard")!
+    static let shared = UserDefaults(suiteName: "group.com.dvlproad.AIReply")!
 }
 
 // MARK: - Parsing

@@ -16,8 +16,12 @@ public struct ExtensionKeyboardView: View {
     let showResultsInline: Bool
     let onResults: (([ReplyOption], String) -> Void)?
     let isInputEditable: Bool
+    let onAddPreset: (() -> Void)?
+    let onOpenSettings: (() -> Void)?
+    let onOpenAppSettings: (() -> Void)?
+    let hasFullAccess: Bool
 
-    public init(insertText: @escaping (String) -> Void, dismissKeyboard: @escaping () -> Void, setKeyboardHeight: @escaping (CGFloat) -> Void, onTokenUsage: ((Int, String) -> Void)? = nil, showBottomBar: Bool = true, transparentBackground: Bool = false, showResultsInline: Bool = false, onResults: (([ReplyOption], String) -> Void)? = nil, isInputEditable: Bool = true) {
+    public init(insertText: @escaping (String) -> Void, dismissKeyboard: @escaping () -> Void, setKeyboardHeight: @escaping (CGFloat) -> Void, onTokenUsage: ((Int, String) -> Void)? = nil, showBottomBar: Bool = true, transparentBackground: Bool = false, showResultsInline: Bool = false, onResults: (([ReplyOption], String) -> Void)? = nil, isInputEditable: Bool = true, onAddPreset: (() -> Void)? = nil, onOpenSettings: (() -> Void)? = nil, onOpenAppSettings: (() -> Void)? = nil, hasFullAccess: Bool = true) {
         self.insertText = insertText
         self.dismissKeyboard = dismissKeyboard
         self.setKeyboardHeight = setKeyboardHeight
@@ -27,6 +31,10 @@ public struct ExtensionKeyboardView: View {
         self.showResultsInline = showResultsInline
         self.onResults = onResults
         self.isInputEditable = isInputEditable
+        self.onAddPreset = onAddPreset
+        self.onOpenSettings = onOpenSettings
+        self.onOpenAppSettings = onOpenAppSettings
+        self.hasFullAccess = hasFullAccess
     }
 
     @State private var inputText = ""
@@ -36,17 +44,8 @@ public struct ExtensionKeyboardView: View {
     @State private var errorMessage: String?
     @State private var showReplyPopup = false
     @State private var selectedPreset: PromptPreset = .default
-    @State private var showPresets = false
-    @State private var showSettings = false
 
-    @State private var settingsPlatform: Platform = {
-        let id = UserDefaults.shared.string(forKey: "selected_platform") ?? "deepseek"
-        return Platform.all.first { $0.id == id } ?? .deepseek
-    }()
-    @State private var settingsModel: String = {
-        let id = UserDefaults.shared.string(forKey: "selected_platform") ?? "deepseek"
-        return UserDefaults.shared.string(forKey: "selected_model_\(id)") ?? "deepseek-chat"
-    }()
+    private static let fullAccessError = "需要先在 设置→通用→键盘→AI键盘 中开启「允许完全访问」，否则粘贴、复制、AI 生成等功能均不可用"
 
     public var body: some View {
         ZStack {
@@ -64,28 +63,71 @@ public struct ExtensionKeyboardView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .zIndex(1)
             }
+
+            if let error = errorMessage {
+                VStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.white)
+                        Text(error)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+
+                    HStack(spacing: 12) {
+                        Button {
+                            errorMessage = nil
+                        } label: {
+                            Text("取消")
+                                .font(.subheadline.weight(.medium))
+                                .foregroundColor(.white.opacity(0.8))
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 8)
+                                .background(Color.white.opacity(0.2))
+                                .cornerRadius(8)
+                        }
+
+                        Button {
+                            dismissKeyboard()
+                            if let error = errorMessage, error.contains("允许完全访问") {
+                                errorMessage = nil
+                                onOpenSettings?()
+                            } else {
+                                errorMessage = nil
+                                onOpenAppSettings?()
+                            }
+                        } label: {
+                            Text("去设置")
+                                .font(.subheadline.weight(.medium))
+                                .foregroundColor(Color(hex: "e74c3c"))
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 8)
+                                .background(Color.white)
+                                .cornerRadius(8)
+                        }
+                    }
+                    .padding(.bottom, 12)
+                }
+                .background(Color.red.opacity(0.9))
+                .cornerRadius(10)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .zIndex(2)
+            }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.9), value: showReplyPopup)
+        .animation(.easeInOut(duration: 0.2), value: errorMessage != nil)
         .onChange(of: showReplyPopup) { show in
             setKeyboardHeight(show ? KeyboardHeight.expanded : KeyboardHeight.default)
         }
-        .sheet(isPresented: $showPresets) {
-            PresetsView(onDismiss: { showPresets = false })
-                .presentationDetents([.medium, .large])
-        }
-        .sheet(isPresented: $showSettings) {
-            SettingsView(selectedPlatform: $settingsPlatform, selectedModel: $settingsModel, onDismiss: { showSettings = false })
-                .presentationDetents([.medium, .large])
-        }
         .onAppear {
             loadPreset()
-        }
-        .onChange(of: settingsPlatform) { platform in
-            UserDefaults.shared.set(platform.id, forKey: "selected_platform")
-        }
-        .onChange(of: settingsModel) { model in
-            let key = settingsPlatform.id == "siliconflow" ? "selected_model_siliconflow" : "selected_model_deepseek"
-            UserDefaults.shared.set(model, forKey: key)
+            if !hasFullAccess {
+                errorMessage = Self.fullAccessError
+            }
         }
         .background(
             Color.clear
@@ -119,7 +161,11 @@ public struct ExtensionKeyboardView: View {
                     }
                 }
                 Button {
-                    showPresets = true
+                    if !hasFullAccess {
+                        errorMessage = Self.fullAccessError
+                    } else {
+                        onAddPreset?()
+                    }
                 } label: {
                     Image(systemName: "plus")
                         .font(.caption2.weight(.medium))
@@ -200,7 +246,12 @@ public struct ExtensionKeyboardView: View {
             hasGeneratedReplies: false, onGenerate: generate,
             title: selectedPreset.generateTitle,
             placeholder: selectedPreset.placeholder,
-            isInputEditable: isInputEditable
+            isInputEditable: isInputEditable,
+            onPasteFailure: {
+                if !self.hasFullAccess {
+                    self.errorMessage = Self.fullAccessError
+                }
+            }
         )
         .padding(8)
         .background(Color(.systemGray5).overlay(.regularMaterial))
@@ -211,7 +262,7 @@ public struct ExtensionKeyboardView: View {
     private var bottomBar: some View {
         HStack {
             Button {
-                showSettings = true
+                onOpenAppSettings?()
             } label: {
                 Image(systemName: "gearshape")
                     .font(.title3)

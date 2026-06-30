@@ -8,9 +8,10 @@ public struct InputPanelView: View {
     var title: String = "对方说了什么？"
     var placeholder: String = "我要去洗澡了"
     var isInputEditable: Bool
+    var onPasteFailure: (() -> Void)?
     @FocusState private var isFocused: Bool
 
-    public init(inputText: Binding<String>, isLoading: Bool, hasGeneratedReplies: Bool, onGenerate: @escaping () -> Void, title: String = "对方说了什么？", placeholder: String = "我要去洗澡了", isInputEditable: Bool = true) {
+    public init(inputText: Binding<String>, isLoading: Bool, hasGeneratedReplies: Bool, onGenerate: @escaping () -> Void, title: String = "对方说了什么？", placeholder: String = "我要去洗澡了", isInputEditable: Bool = true, onPasteFailure: (() -> Void)? = nil) {
         self._inputText = inputText
         self.isLoading = isLoading
         self.hasGeneratedReplies = hasGeneratedReplies
@@ -18,6 +19,7 @@ public struct InputPanelView: View {
         self.title = title
         self.placeholder = placeholder
         self.isInputEditable = isInputEditable
+        self.onPasteFailure = onPasteFailure
     }
 
     public var body: some View {
@@ -57,6 +59,8 @@ public struct InputPanelView: View {
                 Button {
                     if let string = UIPasteboard.general.string {
                         inputText = string
+                    } else {
+                        onPasteFailure?()
                     }
                 } label: {
                     Image(systemName: "doc.on.clipboard")

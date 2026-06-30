@@ -17,10 +17,13 @@ public struct SetupInstructionsView: View {
                     instructionRow(number: "1", text: "打开 设置 → 通用 → 键盘")
                     instructionRow(number: "2", text: "点击「键盘」→「添加新键盘」")
                     instructionRow(number: "3", text: "选择 \(keyboardName)")
-                    instructionRow(number: "4", text: "点击 \(keyboardName) → 开启「允许完全访问」（可选，用于联网功能）")
+                    instructionRow(number: "4", text: "点击 \(keyboardName) → 开启「允许完全访问」（必须，否则粘贴、复制、AI 生成均不可用）")
                 }
 
-                Link(destination: URL(string: UIApplication.openSettingsURLString)!) {
+                Button {
+                    guard let app = UIApplication.value(forKey: "sharedApplication") as? UIApplication else { return }
+                    app.open(URL(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
+                } label: {
                     HStack {
                         Image(systemName: "gearshape.fill")
                         Text("打开设置")

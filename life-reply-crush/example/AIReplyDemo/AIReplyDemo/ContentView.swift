@@ -6,6 +6,7 @@ struct ContentView: View {
     @State private var rawResult = ""
     @State private var tokenInfo: (count: Int, cost: String)?
     @State private var showSettings = false
+    @State private var showPresets = false
     @State private var settingsPlatform: Platform = {
         let id = UserDefaults.shared.string(forKey: "selected_platform") ?? "deepseek"
         return Platform.all.first { $0.id == id } ?? .deepseek
@@ -37,7 +38,8 @@ struct ContentView: View {
                         onResults: { r, raw in
                             replies = r
                             rawResult = raw
-                        }
+                        },
+                        onAddPreset: { showPresets = true }
                     )
                     .background(Color(.systemBackground))
                     .cornerRadius(16)
@@ -86,6 +88,18 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showSettings) {
                 SettingsView(selectedPlatform: $settingsPlatform, selectedModel: $settingsModel)
+            }
+            .sheet(isPresented: $showPresets) {
+                PresetsView()
+            }
+            .onOpenURL { url in
+                if url.scheme == "aireply" {
+                    switch url.host {
+                    case "presets": showPresets = true
+                    case "settings": showSettings = true
+                    default: break
+                    }
+                }
             }
             .onChange(of: settingsPlatform) { platform in
                 UserDefaults.shared.set(platform.id, forKey: "selected_platform")

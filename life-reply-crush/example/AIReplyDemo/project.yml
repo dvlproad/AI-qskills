@@ -14,7 +14,7 @@ targets:
       - path: AIReplyDemo
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.dvlproad.AIReplyDemo
+        PRODUCT_BUNDLE_IDENTIFIER: com.dvlproad.AIReply
         INFOPLIST_FILE: AIReplyDemo/Info.plist
         CODE_SIGN_ENTITLEMENTS: AIReplyDemo/AIReplyDemo.entitlements
         DEVELOPMENT_TEAM: ""
@@ -28,7 +28,7 @@ targets:
       - path: KeyboardExtension
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.dvlproad.AIReplyDemo.Keyboard
+        PRODUCT_BUNDLE_IDENTIFIER: com.dvlproad.AIReply.Keyboard
         INFOPLIST_FILE: KeyboardExtension/Info.plist
         CODE_SIGN_ENTITLEMENTS: KeyboardExtension/KeyboardExtension.entitlements
         PRODUCT_BUNDLE_PACKAGE_TYPE: XPC!
