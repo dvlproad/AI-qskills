@@ -1,0 +1,60 @@
+{
+  "name": "AIReplySDK",
+  "version": "0.1.0",
+  "summary": "AI-powered reply generation components for crush messages",
+  "description": "A set of reusable SwiftUI components for generating witty, flirty replies to crush messages using AI APIs.",
+  "homepage": "https://github.com/dvlproad/AI-qskills",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "dvlproad": "dvlproad@163.com"
+  },
+  "source": {
+    "git": "https://github.com/dvlproad/AI-qskills.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "16.0"
+  },
+  "swift_versions": "5.9",
+  "frameworks": [
+    "SwiftUI",
+    "UIKit",
+    "Foundation"
+  ],
+  "default_subspecs": "Core",
+  "subspecs": [
+    {
+      "name": "Core",
+      "source_files": "Sources/Core/**/*.swift",
+      "frameworks": "Foundation"
+    },
+    {
+      "name": "UI",
+      "source_files": "Sources/UI/**/*.swift",
+      "frameworks": [
+        "SwiftUI",
+        "UIKit",
+        "Foundation"
+      ],
+      "dependencies": {
+        "AIReplySDK/Core": [],
+        "AIReplySDK/Settings": []
+      }
+    },
+    {
+      "name": "Settings",
+      "source_files": "Sources/Settings/**/*.swift",
+      "frameworks": [
+        "SwiftUI",
+        "Foundation"
+      ],
+      "dependencies": {
+        "AIReplySDK/Core": []
+      }
+    }
+  ],
+  "swift_version": "5.9"
+}

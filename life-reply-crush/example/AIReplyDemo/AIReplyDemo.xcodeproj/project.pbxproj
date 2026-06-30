@@ -1,0 +1,566 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		170FD9A873B88DE067EDF784 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5BD67E7B8D377D09EF60F431 /* Assets.xcassets */; };
+		4C520DF98D70BC3A40249FF5 /* KeyboardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AEB43B2C745DEE44EFD01D7 /* KeyboardViewController.swift */; };
+		5E575A4F26C53BBE8E538468 /* CustomKeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EA53D0AA2D516A06BC3C796 /* CustomKeyboardView.swift */; };
+		6AACD2543081A09B5D89BF75 /* Pods_AIReplyDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0482D621CEB967786C958F9 /* Pods_AIReplyDemo.framework */; };
+		70926ACECFE248FFD0B5070E /* KeyboardExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5EA95E9960D2209AF501F86E /* KeyboardExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8B49FFFF85800D65334B31C7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 915EBD53300B80690681410A /* ContentView.swift */; };
+		A653B017A20174FA4973AA81 /* Pods_KeyboardExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0DF48579F6976569C4FBC15 /* Pods_KeyboardExtension.framework */; };
+		B398CA2B6D2BDA8A8365DA9F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA52420C1BC79B68718B718D /* Preview Assets.xcassets */; };
+		FC101B887F03AA4669031989 /* AIReplyDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F424CB1366273EE2B88D23 /* AIReplyDemoApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		50F859EB3F31548316154941 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 15D348663FC16FF414B79805 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DD60F84B9166FD837DF7F05A;
+			remoteInfo = KeyboardExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5880B3B485824CACCA6DB57A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				70926ACECFE248FFD0B5070E /* KeyboardExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		043A68CA3B428887243DF784 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		16AB5E00207D09F1CB99289E /* AIReplyDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AIReplyDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		32F424CB1366273EE2B88D23 /* AIReplyDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIReplyDemoApp.swift; sourceTree = "<group>"; };
+		3EA53D0AA2D516A06BC3C796 /* CustomKeyboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomKeyboardView.swift; sourceTree = "<group>"; };
+		51B9F34EB71B8A56A79D90A8 /* KeyboardExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KeyboardExtension.entitlements; sourceTree = "<group>"; };
+		562D62252EAFE685EA5C3397 /* Pods-KeyboardExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeyboardExtension.release.xcconfig"; path = "Target Support Files/Pods-KeyboardExtension/Pods-KeyboardExtension.release.xcconfig"; sourceTree = "<group>"; };
+		5BD67E7B8D377D09EF60F431 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5EA95E9960D2209AF501F86E /* KeyboardExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = KeyboardExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6537DC4FF848F69BC1976769 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		915EBD53300B80690681410A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		95916E4FF8A312C2AE8B6B9C /* Pods-AIReplyDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AIReplyDemo.release.xcconfig"; path = "Target Support Files/Pods-AIReplyDemo/Pods-AIReplyDemo.release.xcconfig"; sourceTree = "<group>"; };
+		9AEB43B2C745DEE44EFD01D7 /* KeyboardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardViewController.swift; sourceTree = "<group>"; };
+		AEEF15B806E4E5F9B73220D3 /* Pods-AIReplyDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AIReplyDemo.debug.xcconfig"; path = "Target Support Files/Pods-AIReplyDemo/Pods-AIReplyDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		BCBC0BC174E09A399DFCC27C /* AIReplyDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AIReplyDemo.entitlements; sourceTree = "<group>"; };
+		CA52420C1BC79B68718B718D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		D5221E68318C9290B18EFF41 /* Pods-KeyboardExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeyboardExtension.debug.xcconfig"; path = "Target Support Files/Pods-KeyboardExtension/Pods-KeyboardExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		E0DF48579F6976569C4FBC15 /* Pods_KeyboardExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_KeyboardExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F0482D621CEB967786C958F9 /* Pods_AIReplyDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AIReplyDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6C4772B956EF1D633B437A18 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A653B017A20174FA4973AA81 /* Pods_KeyboardExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C13F4630AD5ABD202B091FCE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6AACD2543081A09B5D89BF75 /* Pods_AIReplyDemo.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		342B6CEF964E81719DD18CB0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				16AB5E00207D09F1CB99289E /* AIReplyDemo.app */,
+				5EA95E9960D2209AF501F86E /* KeyboardExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		59C1838B6927C86B6CD13EEB = {
+			isa = PBXGroup;
+			children = (
+				A9AAFB3BA9231D011DA8B7D6 /* AIReplyDemo */,
+				FDC6B5A8DA40BEB52870267E /* KeyboardExtension */,
+				342B6CEF964E81719DD18CB0 /* Products */,
+				C91B2A0217A60D2DCD03F470 /* Pods */,
+				67256A2910F875CFA0A2E2F1 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		67256A2910F875CFA0A2E2F1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F0482D621CEB967786C958F9 /* Pods_AIReplyDemo.framework */,
+				E0DF48579F6976569C4FBC15 /* Pods_KeyboardExtension.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A9AAFB3BA9231D011DA8B7D6 /* AIReplyDemo */ = {
+			isa = PBXGroup;
+			children = (
+				BCBC0BC174E09A399DFCC27C /* AIReplyDemo.entitlements */,
+				32F424CB1366273EE2B88D23 /* AIReplyDemoApp.swift */,
+				5BD67E7B8D377D09EF60F431 /* Assets.xcassets */,
+				915EBD53300B80690681410A /* ContentView.swift */,
+				3EA53D0AA2D516A06BC3C796 /* CustomKeyboardView.swift */,
+				6537DC4FF848F69BC1976769 /* Info.plist */,
+				D023F85B2DDDE06B5272661D /* Preview Content */,
+			);
+			path = AIReplyDemo;
+			sourceTree = "<group>";
+		};
+		C91B2A0217A60D2DCD03F470 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				AEEF15B806E4E5F9B73220D3 /* Pods-AIReplyDemo.debug.xcconfig */,
+				95916E4FF8A312C2AE8B6B9C /* Pods-AIReplyDemo.release.xcconfig */,
+				D5221E68318C9290B18EFF41 /* Pods-KeyboardExtension.debug.xcconfig */,
+				562D62252EAFE685EA5C3397 /* Pods-KeyboardExtension.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		D023F85B2DDDE06B5272661D /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				CA52420C1BC79B68718B718D /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		FDC6B5A8DA40BEB52870267E /* KeyboardExtension */ = {
+			isa = PBXGroup;
+			children = (
+				043A68CA3B428887243DF784 /* Info.plist */,
+				51B9F34EB71B8A56A79D90A8 /* KeyboardExtension.entitlements */,
+				9AEB43B2C745DEE44EFD01D7 /* KeyboardViewController.swift */,
+			);
+			path = KeyboardExtension;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		928252013D4CC9D8556F78C8 /* AIReplyDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B1B34BC432DDF29D6FC932C2 /* Build configuration list for PBXNativeTarget "AIReplyDemo" */;
+			buildPhases = (
+				4A866306360772D12FAAFE2B /* [CP] Check Pods Manifest.lock */,
+				5B5EED86708BCC7B90E08576 /* Sources */,
+				D5DDB272477A004168CF074C /* Resources */,
+				5880B3B485824CACCA6DB57A /* Embed Foundation Extensions */,
+				C13F4630AD5ABD202B091FCE /* Frameworks */,
+				5A658B8C43D3FAD959D073D9 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				617BE203FCDF3B2913C0998F /* PBXTargetDependency */,
+			);
+			name = AIReplyDemo;
+			productName = AIReplyDemo;
+			productReference = 16AB5E00207D09F1CB99289E /* AIReplyDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DD60F84B9166FD837DF7F05A /* KeyboardExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9569584A57BAC44487F1AD02 /* Build configuration list for PBXNativeTarget "KeyboardExtension" */;
+			buildPhases = (
+				3613349792038CD8BAE6C8F8 /* [CP] Check Pods Manifest.lock */,
+				B76518153FD7F4C680583D6B /* Sources */,
+				6C4772B956EF1D633B437A18 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KeyboardExtension;
+			productName = KeyboardExtension;
+			productReference = 5EA95E9960D2209AF501F86E /* KeyboardExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		15D348663FC16FF414B79805 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = A5D45A7FCC5B647B5D1762BB /* Build configuration list for PBXProject "AIReplyDemo" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 59C1838B6927C86B6CD13EEB;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 342B6CEF964E81719DD18CB0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				928252013D4CC9D8556F78C8 /* AIReplyDemo */,
+				DD60F84B9166FD837DF7F05A /* KeyboardExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D5DDB272477A004168CF074C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				170FD9A873B88DE067EDF784 /* Assets.xcassets in Resources */,
+				B398CA2B6D2BDA8A8365DA9F /* Preview Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3613349792038CD8BAE6C8F8 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-KeyboardExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		4A866306360772D12FAAFE2B /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-AIReplyDemo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5A658B8C43D3FAD959D073D9 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AIReplyDemo/Pods-AIReplyDemo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AIReplyDemo/Pods-AIReplyDemo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AIReplyDemo/Pods-AIReplyDemo-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5B5EED86708BCC7B90E08576 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC101B887F03AA4669031989 /* AIReplyDemoApp.swift in Sources */,
+				8B49FFFF85800D65334B31C7 /* ContentView.swift in Sources */,
+				5E575A4F26C53BBE8E538468 /* CustomKeyboardView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B76518153FD7F4C680583D6B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4C520DF98D70BC3A40249FF5 /* KeyboardViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		617BE203FCDF3B2913C0998F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DD60F84B9166FD837DF7F05A /* KeyboardExtension */;
+			targetProxy = 50F859EB3F31548316154941 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2A22589A2F011476B3002701 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D5221E68318C9290B18EFF41 /* Pods-KeyboardExtension.debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = KeyboardExtension/KeyboardExtension.entitlements;
+				DEVELOPMENT_TEAM = 8285LLMDV3;
+				INFOPLIST_FILE = KeyboardExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.dvlproad.AIReply.Keyboard;
+				PRODUCT_BUNDLE_PACKAGE_TYPE = "XPC!";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		87360E23DE6507C939612B95 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AEEF15B806E4E5F9B73220D3 /* Pods-AIReplyDemo.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AIReplyDemo/AIReplyDemo.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 8285LLMDV3;
+				INFOPLIST_FILE = AIReplyDemo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.dvlproad.AIReply;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D538B3964241F2166D0CDDD4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		DD47AED63E79B188E76C83F3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 562D62252EAFE685EA5C3397 /* Pods-KeyboardExtension.release.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = KeyboardExtension/KeyboardExtension.entitlements;
+				DEVELOPMENT_TEAM = 8285LLMDV3;
+				INFOPLIST_FILE = KeyboardExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.dvlproad.AIReply.Keyboard;
+				PRODUCT_BUNDLE_PACKAGE_TYPE = "XPC!";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E11B52C9922DB2A33610A3B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		E93229C2D9798A0BE24F38AB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 95916E4FF8A312C2AE8B6B9C /* Pods-AIReplyDemo.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AIReplyDemo/AIReplyDemo.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 8285LLMDV3;
+				INFOPLIST_FILE = AIReplyDemo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.dvlproad.AIReply;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9569584A57BAC44487F1AD02 /* Build configuration list for PBXNativeTarget "KeyboardExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A22589A2F011476B3002701 /* Debug */,
+				DD47AED63E79B188E76C83F3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A5D45A7FCC5B647B5D1762BB /* Build configuration list for PBXProject "AIReplyDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D538B3964241F2166D0CDDD4 /* Debug */,
+				E11B52C9922DB2A33610A3B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B1B34BC432DDF29D6FC932C2 /* Build configuration list for PBXNativeTarget "AIReplyDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				87360E23DE6507C939612B95 /* Debug */,
+				E93229C2D9798A0BE24F38AB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 15D348663FC16FF414B79805 /* Project object */;
+}

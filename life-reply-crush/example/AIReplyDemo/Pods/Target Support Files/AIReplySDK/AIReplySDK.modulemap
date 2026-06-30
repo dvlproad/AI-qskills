@@ -1,0 +1,6 @@
+framework module AIReplySDK {
+  umbrella header "AIReplySDK-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,45 @@
+name: SimpleKeyboard
+options:
+  bundleIdPrefix: com.dvlproad
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+targets:
+  SimpleKeyboard:
+    type: application
+    platform: iOS
+    sources:
+      - path: SimpleKeyboard
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dvlproad.SimpleKeyboard
+        INFOPLIST_FILE: SimpleKeyboard/Info.plist
+    dependencies:
+      - target: Keyboard
+
+  Keyboard:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Keyboard
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dvlproad.SimpleKeyboard.Keyboard
+        INFOPLIST_FILE: Keyboard/Info.plist
+        PRODUCT_BUNDLE_PACKAGE_TYPE: XPC!
+
+schemes:
+  SimpleKeyboard:
+    build:
+      targets:
+        SimpleKeyboard: all
+    run:
+      config: Debug
+  Keyboard:
+    build:
+      targets:
+        Keyboard: all
+    run:
+      config: Debug

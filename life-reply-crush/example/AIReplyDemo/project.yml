@@ -1,0 +1,48 @@
+name: AIReplyDemo
+options:
+  bundleIdPrefix: com.dvlproad
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+targets:
+  AIReplyDemo:
+    type: application
+    platform: iOS
+    sources:
+      - path: AIReplyDemo
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dvlproad.AIReplyDemo
+        INFOPLIST_FILE: AIReplyDemo/Info.plist
+        CODE_SIGN_ENTITLEMENTS: AIReplyDemo/AIReplyDemo.entitlements
+        DEVELOPMENT_TEAM: ""
+    dependencies:
+      - target: KeyboardExtension
+
+  KeyboardExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: KeyboardExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dvlproad.AIReplyDemo.Keyboard
+        INFOPLIST_FILE: KeyboardExtension/Info.plist
+        CODE_SIGN_ENTITLEMENTS: KeyboardExtension/KeyboardExtension.entitlements
+        PRODUCT_BUNDLE_PACKAGE_TYPE: XPC!
+
+schemes:
+  AIReplyDemo:
+    build:
+      targets:
+        AIReplyDemo: all
+    run:
+      config: Debug
+  KeyboardExtension:
+    build:
+      targets:
+        KeyboardExtension: all
+    run:
+      config: Debug

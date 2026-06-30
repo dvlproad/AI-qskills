@@ -1,0 +1,11 @@
+platform :ios, '16.0'
+
+target 'AIReplyDemo' do
+  use_frameworks!
+  pod 'AIReplySDK', :path => '../AIReplySDK', :subspecs => ['Core', 'UI', 'Settings']
+end
+
+target 'KeyboardExtension' do
+  use_frameworks!
+  pod 'AIReplySDK', :path => '../AIReplySDK', :subspecs => ['Core', 'UI', 'Settings']
+end

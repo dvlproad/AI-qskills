@@ -1,0 +1,23 @@
+PODS:
+  - AIReplySDK/Core (0.1.0)
+  - AIReplySDK/Settings (0.1.0):
+    - AIReplySDK/Core
+  - AIReplySDK/UI (0.1.0):
+    - AIReplySDK/Core
+    - AIReplySDK/Settings
+
+DEPENDENCIES:
+  - AIReplySDK/Core (from `../AIReplySDK`)
+  - AIReplySDK/Settings (from `../AIReplySDK`)
+  - AIReplySDK/UI (from `../AIReplySDK`)
+
+EXTERNAL SOURCES:
+  AIReplySDK:
+    :path: "../AIReplySDK"
+
+SPEC CHECKSUMS:
+  AIReplySDK: 34bbb109f0be26f87805e58db27844ec78d98cba
+
+PODFILE CHECKSUM: 2a20494fa44706d373c7c27d65120ac359ff7b81
+
+COCOAPODS: 1.16.2
