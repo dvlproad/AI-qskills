@@ -32,8 +32,30 @@
       "frameworks": "Foundation"
     },
     {
+      "name": "Clipboard",
+      "source_files": "Sources/Clipboard/**/*.swift",
+      "frameworks": [
+        "SwiftUI",
+        "UIKit",
+        "Foundation"
+      ],
+      "dependencies": {
+        "AIReplySDK/Core": []
+      }
+    },
+    {
+      "name": "CJSelectableText",
+      "source_files": "Sources/UI/CJSelectableText.swift",
+      "frameworks": [
+        "SwiftUI",
+        "UIKit",
+        "Foundation"
+      ]
+    },
+    {
       "name": "UI",
       "source_files": "Sources/UI/**/*.swift",
+      "exclude_files": "Sources/UI/CJSelectableText.swift",
       "frameworks": [
         "SwiftUI",
         "UIKit",
@@ -41,7 +63,9 @@
       ],
       "dependencies": {
         "AIReplySDK/Core": [],
-        "AIReplySDK/Settings": []
+        "AIReplySDK/Settings": [],
+        "AIReplySDK/Clipboard": [],
+        "AIReplySDK/CJSelectableText": []
       }
     },
     {

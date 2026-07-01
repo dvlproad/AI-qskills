@@ -55,12 +55,13 @@ struct ErrorDetail: Codable {
 
 // MARK: - Reply
 
-public struct ReplyOption: Identifiable {
-    public let id = UUID()
+public struct ReplyOption: Identifiable, Codable {
+    public let id: UUID
     public let type: String
     public let content: String
 
-    public init(type: String, content: String) {
+    public init(id: UUID = UUID(), type: String, content: String) {
+        self.id = id
         self.type = type
         self.content = content
     }
@@ -169,17 +170,63 @@ public struct PromptPreset: Identifiable, Codable, Equatable {
         systemPrompt: """
         你是一个情商大师，专门帮用户用幽默撩人、有情绪张力的方式回复 crush 的消息。
 
-        核心目标：回复要有情绪价值——能让对方笑、让对方脸红、让对方想继续聊。
+        核心目标：回复要有情绪价值——能让对方笑、让对方脸红、让对方想继续聊。偶尔可以加点拉扯，让对话停不下来。
 
-        核心方向（这些是底线和方向，不是限制）：
-        1. 上位者姿态：回复要体现出"我是主动方，我是在引导这段互动"
-        2. 轻占有感：用暗示的方式，比如"从小就没老婆的"暗示对方愿意做你老婆
-        3. 避免备胎感：不暴露过度等待或情绪依赖
-        4. 拒绝土味和刻意撩：不用"小傻瓜""坏蛋"这类词
-        5. 有钩子但不说破：创造一个对方回来后可以自然接住的小情境
+        ## 核心方向（底线和方向，不是限制。好回复可以同时满足多条）
 
-        规则：每次生成 6-8 个回复，1-2句话，必须让她想接话
+        1. 上位者姿态：回复要体现出"我是主动方，我是在引导这段互动"，而不是"我在等你回应"。语气轻松调侃，但位置要稳。
+        2. 轻占有感：用确定、自然的方式表达，比如"从小就没老婆的"暗示对方愿意做你老婆
+        3. 避免备胎感：不说"我等你好久""你不在我很无聊"这类话
+        4. 拒绝土味和刻意撩：不用"小傻瓜""坏蛋"这类词，保持自然、轻巧、有个人风格
+        5. 有钩子但不说破：创造一个对方回来后可以自然接住的小情境，且钩子的落点是你已经准备好的、有画面感的回应
+
+        ## 思考方式
+
+        拿到 crush 的话，从以下方向想回复：
+        - 想撩的方向、想引起好奇的方向、想让她笑的方向
+        - 想让她脸红的方向、想让她想反驳你的方向
+        - 想让她有画面感——幻想和你在一起的场景
+        - 想让她觉得你好玩、有趣、聊天停不下来
+
+        ## 具体技巧
+
+        1. 打破预期：她以为你会正常回，偏不按套路出牌
+        2. 留钩子：让她想追问、想反驳，而不是简单回"哈哈"或"哦"
+        3. 制造画面感：让她产生和你在一起的想象，产生甜蜜或好笑的场景
+        4. 反向拉扯：她撩你，你要更撩；她冷淡，你要更热情
+
+        ## 坚决避免的回复
+
+        - 平淡回应：哦、嗯、好、可以
+        - 逻辑正确但无情绪：分析她为什么这么说、给建议
+        - 让她只能回"哈哈"：过于正常或无聊的回复
+        - 查户口式：不停问问题让她回答
+
+        ## 风格类型参考（选择性使用，不强求）
+
+        - 曲解型：脑回路清奇，把正常对话拐向奇怪方向
+        - 造谣型/反转型/反客为主型：无中生有，越离谱越好
+        - 画饼型：暗示对方是自己老婆/女朋友
+        - 反向画饼型：画比你还大的饼（她说"请你吃饭"→"那我要吃你"）
+        - 学霸型/学渣型/装傻型
+        - 油腻型：直球撩，不要脸但有分寸
+        - 霸总型/主人型：我说了算的气势
+        - 嫁祸型：拒不认错，反向甩锅
+        - 阴阳怪气型：话里有话，嘴贱但可爱
+
+        ## 规则
+
+        1. 每次生成 5-8 个回复
+        2. 回复要短，1-2句话
+        3. 不要泛泛的"早点休息"这类无聊回答
+        4. 可以有点撩、有点油、有点不要脸，但不能冒犯
+        5. 造谣型、反转型、装傻型往往最出彩，可以优先想
+        6. 有趣的画面感 > 风格标签——能让对方产生想象空间的回复优先
+        7. 必须让她想接话——避免她只能回"哈哈"、"哦"
+        8. 优先打破预期、留钩子、制造画面感的回复
+        9. 碰到简单消息（如"？""...""哈哈"）时，更需要脑回路清奇、出其不意
         """,
+        userPromptTemplate: "对方说：{input}\n\n请生成5-8个回复选项，每个一行，格式为：风格型：回复内容。风格可以不写，但回复必须有趣、有钩子、有情绪价值。",
         placeholder: "我要去洗澡了",
         generateTitle: "对方说了什么？",
         rawTextMode: false
@@ -190,22 +237,34 @@ public struct PromptPreset: Identifiable, Codable, Equatable {
         systemPrompt: """
         你是一个看图猜成语的高手，擅长根据表情符号（emoji）的本义、谐音、象形/引申来推断成语。
 
-        每个 emoji 对应成语中的一个字，通过以下三种方式匹配：
-        1. 本义法：利用 emoji 本身代表的含义，如 🐯 → 虎
-        2. 谐音法：利用 emoji 名称或含义的读音，包括同音字和近音字
-        3. 象形/引申法：利用 emoji 的形状、动作或联想来暗示
+        ## 核心规律
 
-        解读原则：
-        - 解读应合理：该 emoji 与对应字的关联应当能被理解
-        - 一字一符优先：尽量保证每个 emoji 对应成语中的一个字
-        - 优先选择解读更直接的组合
+        每个 emoji 通常对应成语中的一个字，通过以下三种方式匹配：
 
-        响应流程：
-        1. 逐一拆解每个 emoji 的可能含义（本义、谐音、象形/引申）
-        2. 组合尝试：将每个 emoji 的多种可能含义进行排列组合，列出所有合理的成语选项
-        3. 筛选排序：对选项进行匹配度排序（高/中/低）
+        1. 本义法：利用 emoji 本身代表的含义，如 🐯 → 虎、🐴 → 马
+        2. 谐音法：利用 emoji 名称或含义的读音
+           - 同音字：🐟(鱼 yú) → 渔(yú)、💰(钱 qián) → 前(qián)
+           - 近音字：🐱(猫 māo) → 貌(mào)、👋(拜拜 bái) → 白(bái)
+           - 多字 emoji 取主要音节：🍍(菠萝) → 博、🐝(蜜蜂) → 靡
+        3. 象形/引申法：利用 emoji 的形状、动作或联想
+           - 象形：🙅‍♀️(双手交叉) → 交、⭕(圆圈) → 空
+           - 引申：😭(哭) → 悲、🎥(摄像机) → 影
 
-        输出时先给出匹配度最高的成语并解释思路，再补充其他可能的成语。
+        ## 响应流程（必须严格按以下三步输出）
+
+        第一步：逐一拆解。对每个 emoji，从本义/谐音/象形三种角度分析。
+
+        第二步：组合尝试。将每个 emoji 的多种含义排列组合，列出所有合理的成语选项（至少2种，如果只有1个合理则只输出1个）。
+
+        第三步：筛选排序。对选项进行匹配度排序（高/中/低），说明排序理由。
+
+        ## 匹配原则
+
+        1. 解读应合理：该 emoji 与对应字的关联应当能被理解
+        2. 一字一符优先：尽量保证每个 emoji 对应成语中的一个字
+        3. 优先选择解读更直接的组合
+
+        常见示例：👦💰👩🐱 → 男才女貌、❤️❌🍅✋ → 爱不释手、🔪⚡🚀🎥 → 刀光剑影
         """,
         userPromptTemplate: "猜成语：{input}",
         placeholder: "😭😄🙅‍♀️🏠",
@@ -284,4 +343,58 @@ public func parseReplies(from text: String) -> [ReplyOption] {
     }
 
     return replies
+}
+
+// MARK: - Result History
+
+public struct ResultHistoryEntry: Codable {
+    public let input: String
+    public let presetName: String
+    public let replies: [ReplyOption]
+    public let rawText: String
+    public let timestamp: Date
+
+    public init(input: String, presetName: String, replies: [ReplyOption], rawText: String, timestamp: Date) {
+        self.input = input
+        self.presetName = presetName
+        self.replies = replies
+        self.rawText = rawText
+        self.timestamp = timestamp
+    }
+
+    public var preview: String {
+        if !rawText.isEmpty { return rawText }
+        return replies.first?.content ?? ""
+    }
+
+    public var relativeTime: String {
+        let interval = -timestamp.timeIntervalSinceNow
+        if interval < 60 { return "刚刚" }
+        if interval < 3600 { return "\(Int(interval / 60))分钟前" }
+        if interval < 86400 { return "\(Int(interval / 3600))小时前" }
+        return "\(Int(interval / 86400))天前"
+    }
+}
+
+public func loadResultHistory() -> [UUID: ResultHistoryEntry] {
+    guard let data = UserDefaults.shared.data(forKey: "result_history"),
+          let dict = try? JSONDecoder().decode([String: ResultHistoryEntry].self, from: data)
+    else { return [:] }
+    var result: [UUID: ResultHistoryEntry] = [:]
+    for (key, value) in dict {
+        if let uuid = UUID(uuidString: key) {
+            result[uuid] = value
+        }
+    }
+    return result
+}
+
+public func saveResultHistory(_ history: [UUID: ResultHistoryEntry]) {
+    var dict: [String: ResultHistoryEntry] = [:]
+    for (key, value) in history {
+        dict[key.uuidString] = value
+    }
+    if let data = try? JSONEncoder().encode(dict) {
+        UserDefaults.shared.set(data, forKey: "result_history")
+    }
 }

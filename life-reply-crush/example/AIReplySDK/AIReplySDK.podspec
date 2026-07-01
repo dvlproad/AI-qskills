@@ -18,11 +18,25 @@ Pod::Spec.new do |s|
     ss.frameworks = 'Foundation'
   end
 
+  s.subspec 'Clipboard' do |ss|
+    ss.source_files = 'Sources/Clipboard/**/*.swift'
+    ss.frameworks = 'SwiftUI', 'UIKit', 'Foundation'
+    ss.dependency 'AIReplySDK/Core'
+  end
+
+  s.subspec 'CJSelectableText' do |ss|
+    ss.source_files = 'Sources/UI/CJSelectableText.swift'
+    ss.frameworks = 'SwiftUI', 'UIKit', 'Foundation'
+  end
+
   s.subspec 'UI' do |ss|
     ss.source_files = 'Sources/UI/**/*.swift'
+    ss.exclude_files = 'Sources/UI/CJSelectableText.swift'
     ss.frameworks = 'SwiftUI', 'UIKit', 'Foundation'
     ss.dependency 'AIReplySDK/Core'
     ss.dependency 'AIReplySDK/Settings'
+    ss.dependency 'AIReplySDK/Clipboard'
+    ss.dependency 'AIReplySDK/CJSelectableText'
   end
 
   s.subspec 'Settings' do |ss|

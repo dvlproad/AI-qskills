@@ -7,38 +7,42 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1B8A327E4E322D9F0148D288114D9D92 /* SetupInstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12541685213D618528FFE6FB66F9D723 /* SetupInstructionsView.swift */; };
+		1F8F54AC62079EB33B4636123D5AD4AB /* SetupInstructionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2591B04542D402EDD89CFC6B5CD24C9B /* SetupInstructionsView.swift */; };
+		20829CAEA588155BE3EB2D196FAB5D49 /* InputPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA79E12E576BCF550CE8546CEC6B83BC /* InputPanelView.swift */; };
 		23652C258EC656FE8E9243D6FFE9170A /* Pods-KeyboardExtension-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EC06EA3B89775D4197E068174BD18B1 /* Pods-KeyboardExtension-dummy.m */; };
-		3C6836DC62E10949DEF8194B607C0984 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD5F700FBB1EAEBFFC8F993B46BD6066 /* APIService.swift */; };
 		3F2A8B517CB775657237D778EFEC2357 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C558DE8C3EC0A46DD369D61C0BADE16 /* Foundation.framework */; };
-		4150B465821785498CF0E25BC55D4052 /* AIReplySDK-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = FE12E6F9C3E99E16F7B0AF3864F5D9F3 /* AIReplySDK-dummy.m */; };
+		4DA0BB9E4477D7FB405D11EE8AF5EE70 /* CJSelectableText.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF683E9EFBE5D165EFCDEA02152906A3 /* CJSelectableText.swift */; };
+		5B8C60433442EC8516F30B965FCDF5AB /* RawResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934E5D2D584E9E60333522A55C0CC7DF /* RawResultView.swift */; };
+		6EC9399FD193C1794556D5A2CD2C626E /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED41A8CBF24343DE91929E6DB9A6E90D /* APIService.swift */; };
+		76835994FDF29F2EBA22C69DF08C599B /* ClipboardSuggestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F320368F3FCB2F93247E58D4CA6370E8 /* ClipboardSuggestionView.swift */; };
+		77AF7472B86C1C6FD8B97C09691215DB /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E5E7A06254B9B6D8D64958BE40D3AB2 /* Theme.swift */; };
+		875219F6A0034983AB3991BFA4AFDB88 /* AIReplySDK-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = A956427DC9C6914A1A293B4FD8775EAC /* AIReplySDK-dummy.m */; };
+		8A79AEF18D6D30C65BC8F5E22441DB76 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2BA7FEF9545FA6B32B4D1866D918F78 /* SwiftUI.framework */; };
 		8B5EB4773242046CECEEF32D703AF77C /* Pods-AIReplyDemo-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 6CD1FA205F4422546BC9755FE5DE0EBA /* Pods-AIReplyDemo-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9DEC2475A48D7A1138476BE2E2B534CB /* RawResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2911B6F52ECD690299B16714C5F67C86 /* RawResultView.swift */; };
-		AC838C41C53682E6EC4539773AA3622D /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7042C5FD9C747504254E5ACBE58BD812 /* Theme.swift */; };
-		AEACFD3398377E824BD9952561194130 /* ExtensionKeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5927CC317F89103462EDA6B17E082718 /* ExtensionKeyboardView.swift */; };
-		B053B6F93DB5D6F061581142338D5DBC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C558DE8C3EC0A46DD369D61C0BADE16 /* Foundation.framework */; };
-		B41B7B102AE67611B32855F5C03A7BCF /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A71230E314A7050945CA10E3740DBE56 /* UIKit.framework */; };
-		B6D328E5B639EAB38C1105D082E57B9D /* PresetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AAC2017788527248C81CA810BA02172 /* PresetsView.swift */; };
+		9702E5B640FC3617BF2951127CA547F0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D59DF20C6E0D02E960E5B8A1256DDA8 /* SettingsView.swift */; };
+		A3377592872D8D4C46DC83985F5316C4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A71230E314A7050945CA10E3740DBE56 /* UIKit.framework */; };
+		A8C18E8357DAFA6385B3D044F4ABA3FF /* ExtensionKeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D678388CAE65CC133DCA873EBF39844A /* ExtensionKeyboardView.swift */; };
+		A946900A10D3B00AC232997A5A973604 /* PresetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF24B20F11C70ED9ADF66A1F7581BD1 /* PresetsView.swift */; };
+		B4E0C8F0F555E77C035A338633928E20 /* ReplyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324FE521A4EB7D1F2E7B1E0FFB5BD3EB /* ReplyCardView.swift */; };
+		BBB5F364F7F4A7519F5631AB5E4B834E /* ResultContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8552E4EF80D6C0DD278D2D45931C9D02 /* ResultContentView.swift */; };
 		BF87592173C627D995A1FF4A8AC377A6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C558DE8C3EC0A46DD369D61C0BADE16 /* Foundation.framework */; };
-		BFA19680C5CB2E93E2E80D8D02279128 /* ReplyCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D6D6CDFBEF89D83B638C8764864B680 /* ReplyCardView.swift */; };
-		C268AC1E028155476DDAA9EA8B28C90A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DDFCD13F7BB4BF14CA84ED39BFDBB3F /* SettingsView.swift */; };
-		CAA97E9FE1A00CE8C062239625CEEDE8 /* InputPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22A71ED932E852A8716B4C77EC2D38 /* InputPanelView.swift */; };
-		DC3042C1A9C801EB482586E2B367B504 /* AIReplySDK-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 3BD6EBCECAADA6F1FE8B556D3FD6DECB /* AIReplySDK-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C5C5122507D2D901BA077610250EBEB2 /* ClipboardHistoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A76702EFE446E75F0AC7BEDD074135 /* ClipboardHistoryListView.swift */; };
+		C81867A735C2E9E36B9B951B53063730 /* AIReplySDK-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 13ACE67F86E68B881409AFF865BB1296 /* AIReplySDK-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E3B156FFA1218E93854034630AA67F99 /* Pods-KeyboardExtension-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = D4588B546CD6272D6F109B584E78E056 /* Pods-KeyboardExtension-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F1C01BF820F30076CB07EF359E48B90D /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FE419290068CD9DCE1399BBF4660934 /* Models.swift */; };
+		E589459B9AA127C3883940ADF9C249FF /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3214C8E5F672DC9F06D81678ABDF4778 /* Models.swift */; };
+		EB32BAF6E5E1CFB3AFF0FE29593E5E32 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C558DE8C3EC0A46DD369D61C0BADE16 /* Foundation.framework */; };
 		F9DE6DB25A7CD7E886AA8F6A4DF201DB /* Pods-AIReplyDemo-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 5EB5759A87F25F2F91BBF424D16E2C44 /* Pods-AIReplyDemo-dummy.m */; };
-		FF7D8C8911A2191E64CDA1927FF66C28 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A2BA7FEF9545FA6B32B4D1866D918F78 /* SwiftUI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		5D65E4DCE82BAE3E6E8363FD3F81894D /* PBXContainerItemProxy */ = {
+		D7325D105C16C6C4030DFF31D277B107 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 18811BCE515398631F2C3D0A251C0E83;
 			remoteInfo = AIReplySDK;
 		};
-		86B27E9DC07E75DDAD6274F79BDA1263 /* PBXContainerItemProxy */ = {
+		D891275E2C8911681DE1E9689AE79CAA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
@@ -48,49 +52,53 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0E5E7A06254B9B6D8D64958BE40D3AB2 /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Theme.swift; path = Sources/Core/Theme.swift; sourceTree = "<group>"; };
 		11DD8C9AC9ACD63515CD8A18E95D96E0 /* Pods-AIReplyDemo-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-AIReplyDemo-acknowledgements.markdown"; sourceTree = "<group>"; };
-		12541685213D618528FFE6FB66F9D723 /* SetupInstructionsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SetupInstructionsView.swift; path = Sources/UI/SetupInstructionsView.swift; sourceTree = "<group>"; };
+		13ACE67F86E68B881409AFF865BB1296 /* AIReplySDK-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "AIReplySDK-umbrella.h"; sourceTree = "<group>"; };
 		1556A2D3DA0D31436EC3DDD7BD610467 /* Pods-AIReplyDemo-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-AIReplyDemo-frameworks.sh"; sourceTree = "<group>"; };
 		1A2F0447631BD01C85EE0A1151E03935 /* Pods-AIReplyDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-AIReplyDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		1A6F99D37F927B2B42ED3148D217737B /* Pods-KeyboardExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-KeyboardExtension.release.xcconfig"; sourceTree = "<group>"; };
-		2911B6F52ECD690299B16714C5F67C86 /* RawResultView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RawResultView.swift; path = Sources/UI/RawResultView.swift; sourceTree = "<group>"; };
-		3AAC2017788527248C81CA810BA02172 /* PresetsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PresetsView.swift; path = Sources/Settings/PresetsView.swift; sourceTree = "<group>"; };
-		3BD6EBCECAADA6F1FE8B556D3FD6DECB /* AIReplySDK-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "AIReplySDK-umbrella.h"; sourceTree = "<group>"; };
+		2591B04542D402EDD89CFC6B5CD24C9B /* SetupInstructionsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SetupInstructionsView.swift; path = Sources/UI/SetupInstructionsView.swift; sourceTree = "<group>"; };
+		3214C8E5F672DC9F06D81678ABDF4778 /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Models.swift; path = Sources/Core/Models.swift; sourceTree = "<group>"; };
+		324FE521A4EB7D1F2E7B1E0FFB5BD3EB /* ReplyCardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ReplyCardView.swift; path = Sources/UI/ReplyCardView.swift; sourceTree = "<group>"; };
 		3CB00939C754DE78A288C5CBB2A76522 /* Pods-AIReplyDemo */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Pods-AIReplyDemo"; path = Pods_AIReplyDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		3FE419290068CD9DCE1399BBF4660934 /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Models.swift; path = Sources/Core/Models.swift; sourceTree = "<group>"; };
 		4454D1E3AD471C9BA5DD94633DB50A88 /* Pods-AIReplyDemo-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-AIReplyDemo-Info.plist"; sourceTree = "<group>"; };
-		46F0C705001B91B37994EB0EF5D12868 /* AIReplySDK.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = AIReplySDK.debug.xcconfig; sourceTree = "<group>"; };
 		4745F4358974768B8531B4820B986201 /* Pods-KeyboardExtension-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-KeyboardExtension-acknowledgements.plist"; sourceTree = "<group>"; };
+		4D59DF20C6E0D02E960E5B8A1256DDA8 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = Sources/Settings/SettingsView.swift; sourceTree = "<group>"; };
 		4EC06EA3B89775D4197E068174BD18B1 /* Pods-KeyboardExtension-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-KeyboardExtension-dummy.m"; sourceTree = "<group>"; };
-		5927CC317F89103462EDA6B17E082718 /* ExtensionKeyboardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExtensionKeyboardView.swift; path = Sources/UI/ExtensionKeyboardView.swift; sourceTree = "<group>"; };
 		5EB5759A87F25F2F91BBF424D16E2C44 /* Pods-AIReplyDemo-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-AIReplyDemo-dummy.m"; sourceTree = "<group>"; };
-		651D9F11BCF110B7CF01B3E960E84008 /* AIReplySDK-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "AIReplySDK-Info.plist"; sourceTree = "<group>"; };
+		6531FBE76F2D7503D7AED2E87D70749D /* AIReplySDK.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = AIReplySDK.release.xcconfig; sourceTree = "<group>"; };
+		680DA3F4D1A26F994BAB44E66D2A439A /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; path = LICENSE; sourceTree = "<group>"; };
 		6A1D944597ADD6830A484B213A35219E /* Pods-KeyboardExtension */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Pods-KeyboardExtension"; path = Pods_KeyboardExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6CD1FA205F4422546BC9755FE5DE0EBA /* Pods-AIReplyDemo-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-AIReplyDemo-umbrella.h"; sourceTree = "<group>"; };
 		6F1E1E972969C2BC604ADEDE529D8A9D /* Pods-AIReplyDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-AIReplyDemo.release.xcconfig"; sourceTree = "<group>"; };
-		7042C5FD9C747504254E5ACBE58BD812 /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Theme.swift; path = Sources/Core/Theme.swift; sourceTree = "<group>"; };
-		7DDFCD13F7BB4BF14CA84ED39BFDBB3F /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SettingsView.swift; path = Sources/Settings/SettingsView.swift; sourceTree = "<group>"; };
-		80608CB6BD38E8FC9FB3E02A3D9BA214 /* AIReplySDK.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = AIReplySDK.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		8006E2F8B15488408DD8BD3CC3DDBFAB /* AIReplySDK.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = AIReplySDK.modulemap; sourceTree = "<group>"; };
+		8552E4EF80D6C0DD278D2D45931C9D02 /* ResultContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ResultContentView.swift; path = Sources/UI/ResultContentView.swift; sourceTree = "<group>"; };
 		8C558DE8C3EC0A46DD369D61C0BADE16 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		8EA13842A156150D2DDDF31E57FA8EB8 /* Pods-AIReplyDemo.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-AIReplyDemo.modulemap"; sourceTree = "<group>"; };
 		9215CCF09D40D6E61E135A783FAB6613 /* Pods-KeyboardExtension-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-KeyboardExtension-acknowledgements.markdown"; sourceTree = "<group>"; };
-		987793C4EADF6C5CB80002C003086541 /* AIReplySDK.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = AIReplySDK.release.xcconfig; sourceTree = "<group>"; };
-		9D6D6CDFBEF89D83B638C8764864B680 /* ReplyCardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ReplyCardView.swift; path = Sources/UI/ReplyCardView.swift; sourceTree = "<group>"; };
+		934E5D2D584E9E60333522A55C0CC7DF /* RawResultView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RawResultView.swift; path = Sources/UI/RawResultView.swift; sourceTree = "<group>"; };
+		9BA8F6923AC546A8994CEEBB8D993913 /* AIReplySDK.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = AIReplySDK.debug.xcconfig; sourceTree = "<group>"; };
 		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		A2BA7FEF9545FA6B32B4D1866D918F78 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 		A71230E314A7050945CA10E3740DBE56 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		AAD667AC7A300AAFC7DB32CE03F23551 /* AIReplySDK.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = AIReplySDK.modulemap; sourceTree = "<group>"; };
+		A956427DC9C6914A1A293B4FD8775EAC /* AIReplySDK-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "AIReplySDK-dummy.m"; sourceTree = "<group>"; };
+		AF683E9EFBE5D165EFCDEA02152906A3 /* CJSelectableText.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CJSelectableText.swift; path = Sources/UI/CJSelectableText.swift; sourceTree = "<group>"; };
 		B10383930F1F5783038DD2666B77B55F /* Pods-AIReplyDemo-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-AIReplyDemo-acknowledgements.plist"; sourceTree = "<group>"; };
-		BB22A71ED932E852A8716B4C77EC2D38 /* InputPanelView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InputPanelView.swift; path = Sources/UI/InputPanelView.swift; sourceTree = "<group>"; };
-		BD5F700FBB1EAEBFFC8F993B46BD6066 /* APIService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = APIService.swift; path = Sources/Core/APIService.swift; sourceTree = "<group>"; };
-		C8934072D94A1D56B6124FE739D4271D /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; path = LICENSE; sourceTree = "<group>"; };
-		CFA22A9A6381825802662938C59F74B2 /* AIReplySDK-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "AIReplySDK-prefix.pch"; sourceTree = "<group>"; };
+		B5A76702EFE446E75F0AC7BEDD074135 /* ClipboardHistoryListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ClipboardHistoryListView.swift; path = Sources/Clipboard/ClipboardHistoryListView.swift; sourceTree = "<group>"; };
+		BF873DF7517C058C9652E480A8B7C15B /* AIReplySDK.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = AIReplySDK.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		BFE64ADB8903913C5ED134294CD42706 /* AIReplySDK-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "AIReplySDK-prefix.pch"; sourceTree = "<group>"; };
 		D4588B546CD6272D6F109B584E78E056 /* Pods-KeyboardExtension-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-KeyboardExtension-umbrella.h"; sourceTree = "<group>"; };
 		D4A3800912A472241D2769027B951073 /* Pods-KeyboardExtension-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-KeyboardExtension-Info.plist"; sourceTree = "<group>"; };
+		D678388CAE65CC133DCA873EBF39844A /* ExtensionKeyboardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExtensionKeyboardView.swift; path = Sources/UI/ExtensionKeyboardView.swift; sourceTree = "<group>"; };
+		DFF24B20F11C70ED9ADF66A1F7581BD1 /* PresetsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PresetsView.swift; path = Sources/Settings/PresetsView.swift; sourceTree = "<group>"; };
 		E21A2309068A75074FDC343A35441B37 /* AIReplySDK */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = AIReplySDK; path = AIReplySDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EA79E12E576BCF550CE8546CEC6B83BC /* InputPanelView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InputPanelView.swift; path = Sources/UI/InputPanelView.swift; sourceTree = "<group>"; };
 		EAD770AA8B01212136AAC6362A38A78C /* Pods-KeyboardExtension.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-KeyboardExtension.modulemap"; sourceTree = "<group>"; };
+		ED41A8CBF24343DE91929E6DB9A6E90D /* APIService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = APIService.swift; path = Sources/Core/APIService.swift; sourceTree = "<group>"; };
+		F14DB93DB0AF76497D2BEA19C0C7A56A /* AIReplySDK-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "AIReplySDK-Info.plist"; sourceTree = "<group>"; };
+		F320368F3FCB2F93247E58D4CA6370E8 /* ClipboardSuggestionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ClipboardSuggestionView.swift; path = Sources/Clipboard/ClipboardSuggestionView.swift; sourceTree = "<group>"; };
 		F47DC40E420987E2BB8FA7E96C482560 /* Pods-KeyboardExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-KeyboardExtension.debug.xcconfig"; sourceTree = "<group>"; };
-		FE12E6F9C3E99E16F7B0AF3864F5D9F3 /* AIReplySDK-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "AIReplySDK-dummy.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,13 +110,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B7CC93E71C47FC535548EE5B28693C5E /* Frameworks */ = {
+		A092268DE3590562BC19FE89BA158990 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B053B6F93DB5D6F061581142338D5DBC /* Foundation.framework in Frameworks */,
-				FF7D8C8911A2191E64CDA1927FF66C28 /* SwiftUI.framework in Frameworks */,
-				B41B7B102AE67611B32855F5C03A7BCF /* UIKit.framework in Frameworks */,
+				EB32BAF6E5E1CFB3AFF0FE29593E5E32 /* Foundation.framework in Frameworks */,
+				8A79AEF18D6D30C65BC8F5E22441DB76 /* SwiftUI.framework in Frameworks */,
+				A3377592872D8D4C46DC83985F5316C4 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,19 +139,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		37259A29EF7D172642EF0E42896ACC2F /* Support Files */ = {
+		0792C0CD6A7745164CFD77B8A5CA9CBE /* Pod */ = {
 			isa = PBXGroup;
 			children = (
-				AAD667AC7A300AAFC7DB32CE03F23551 /* AIReplySDK.modulemap */,
-				FE12E6F9C3E99E16F7B0AF3864F5D9F3 /* AIReplySDK-dummy.m */,
-				651D9F11BCF110B7CF01B3E960E84008 /* AIReplySDK-Info.plist */,
-				CFA22A9A6381825802662938C59F74B2 /* AIReplySDK-prefix.pch */,
-				3BD6EBCECAADA6F1FE8B556D3FD6DECB /* AIReplySDK-umbrella.h */,
-				46F0C705001B91B37994EB0EF5D12868 /* AIReplySDK.debug.xcconfig */,
-				987793C4EADF6C5CB80002C003086541 /* AIReplySDK.release.xcconfig */,
+				BF873DF7517C058C9652E480A8B7C15B /* AIReplySDK.podspec */,
+				680DA3F4D1A26F994BAB44E66D2A439A /* LICENSE */,
 			);
-			name = "Support Files";
-			path = "../AIReplyDemo/Pods/Target Support Files/AIReplySDK";
+			name = Pod;
 			sourceTree = "<group>";
 		};
 		3E6760EC2953075DCD6C6DBE4A6A8AA0 /* Products */ = {
@@ -154,25 +156,6 @@
 				6A1D944597ADD6830A484B213A35219E /* Pods-KeyboardExtension */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		50C9C7E0E9EBA36D422015E7F9AD39DA /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				BD5F700FBB1EAEBFFC8F993B46BD6066 /* APIService.swift */,
-				3FE419290068CD9DCE1399BBF4660934 /* Models.swift */,
-				7042C5FD9C747504254E5ACBE58BD812 /* Theme.swift */,
-			);
-			name = Core;
-			sourceTree = "<group>";
-		};
-		56C661B9E8F4813469E9995810C15680 /* Pod */ = {
-			isa = PBXGroup;
-			children = (
-				80608CB6BD38E8FC9FB3E02A3D9BA214 /* AIReplySDK.podspec */,
-				C8934072D94A1D56B6124FE739D4271D /* LICENSE */,
-			);
-			name = Pod;
 			sourceTree = "<group>";
 		};
 		68024E1A037F2C6F8AA37DFF2E4DC814 /* Targets Support Files */ = {
@@ -200,37 +183,20 @@
 			path = "Target Support Files/Pods-KeyboardExtension";
 			sourceTree = "<group>";
 		};
-		8C16B6CF5018FE0D8130BF85F788B0FC /* UI */ = {
+		8B77BA223F566F37FC41A618D4474317 /* Development Pods */ = {
 			isa = PBXGroup;
 			children = (
-				5927CC317F89103462EDA6B17E082718 /* ExtensionKeyboardView.swift */,
-				BB22A71ED932E852A8716B4C77EC2D38 /* InputPanelView.swift */,
-				2911B6F52ECD690299B16714C5F67C86 /* RawResultView.swift */,
-				9D6D6CDFBEF89D83B638C8764864B680 /* ReplyCardView.swift */,
-				12541685213D618528FFE6FB66F9D723 /* SetupInstructionsView.swift */,
-			);
-			name = UI;
-			sourceTree = "<group>";
-		};
-		933F4D28DE0DE72149D31E1CE87C9661 /* Development Pods */ = {
-			isa = PBXGroup;
-			children = (
-				A854578DE5EBBFA167CAE6CBF6B820E9 /* AIReplySDK */,
+				BC7235E8B99513CFB5F7C97DB7A4AB5A /* AIReplySDK */,
 			);
 			name = "Development Pods";
 			sourceTree = "<group>";
 		};
-		A854578DE5EBBFA167CAE6CBF6B820E9 /* AIReplySDK */ = {
+		A44B970786F3AC83B522A46A985D7F7D /* CJSelectableText */ = {
 			isa = PBXGroup;
 			children = (
-				50C9C7E0E9EBA36D422015E7F9AD39DA /* Core */,
-				56C661B9E8F4813469E9995810C15680 /* Pod */,
-				DA33D6D6B3C3B8DD3EA63B2C0C124BC7 /* Settings */,
-				37259A29EF7D172642EF0E42896ACC2F /* Support Files */,
-				8C16B6CF5018FE0D8130BF85F788B0FC /* UI */,
+				AF683E9EFBE5D165EFCDEA02152906A3 /* CJSelectableText.swift */,
 			);
-			name = AIReplySDK;
-			path = ../../AIReplySDK;
+			name = CJSelectableText;
 			sourceTree = "<group>";
 		};
 		B94CA9DB5BF49215C82BE99904AA83A3 /* iOS */ = {
@@ -243,24 +209,58 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
+		BB06EAB038A22930C5D5C544D70DCAE1 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				DFF24B20F11C70ED9ADF66A1F7581BD1 /* PresetsView.swift */,
+				4D59DF20C6E0D02E960E5B8A1256DDA8 /* SettingsView.swift */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
+		BC7235E8B99513CFB5F7C97DB7A4AB5A /* AIReplySDK */ = {
+			isa = PBXGroup;
+			children = (
+				A44B970786F3AC83B522A46A985D7F7D /* CJSelectableText */,
+				C6FA8C5EC850EBED58CC982C3E46657E /* Clipboard */,
+				BE95887C99EFEDE0405964ED4EFF0C7D /* Core */,
+				0792C0CD6A7745164CFD77B8A5CA9CBE /* Pod */,
+				BB06EAB038A22930C5D5C544D70DCAE1 /* Settings */,
+				E76061C7AB20928ADB1841FB2761E871 /* Support Files */,
+				F04ADACCC116E68CEBC805DDE8AD9B6D /* UI */,
+			);
+			name = AIReplySDK;
+			path = ../../AIReplySDK;
+			sourceTree = "<group>";
+		};
+		BE95887C99EFEDE0405964ED4EFF0C7D /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				ED41A8CBF24343DE91929E6DB9A6E90D /* APIService.swift */,
+				3214C8E5F672DC9F06D81678ABDF4778 /* Models.swift */,
+				0E5E7A06254B9B6D8D64958BE40D3AB2 /* Theme.swift */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		C6FA8C5EC850EBED58CC982C3E46657E /* Clipboard */ = {
+			isa = PBXGroup;
+			children = (
+				B5A76702EFE446E75F0AC7BEDD074135 /* ClipboardHistoryListView.swift */,
+				F320368F3FCB2F93247E58D4CA6370E8 /* ClipboardSuggestionView.swift */,
+			);
+			name = Clipboard;
+			sourceTree = "<group>";
+		};
 		CF1408CF629C7361332E53B88F7BD30C = {
 			isa = PBXGroup;
 			children = (
 				9D940727FF8FB9C785EB98E56350EF41 /* Podfile */,
-				933F4D28DE0DE72149D31E1CE87C9661 /* Development Pods */,
+				8B77BA223F566F37FC41A618D4474317 /* Development Pods */,
 				03C5C200A0787E300053CFA8F53CA094 /* Frameworks */,
 				3E6760EC2953075DCD6C6DBE4A6A8AA0 /* Products */,
 				68024E1A037F2C6F8AA37DFF2E4DC814 /* Targets Support Files */,
 			);
-			sourceTree = "<group>";
-		};
-		DA33D6D6B3C3B8DD3EA63B2C0C124BC7 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				3AAC2017788527248C81CA810BA02172 /* PresetsView.swift */,
-				7DDFCD13F7BB4BF14CA84ED39BFDBB3F /* SettingsView.swift */,
-			);
-			name = Settings;
 			sourceTree = "<group>";
 		};
 		E11A2D81BF58AFFBC550C8CC78996D89 /* Pods-AIReplyDemo */ = {
@@ -280,22 +280,50 @@
 			path = "Target Support Files/Pods-AIReplyDemo";
 			sourceTree = "<group>";
 		};
+		E76061C7AB20928ADB1841FB2761E871 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				8006E2F8B15488408DD8BD3CC3DDBFAB /* AIReplySDK.modulemap */,
+				A956427DC9C6914A1A293B4FD8775EAC /* AIReplySDK-dummy.m */,
+				F14DB93DB0AF76497D2BEA19C0C7A56A /* AIReplySDK-Info.plist */,
+				BFE64ADB8903913C5ED134294CD42706 /* AIReplySDK-prefix.pch */,
+				13ACE67F86E68B881409AFF865BB1296 /* AIReplySDK-umbrella.h */,
+				9BA8F6923AC546A8994CEEBB8D993913 /* AIReplySDK.debug.xcconfig */,
+				6531FBE76F2D7503D7AED2E87D70749D /* AIReplySDK.release.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../AIReplyDemo/Pods/Target Support Files/AIReplySDK";
+			sourceTree = "<group>";
+		};
+		F04ADACCC116E68CEBC805DDE8AD9B6D /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				D678388CAE65CC133DCA873EBF39844A /* ExtensionKeyboardView.swift */,
+				EA79E12E576BCF550CE8546CEC6B83BC /* InputPanelView.swift */,
+				934E5D2D584E9E60333522A55C0CC7DF /* RawResultView.swift */,
+				324FE521A4EB7D1F2E7B1E0FFB5BD3EB /* ReplyCardView.swift */,
+				8552E4EF80D6C0DD278D2D45931C9D02 /* ResultContentView.swift */,
+				2591B04542D402EDD89CFC6B5CD24C9B /* SetupInstructionsView.swift */,
+			);
+			name = UI;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		1EB88DBF0CFC269BD33A61D37D03D6DC /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C81867A735C2E9E36B9B951B53063730 /* AIReplySDK-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4B0EB8385822B7FDF228D6DE1611DAD0 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				8B5EB4773242046CECEEF32D703AF77C /* Pods-AIReplyDemo-umbrella.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		87DE65D77EC48DF955D835A99811B0A3 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DC3042C1A9C801EB482586E2B367B504 /* AIReplySDK-umbrella.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,12 +340,12 @@
 /* Begin PBXNativeTarget section */
 		18811BCE515398631F2C3D0A251C0E83 /* AIReplySDK */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 49CC00DEAB25784279B715CB2AE72DF7 /* Build configuration list for PBXNativeTarget "AIReplySDK" */;
+			buildConfigurationList = AB1ECC83BC20F4DAF8F184DC94AE7DF4 /* Build configuration list for PBXNativeTarget "AIReplySDK" */;
 			buildPhases = (
-				87DE65D77EC48DF955D835A99811B0A3 /* Headers */,
-				D53CA388CF5D39A1ABFD190BC66EC187 /* Sources */,
-				B7CC93E71C47FC535548EE5B28693C5E /* Frameworks */,
-				52239B87F670D0704C1F57D407456398 /* Resources */,
+				1EB88DBF0CFC269BD33A61D37D03D6DC /* Headers */,
+				52F8EDF01AC9BB9731147E2074FDB8A4 /* Sources */,
+				A092268DE3590562BC19FE89BA158990 /* Frameworks */,
+				B2FD59D2EBB24B136CB9B056DEFBBAEE /* Resources */,
 			);
 			buildRules = (
 			);
@@ -340,7 +368,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				06AA47C8D6C32D6FCACCCBF28290F7F8 /* PBXTargetDependency */,
+				7AA4C670D7E53C2C82D947E5E7F3DAF1 /* PBXTargetDependency */,
 			);
 			name = "Pods-AIReplyDemo";
 			productName = Pods_AIReplyDemo;
@@ -359,7 +387,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				FA2F317F46C5B5167AA903BD3C6864D4 /* PBXTargetDependency */,
+				C32F155F785F60069057B0E4112A62E8 /* PBXTargetDependency */,
 			);
 			name = "Pods-KeyboardExtension";
 			productName = Pods_KeyboardExtension;
@@ -405,7 +433,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		52239B87F670D0704C1F57D407456398 /* Resources */ = {
+		B2FD59D2EBB24B136CB9B056DEFBBAEE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -422,29 +450,33 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		52F8EDF01AC9BB9731147E2074FDB8A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				875219F6A0034983AB3991BFA4AFDB88 /* AIReplySDK-dummy.m in Sources */,
+				6EC9399FD193C1794556D5A2CD2C626E /* APIService.swift in Sources */,
+				4DA0BB9E4477D7FB405D11EE8AF5EE70 /* CJSelectableText.swift in Sources */,
+				C5C5122507D2D901BA077610250EBEB2 /* ClipboardHistoryListView.swift in Sources */,
+				76835994FDF29F2EBA22C69DF08C599B /* ClipboardSuggestionView.swift in Sources */,
+				A8C18E8357DAFA6385B3D044F4ABA3FF /* ExtensionKeyboardView.swift in Sources */,
+				20829CAEA588155BE3EB2D196FAB5D49 /* InputPanelView.swift in Sources */,
+				E589459B9AA127C3883940ADF9C249FF /* Models.swift in Sources */,
+				A946900A10D3B00AC232997A5A973604 /* PresetsView.swift in Sources */,
+				5B8C60433442EC8516F30B965FCDF5AB /* RawResultView.swift in Sources */,
+				B4E0C8F0F555E77C035A338633928E20 /* ReplyCardView.swift in Sources */,
+				BBB5F364F7F4A7519F5631AB5E4B834E /* ResultContentView.swift in Sources */,
+				9702E5B640FC3617BF2951127CA547F0 /* SettingsView.swift in Sources */,
+				1F8F54AC62079EB33B4636123D5AD4AB /* SetupInstructionsView.swift in Sources */,
+				77AF7472B86C1C6FD8B97C09691215DB /* Theme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8139DD063C5DD6D03C849F12EB5B39FD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				23652C258EC656FE8E9243D6FFE9170A /* Pods-KeyboardExtension-dummy.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D53CA388CF5D39A1ABFD190BC66EC187 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4150B465821785498CF0E25BC55D4052 /* AIReplySDK-dummy.m in Sources */,
-				3C6836DC62E10949DEF8194B607C0984 /* APIService.swift in Sources */,
-				AEACFD3398377E824BD9952561194130 /* ExtensionKeyboardView.swift in Sources */,
-				CAA97E9FE1A00CE8C062239625CEEDE8 /* InputPanelView.swift in Sources */,
-				F1C01BF820F30076CB07EF359E48B90D /* Models.swift in Sources */,
-				B6D328E5B639EAB38C1105D082E57B9D /* PresetsView.swift in Sources */,
-				9DEC2475A48D7A1138476BE2E2B534CB /* RawResultView.swift in Sources */,
-				BFA19680C5CB2E93E2E80D8D02279128 /* ReplyCardView.swift in Sources */,
-				C268AC1E028155476DDAA9EA8B28C90A /* SettingsView.swift in Sources */,
-				1B8A327E4E322D9F0148D288114D9D92 /* SetupInstructionsView.swift in Sources */,
-				AC838C41C53682E6EC4539773AA3622D /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -459,17 +491,17 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		06AA47C8D6C32D6FCACCCBF28290F7F8 /* PBXTargetDependency */ = {
+		7AA4C670D7E53C2C82D947E5E7F3DAF1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = AIReplySDK;
 			target = 18811BCE515398631F2C3D0A251C0E83 /* AIReplySDK */;
-			targetProxy = 5D65E4DCE82BAE3E6E8363FD3F81894D /* PBXContainerItemProxy */;
+			targetProxy = D7325D105C16C6C4030DFF31D277B107 /* PBXContainerItemProxy */;
 		};
-		FA2F317F46C5B5167AA903BD3C6864D4 /* PBXTargetDependency */ = {
+		C32F155F785F60069057B0E4112A62E8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = AIReplySDK;
 			target = 18811BCE515398631F2C3D0A251C0E83 /* AIReplySDK */;
-			targetProxy = 86B27E9DC07E75DDAD6274F79BDA1263 /* PBXContainerItemProxy */;
+			targetProxy = D891275E2C8911681DE1E9689AE79CAA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -614,6 +646,46 @@
 			};
 			name = Release;
 		};
+		72BD547C4C1C2CDA675C8858AE6C863F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6531FBE76F2D7503D7AED2E87D70749D /* AIReplySDK.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREFIX_HEADER = "Target Support Files/AIReplySDK/AIReplySDK-prefix.pch";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Target Support Files/AIReplySDK/AIReplySDK-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/AIReplySDK/AIReplySDK.modulemap";
+				PRODUCT_MODULE_NAME = AIReplySDK;
+				PRODUCT_NAME = AIReplySDK;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 		8A7B9832A6F84CBB81D0706D0CC4C15C /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1A6F99D37F927B2B42ED3148D217737B /* Pods-KeyboardExtension.release.xcconfig */;
@@ -654,9 +726,9 @@
 			};
 			name = Release;
 		};
-		99BFB9B6CADE2E9F72E602479F37812B /* Debug */ = {
+		B6D92429830A85759FDA80191070EE2F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 46F0C705001B91B37994EB0EF5D12868 /* AIReplySDK.debug.xcconfig */;
+			baseConfigurationReference = 9BA8F6923AC546A8994CEEBB8D993913 /* AIReplySDK.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
@@ -726,46 +798,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
-			};
-			name = Release;
-		};
-		D4475DB55958A55DBB858F447408E3EB /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 987793C4EADF6C5CB80002C003086541 /* AIReplySDK.release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				GCC_PREFIX_HEADER = "Target Support Files/AIReplySDK/AIReplySDK-prefix.pch";
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "Target Support Files/AIReplySDK/AIReplySDK-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULEMAP_FILE = "Target Support Files/AIReplySDK/AIReplySDK.modulemap";
-				PRODUCT_MODULE_NAME = AIReplySDK;
-				PRODUCT_NAME = AIReplySDK;
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
-				SWIFT_INSTALL_OBJC_HEADER = YES;
-				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -860,20 +892,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		49CC00DEAB25784279B715CB2AE72DF7 /* Build configuration list for PBXNativeTarget "AIReplySDK" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				99BFB9B6CADE2E9F72E602479F37812B /* Debug */,
-				D4475DB55958A55DBB858F447408E3EB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		96F98140D1D4095D2C8C12B0ADC7595C /* Build configuration list for PBXNativeTarget "Pods-AIReplyDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D1D83C4A26453625C5509AB96CD9472 /* Debug */,
 				BD2160E61C5AC40BAA4D35CCD201E0E2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AB1ECC83BC20F4DAF8F184DC94AE7DF4 /* Build configuration list for PBXNativeTarget "AIReplySDK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B6D92429830A85759FDA80191070EE2F /* Debug */,
+				72BD547C4C1C2CDA675C8858AE6C863F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

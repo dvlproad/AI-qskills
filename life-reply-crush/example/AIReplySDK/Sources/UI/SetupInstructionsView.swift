@@ -25,7 +25,7 @@ public struct SetupInstructionsView: View {
                     app.open(URL(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
                 } label: {
                     HStack {
-                        Image(systemName: "gearshape.fill")
+                        Image(systemName: "keyboard.fill")
                         Text("打开设置")
                     }
                     .font(.headline)

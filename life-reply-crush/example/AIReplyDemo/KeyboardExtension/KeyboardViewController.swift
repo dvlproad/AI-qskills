@@ -72,7 +72,17 @@ class KeyboardViewController: UIInputViewController {
                     }
                 }
             },
-            hasFullAccess: hasFullAccess
+            hasFullAccess: hasFullAccess,
+            bottomBarRightExtra: AnyView(
+                Button { [weak self] in
+                    self?.textDocumentProxy.deleteBackward()
+                } label: {
+                    Image(systemName: "delete.left.fill")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                        .padding(8)
+                }
+            )
         )
 
         let hosting = UIHostingController(rootView: keyboardView)

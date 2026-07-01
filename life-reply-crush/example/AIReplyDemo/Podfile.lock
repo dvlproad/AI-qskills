@@ -1,8 +1,13 @@
 PODS:
+  - AIReplySDK/CJSelectableText (0.1.0)
+  - AIReplySDK/Clipboard (0.1.0):
+    - AIReplySDK/Core
   - AIReplySDK/Core (0.1.0)
   - AIReplySDK/Settings (0.1.0):
     - AIReplySDK/Core
   - AIReplySDK/UI (0.1.0):
+    - AIReplySDK/CJSelectableText
+    - AIReplySDK/Clipboard
     - AIReplySDK/Core
     - AIReplySDK/Settings
 
@@ -16,7 +21,7 @@ EXTERNAL SOURCES:
     :path: "../AIReplySDK"
 
 SPEC CHECKSUMS:
-  AIReplySDK: 34bbb109f0be26f87805e58db27844ec78d98cba
+  AIReplySDK: 30cafd7e4fc8a7211e026ff70a0bc2920c828744
 
 PODFILE CHECKSUM: 2a20494fa44706d373c7c27d65120ac359ff7b81
 

@@ -15,7 +15,9 @@ struct CustomKeyboardView: View {
                 showResultsInline: true,
                 onResults: { r, raw in
                     if !raw.isEmpty { insertedText = raw }
-                }
+                },
+                isInputEditable: true,
+                hasFullAccess: true
             )
 
             if !insertedText.isEmpty {

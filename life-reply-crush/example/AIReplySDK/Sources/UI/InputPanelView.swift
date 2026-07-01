@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct InputPanelView: View {
+public struct InputPanelView<TrailingContent: View>: View {
     @Binding var inputText: String
     let isLoading: Bool
     let hasGeneratedReplies: Bool
@@ -9,9 +9,10 @@ public struct InputPanelView: View {
     var placeholder: String = "我要去洗澡了"
     var isInputEditable: Bool
     var onPasteFailure: (() -> Void)?
+    @ViewBuilder let trailingContent: TrailingContent
     @FocusState private var isFocused: Bool
 
-    public init(inputText: Binding<String>, isLoading: Bool, hasGeneratedReplies: Bool, onGenerate: @escaping () -> Void, title: String = "对方说了什么？", placeholder: String = "我要去洗澡了", isInputEditable: Bool = true, onPasteFailure: (() -> Void)? = nil) {
+    public init(inputText: Binding<String>, isLoading: Bool, hasGeneratedReplies: Bool, onGenerate: @escaping () -> Void, title: String = "对方说了什么？", placeholder: String = "我要去洗澡了", isInputEditable: Bool = true, onPasteFailure: (() -> Void)? = nil, @ViewBuilder trailingContent: () -> TrailingContent = { EmptyView() }) {
         self._inputText = inputText
         self.isLoading = isLoading
         self.hasGeneratedReplies = hasGeneratedReplies
@@ -20,6 +21,7 @@ public struct InputPanelView: View {
         self.placeholder = placeholder
         self.isInputEditable = isInputEditable
         self.onPasteFailure = onPasteFailure
+        self.trailingContent = trailingContent()
     }
 
     public var body: some View {
@@ -76,30 +78,35 @@ public struct InputPanelView: View {
                 }
             }
 
-            Button(action: onGenerate) {
-                HStack {
-                    if isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        Text("思考中...")
-                    } else {
-                        Text(hasGeneratedReplies ? "✨ 重新生成" : "✨ AI 生成")
+            HStack(spacing: 8) {
+                Button(action: onGenerate) {
+                    HStack {
+                        if isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            Text("思考中...")
+                        } else {
+                            Text(hasGeneratedReplies ? "✨ 重新生成" : "✨ AI 生成")
+                        }
                     }
-                }
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(
-                    LinearGradient(
-                        colors: [Color(hex: "9333ea"), Color(hex: "ec4899")],
-                        startPoint: .leading,
-                        endPoint: .trailing
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(
+                        LinearGradient(
+                            colors: [Color(hex: "9333ea"), Color(hex: "ec4899")],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                     )
-                )
-                .cornerRadius(14)
+                    .cornerRadius(14)
+                }
+                .disabled(isLoading)
+
+                trailingContent
+                    .frame(maxHeight: 52)
             }
-            .disabled(isLoading)
         }
     }
 }

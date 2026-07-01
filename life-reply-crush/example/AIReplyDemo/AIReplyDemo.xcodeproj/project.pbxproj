@@ -15,6 +15,7 @@
 		8B49FFFF85800D65334B31C7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 915EBD53300B80690681410A /* ContentView.swift */; };
 		B398CA2B6D2BDA8A8365DA9F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA52420C1BC79B68718B718D /* Preview Assets.xcassets */; };
 		DF7B7BCBD5F97E9C14237162 /* Pods_AIReplyDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E7750B2F8885BFF287E9DFB /* Pods_AIReplyDemo.framework */; };
+		E10FE88FFA2C42D6A889FBB6 /* TextSelectionTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC57C2DB7CDC42DC0F069D7 /* TextSelectionTestView.swift */; };
 		FC101B887F03AA4669031989 /* AIReplyDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F424CB1366273EE2B88D23 /* AIReplyDemoApp.swift */; };
 /* End PBXBuildFile section */
 
@@ -61,6 +62,7 @@
 		BCBC0BC174E09A399DFCC27C /* AIReplyDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AIReplyDemo.entitlements; sourceTree = "<group>"; };
 		CA52420C1BC79B68718B718D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		FA906B0C7C7692D8926F0927 /* Pods-KeyboardExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeyboardExtension.debug.xcconfig"; path = "Target Support Files/Pods-KeyboardExtension/Pods-KeyboardExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		FEC57C2DB7CDC42DC0F069D7 /* TextSelectionTestView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TextSelectionTestView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +126,7 @@
 				3EA53D0AA2D516A06BC3C796 /* CustomKeyboardView.swift */,
 				6537DC4FF848F69BC1976769 /* Info.plist */,
 				D023F85B2DDDE06B5272661D /* Preview Content */,
+				FEC57C2DB7CDC42DC0F069D7 /* TextSelectionTestView.swift */,
 			);
 			path = AIReplyDemo;
 			sourceTree = "<group>";
@@ -268,13 +271,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AIReplyDemo/Pods-AIReplyDemo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AIReplyDemo/Pods-AIReplyDemo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -313,6 +312,7 @@
 				FC101B887F03AA4669031989 /* AIReplyDemoApp.swift in Sources */,
 				8B49FFFF85800D65334B31C7 /* ContentView.swift in Sources */,
 				5E575A4F26C53BBE8E538468 /* CustomKeyboardView.swift in Sources */,
+				E10FE88FFA2C42D6A889FBB6 /* TextSelectionTestView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

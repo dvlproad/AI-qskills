@@ -19,14 +19,33 @@ public struct ExtensionKeyboardView: View {
     let onAddPreset: (() -> Void)?
     let onOpenSettings: (() -> Void)?
     let onOpenAppSettings: (() -> Void)?
+    let onShowClipboardHistory: (() -> Void)?
     let hasFullAccess: Bool
+    let bottomBarRightExtra: AnyView?
 
-    public init(insertText: @escaping (String) -> Void, dismissKeyboard: @escaping () -> Void, setKeyboardHeight: @escaping (CGFloat) -> Void, onTokenUsage: ((Int, String) -> Void)? = nil, showBottomBar: Bool = true, transparentBackground: Bool = false, showResultsInline: Bool = false, onResults: (([ReplyOption], String) -> Void)? = nil, isInputEditable: Bool = true, onAddPreset: (() -> Void)? = nil, onOpenSettings: (() -> Void)? = nil, onOpenAppSettings: (() -> Void)? = nil, hasFullAccess: Bool = true) {
+    public init(
+        insertText: @escaping (String) -> Void,
+        dismissKeyboard: @escaping () -> Void,
+        setKeyboardHeight: @escaping (CGFloat) -> Void,
+        onTokenUsage: ((Int, String) -> Void)? = nil,
+        showBottomBar: Bool = true,
+        transparentBackground: Bool = false,
+        showResultsInline: Bool = false,
+        onResults: (([ReplyOption], String) -> Void)? = nil,
+        isInputEditable: Bool,
+        onAddPreset: (() -> Void)? = nil,
+        onOpenSettings: (() -> Void)? = nil,
+        onOpenAppSettings: (() -> Void)? = nil,
+        onShowClipboardHistory: (() -> Void)? = nil,
+        hasFullAccess: Bool,
+        bottomBarRightExtra: AnyView? = nil
+    ) {
         self.insertText = insertText
         self.dismissKeyboard = dismissKeyboard
         self.setKeyboardHeight = setKeyboardHeight
         self.onTokenUsage = onTokenUsage
         self.showBottomBar = showBottomBar
+        self.bottomBarRightExtra = bottomBarRightExtra
         self.transparentBackground = transparentBackground
         self.showResultsInline = showResultsInline
         self.onResults = onResults
@@ -34,6 +53,7 @@ public struct ExtensionKeyboardView: View {
         self.onAddPreset = onAddPreset
         self.onOpenSettings = onOpenSettings
         self.onOpenAppSettings = onOpenAppSettings
+        self.onShowClipboardHistory = onShowClipboardHistory
         self.hasFullAccess = hasFullAccess
     }
 
@@ -43,9 +63,25 @@ public struct ExtensionKeyboardView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showReplyPopup = false
+    @State private var showClipboardPopup = false
+    @State private var showHistoryList = false
     @State private var selectedPreset: PromptPreset = .default
+    @State private var clipboardSuggestions: [String] = []
+    @State private var clipboardTimer: Timer?
+    @State private var countdown = 2
+    @State private var resultHistory: [UUID: ResultHistoryEntry] = [:]
+    @State private var cachedPresetId: UUID?
+    @Environment(\.scenePhase) private var scenePhase
+
+    private var historyItems: [(UUID, ResultHistoryEntry)] {
+        resultHistory.sorted { $0.value.timestamp > $1.value.timestamp }
+    }
 
     private static let fullAccessError = "需要先在 设置→通用→键盘→AI键盘 中开启「允许完全访问」，否则粘贴、复制、AI 生成等功能均不可用"
+
+    private var isExtension: Bool {
+        Bundle.main.bundleURL.pathExtension == "appex"
+    }
 
     public var body: some View {
         ZStack {
@@ -53,13 +89,25 @@ public struct ExtensionKeyboardView: View {
                 inputArea
                 presetBar
                 if showBottomBar {
-                    bottomBar
+                    defaultBottomBar
                 }
             }
             .background(transparentBackground ? Color.clear : Color(.systemGray6))
 
             if showReplyPopup {
                 replyPopup
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(1)
+            }
+
+            if showClipboardPopup {
+                clipboardPopup
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(1)
+            }
+
+            if showHistoryList {
+                historyListPopup
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                     .zIndex(1)
             }
@@ -119,15 +167,45 @@ public struct ExtensionKeyboardView: View {
             }
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.9), value: showReplyPopup)
+        .animation(.spring(response: 0.35, dampingFraction: 0.9), value: showClipboardPopup)
         .animation(.easeInOut(duration: 0.2), value: errorMessage != nil)
         .onChange(of: showReplyPopup) { show in
             setKeyboardHeight(show ? KeyboardHeight.expanded : KeyboardHeight.default)
         }
+        .onChange(of: showClipboardPopup) { show in
+            setKeyboardHeight(show ? KeyboardHeight.expanded : KeyboardHeight.default)
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                checkClipboard()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIPasteboard.changedNotification)) { _ in
+            checkClipboard()
+        }
         .onAppear {
             loadPreset()
+            loadHistory()
             if !hasFullAccess {
                 errorMessage = Self.fullAccessError
             }
+            clipboardSuggestions = loadClipboardHistory()
+            checkClipboard()
+            if isExtension {
+                countdown = 2
+                clipboardTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+                    if countdown <= 0 {
+                        checkClipboard()
+                        countdown = 2
+                    } else {
+                        countdown -= 1
+                    }
+                }
+            }
+        }
+        .onDisappear {
+            clipboardTimer?.invalidate()
+            clipboardTimer = nil
         }
         .background(
             Color.clear
@@ -167,7 +245,7 @@ public struct ExtensionKeyboardView: View {
                         onAddPreset?()
                     }
                 } label: {
-                    Image(systemName: "plus")
+                    Image(systemName: "pencil")
                         .font(.caption2.weight(.medium))
                         .foregroundColor(.secondary)
                         .padding(6)
@@ -202,11 +280,66 @@ public struct ExtensionKeyboardView: View {
             .padding(.horizontal, 20)
             .padding(.top, 8)
 
-            if selectedPreset.rawTextMode {
-                rawTextPopupContent
-            } else {
-                crushPopupContent
+            resultContent
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            ZStack {
+                Color(.systemGray6)
+                LinearGradient(colors: [Color(hex: "667eea"), Color(hex: "764ba2")],
+                               startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .opacity(0.06)
             }
+        )
+    }
+
+    private var resultContent: some View {
+        ScrollView {
+            ResultContentView(
+                replies: replies,
+                rawText: rawResult,
+                rawTextMode: selectedPreset.rawTextMode,
+                onCopy: { text in
+                    insertText(text)
+                    showReplyPopup = false
+                }
+            )
+            .padding()
+        }
+    }
+
+    // MARK: - Clipboard Popup (Extension)
+
+    private var clipboardPopup: some View {
+        VStack(spacing: 0) {
+            RoundedRectangle(cornerRadius: 2.5)
+                .fill(Color(.systemGray3))
+                .frame(width: 36, height: 5)
+                .padding(.top, 10)
+
+            HStack {
+                Text("剪贴板历史")
+                    .font(.headline)
+                Spacer()
+                Button {
+                    showClipboardPopup = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+
+            ClipboardHistoryListView(
+                items: loadClipboardHistory(),
+                actionTitle: "粘贴",
+                onAction: { text in
+                    insertText(text)
+                    showClipboardPopup = false
+                }
+            )
 
             Spacer()
         }
@@ -221,55 +354,73 @@ public struct ExtensionKeyboardView: View {
         )
     }
 
-    private var crushPopupContent: some View {
-        ScrollView {
-            ReplyGridView(replies: replies) { content in
-                insertText(content)
-                showReplyPopup = false
-            }
-            .padding()
-        }
-    }
-
-    private var rawTextPopupContent: some View {
-        ScrollView {
-            RawResultView(text: rawResult, onCopy: { UIPasteboard.general.string = rawResult })
-                .padding()
-        }
-    }
-
     // MARK: - Input Area
 
     private var inputArea: some View {
-        InputPanelView(
-            inputText: $inputText, isLoading: isLoading,
-            hasGeneratedReplies: false, onGenerate: generate,
-            title: selectedPreset.generateTitle,
-            placeholder: selectedPreset.placeholder,
-            isInputEditable: isInputEditable,
-            onPasteFailure: {
-                if !self.hasFullAccess {
-                    self.errorMessage = Self.fullAccessError
-                }
+        VStack(spacing: 6) {
+            if !clipboardSuggestions.isEmpty {
+                ClipboardSuggestionView(
+                    items: clipboardSuggestions,
+                    isPolling: isExtension,
+                    countdown: countdown,
+                    onTap: { text in
+                        inputText = text
+                    },
+                    onMore: isExtension
+                        ? { showClipboardPopup = true }
+                        : onShowClipboardHistory
+                )
+                .padding(.top, 2)
             }
-        )
+
+            InputPanelView(
+                inputText: $inputText, isLoading: isLoading,
+                hasGeneratedReplies: false, onGenerate: generate,
+                title: selectedPreset.generateTitle,
+                placeholder: selectedPreset.placeholder,
+                isInputEditable: isInputEditable,
+                onPasteFailure: {
+                    if !self.hasFullAccess {
+                        self.errorMessage = Self.fullAccessError
+                    }
+                },
+                trailingContent: { historyMenuButton }
+            )
+        }
         .padding(8)
         .background(Color(.systemGray5).overlay(.regularMaterial))
     }
 
-    // MARK: - Bottom Bar
+    // MARK: - Default Bottom Bar
 
-    private var bottomBar: some View {
+    private var defaultBottomBar: some View {
         HStack {
-            Button {
-                onOpenAppSettings?()
-            } label: {
-                Image(systemName: "gearshape")
+            if onOpenAppSettings != nil {
+                Button {
+                    onOpenAppSettings?()
+                } label: {
+                    Image(systemName: "gearshape.fill")
+                        .font(.title3)
+                        .foregroundColor(.secondary)
+                        .padding(8)
+                }
+            }
+
+            if onOpenSettings != nil {
+                Button {
+                    onOpenSettings?()
+                } label: {
+                Image(systemName: "keyboard.fill")
                     .font(.title3)
                     .foregroundColor(.secondary)
                     .padding(8)
+                }
             }
+
             Spacer()
+            if let bottomBarRightExtra {
+                bottomBarRightExtra
+            }
             Button {
                 dismissKeyboard()
             } label: {
@@ -298,6 +449,55 @@ public struct ExtensionKeyboardView: View {
     private func savePreset(_ preset: PromptPreset) {
         guard let data = try? JSONEncoder().encode(preset) else { return }
         UserDefaults.shared.set(data, forKey: "selected_preset")
+    }
+
+    // MARK: - Clipboard
+
+    private func checkClipboard() {
+        guard hasFullAccess else { return }
+        let currentChangeCount = UIPasteboard.general.changeCount
+        let saved = UserDefaults.shared.integer(forKey: "last_clipboard_change_count")
+        guard currentChangeCount != saved else { return }
+        UserDefaults.shared.set(currentChangeCount, forKey: "last_clipboard_change_count")
+        guard let string = UIPasteboard.general.string, !string.isEmpty else { return }
+        var history = loadClipboardHistory()
+        history = history.filter { $0 != string }
+        history.insert(string, at: 0)
+        if history.count > 3 { history = Array(history.prefix(3)) }
+        saveClipboardHistory(history)
+        DispatchQueue.main.async {
+            self.clipboardSuggestions = history
+        }
+    }
+
+    private func loadClipboardHistory() -> [String] {
+        guard let data = UserDefaults.shared.data(forKey: "clipboard_history"),
+              let history = try? JSONDecoder().decode([String].self, from: data) else { return [] }
+        return history
+    }
+
+    private func saveClipboardHistory(_ history: [String]) {
+        guard let data = try? JSONEncoder().encode(history) else { return }
+        UserDefaults.shared.set(data, forKey: "clipboard_history")
+        DispatchQueue.main.async {
+            self.clipboardSuggestions = history
+        }
+    }
+
+    private func removeClipboardItem(_ text: String) {
+        var history = loadClipboardHistory()
+        history.removeAll { $0 == text }
+        saveClipboardHistory(history)
+    }
+
+    // MARK: - History Persistence
+
+    private func loadHistory() {
+        resultHistory = loadResultHistory()
+    }
+
+    private func saveHistory() {
+        saveResultHistory(resultHistory)
     }
 
     // MARK: - Generate
@@ -329,6 +529,7 @@ public struct ExtensionKeyboardView: View {
         isLoading = true
         replies = []
         rawResult = ""
+        cachedPresetId = nil
 
         let preset = selectedPreset
 
@@ -355,6 +556,15 @@ public struct ExtensionKeyboardView: View {
                 } else {
                     replies = parseReplies(from: content)
                 }
+                cachedPresetId = selectedPreset.id
+                resultHistory[selectedPreset.id] = ResultHistoryEntry(
+                    input: text,
+                    presetName: selectedPreset.name,
+                    replies: replies,
+                    rawText: rawResult,
+                    timestamp: Date()
+                )
+                saveHistory()
 
                 if showResultsInline {
                     onResults?(replies, rawResult)
@@ -376,6 +586,108 @@ public struct ExtensionKeyboardView: View {
             }
             isLoading = false
         }
+    }
+
+    private var historyMenuButton: some View {
+        Button {
+            showHistoryList = true
+        } label: {
+            Image(systemName: "clock.arrow.circlepath")
+                .font(.body)
+                .foregroundColor(historyItems.isEmpty ? .secondary.opacity(0.4) : .purple)
+        }
+        .disabled(historyItems.isEmpty)
+    }
+
+    private var historyListPopup: some View {
+        VStack(spacing: 0) {
+            RoundedRectangle(cornerRadius: 2.5)
+                .fill(Color(.systemGray3))
+                .frame(width: 36, height: 5)
+                .padding(.top, 10)
+
+            HStack {
+                Text("历史结果")
+                    .font(.headline)
+                Spacer()
+                Button {
+                    showHistoryList = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+
+            if historyItems.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.largeTitle)
+                        .foregroundColor(.secondary.opacity(0.5))
+                    Text("暂无历史记录")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 8) {
+                        ForEach(historyItems, id: \.0) { id, entry in
+                            historyRow(id: id, entry: entry)
+                        }
+                    }
+                    .padding()
+                }
+            }
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemGray6))
+    }
+
+    private func historyRow(id: UUID, entry: ResultHistoryEntry) -> some View {
+        Button {
+            loadHistoryResult(id: id, entry: entry)
+        } label: {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(entry.input)
+                        .font(.subheadline.weight(.medium))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    Text(entry.presetName)
+                        .font(.caption2)
+                        .foregroundColor(.secondary.opacity(0.7))
+                    Text(entry.preview)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+                Spacer()
+                Text(entry.relativeTime)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            .padding(12)
+            .background(Color(.systemBackground))
+            .cornerRadius(10)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func loadHistoryResult(id: UUID, entry: ResultHistoryEntry) {
+        replies = entry.replies
+        rawResult = entry.rawText
+        selectedPreset = PromptPreset.allPresets.first(where: { $0.id == id }) ?? selectedPreset
+        cachedPresetId = id
+        showHistoryList = false
+        showReplyPopup = true
     }
 }
 
