@@ -13,8 +13,62 @@ description: |
 ## 触发条件
 
 - `"整理项目"`
+- `"同步或更新 podspec 到项目列表"`
 
 ## 执行流程
+
+### 0、判断操作类型
+
+用户触发后，判断是「单条更新 podspec」还是「全量整理项目」：
+
+- 用户提供了 `.podspec` 文件路径（或当前目录下有 `.podspec`）→ **单条更新**，进入 0.1
+- 其他 → **全量整理**，跳到 Step 1
+
+#### 单条更新子流程
+
+**0.1、确认 podspec 路径**
+
+- 用户提供了路径 → 使用该路径
+- 当前目录有 `.podspec` → 提示用户确认
+- 都没有 → 请用户指定路径
+
+**0.2、调用 `project-pods-action` 更新 `pods_all.json`**
+
+调用 [project-pods-action](../project-pods-action/SKILL.md) 的单条更新流程（第五节.3），完成：
+- podspec 规范化（`pod ipc spec`）
+- 更新 `pods_all.json`（`public-pod-complete2-pods_json.py`）
+
+完成后回到本 skill 继续。
+
+**0.3、重新生成 `repos_with_pods.json`**
+
+确定 `repos_all.json`、`pods_all.json` 的路径（优先 `项目列表/dvlproad项目列表/data/`）。若存在 `skills_all.json` 则一并传入：
+
+```bash
+sh scripts/repos_json_append_pods.sh \
+  --repos <repos_all.json路径> \
+  --pods "<pods_all.json路径>,<skills_all.json路径>" \
+  --output <repos_with_pods.json路径>
+```
+
+无 `skills_all.json` 时省略即可：
+
+```bash
+sh scripts/repos_json_append_pods.sh \
+  --repos <repos_all.json路径> \
+  --pods <pods_all.json路径> \
+  --output <repos_with_pods.json路径>
+```
+
+**0.4、提示用户是否继续渲染**
+
+> 已更新 pods_all.json 和 repos_with_pods.json。是否继续？
+>
+> 1. 不 → ✅ 结束
+> 2. 生成 Markdown 版项目列表 → ### 5
+> 3. 生成 HTML 版项目列表 → ### 4
+
+---
 
 ### 1、获取 repos 信息 `repos_all.json`
 
@@ -507,6 +561,10 @@ Agent 话术模板：
 
 
 ## 版本记录
+
+### 0.2.1 (2026-07-11): 新增单条更新 podspec 入口
+- 触发条件新增"同步或更新 podspec 到项目列表"
+- 新增 Step 0：检测 podspec 文件 → 调用 project-pods-action 更新 pods_all.json → 重新生成 repos_with_pods.json
 
 ### 0.2.0 (2026-05-22): 重构标题/触发条件/交互模式，修复结构问题
 - 标题改为"项目列表渲染（repo + pod 数据配图）"
