@@ -4,6 +4,7 @@ version: 0.2.0
 description: |
   整理项目（获取并整合 repos_all.json 和 pods_all.json），
   渲染为项目列表的各种格式（markdown / HTML / JSON 数据源）
+  或 更新 podspec 到项目列表
 ---
 
 # 项目列表渲染（repo + pod 数据配图）
