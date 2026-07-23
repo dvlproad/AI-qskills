@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """
-public-pod-complete2-pods_json.py — 从本地 podspec 解析数据并合并到 pods_all.json
+public-pod-complete2-pods_json.py — 单条更新：从本地 podspec 解析数据并合并到 pods_all.json
+
+适用场景: 更新单个 pod 的信息到已有的 pods_all.json（如修改了 podspec 后同步）
+不适用:   全量获取应使用 pods_fetch_to_md.sh
 
 用法:
   python3 public-pod-complete2-pods_json.py <本地podspec路径> <pods_all.json路径>
 
 流程:
   1. pod ipc spec <文件> → 将 Ruby podspec 转为 JSON
-  2. 解析 version / summary / git / subspecs / language
+  2. 解析 version / summary / git / subspecs / language（递归支持嵌套子库）
   3. 读取 pods_all.json，按 pod 名匹配 → upsert
   4. 写回 pods_all.json
 """
@@ -48,14 +51,27 @@ def extract_subspec_comments(spec_path):
 
 
 def parse_subspecs(subspecs_raw, subspec_comments=None):
-    """将原始 subspecs 转为 {name, summary} 格式，summary 为空时用注释补"""
+    """将原始 subspecs 递归转为 {name, summary, source_files, resources, dependencies, subspecs?} 格式"""
     result = []
     for s in subspecs_raw:
         name = s.get('name', '')
         summary = s.get('summary', '')
         if not summary and subspec_comments:
             summary = subspec_comments.get(name, '')
-        result.append({'name': name, 'summary': summary})
+        entry = {'name': name, 'summary': summary}
+        source_files = s.get('source_files', '')
+        if source_files:
+            entry['source_files'] = source_files
+        resources = s.get('resources', '')
+        if resources:
+            entry['resources'] = resources
+        deps = s.get('dependencies', [])
+        if deps:
+            entry['dependencies'] = deps
+        nested = s.get('subspecs', [])
+        if nested:
+            entry['subspecs'] = parse_subspecs(nested, subspec_comments)
+        result.append(entry)
     return result
 
 

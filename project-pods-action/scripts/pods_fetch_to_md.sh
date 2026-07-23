@@ -1,5 +1,8 @@
 #!/bin/sh
-# pods_fetch_to_md.sh — 采集指定 CocoaPods repo 的 Pod 数据，可顺便输出 JSON/Markdown
+# pods_fetch_to_md.sh — 全量获取：采集指定 CocoaPods repo 的 Pod 数据，可顺便输出 JSON/Markdown
+#
+# 适用场景: 全量采集所有 Pod 数据（从 trunk、CDN 缓存、私有 specs 获取并去重合并）
+# 不适用:   单条更新应使用 public-pod-complete2-pods_json.py
 #
 # 主职是采集（从 trunk、CDN 缓存、私有 specs 获取 pod 数据并去重合并），
 # 输出 Markdown 时底层调用 pod_to_md.py 渲染。
@@ -140,6 +143,20 @@ def parse_version(v):
     except:
         return (0,)
 
+def normalize_subspecs(raw_subspecs):
+    """统一 subspecs 属性顺序为 name → summary → source_files"""
+    result = []
+    for s in raw_subspecs:
+        entry = {'name': s.get('name', ''), 'summary': s.get('summary', '')}
+        sf = s.get('source_files', '')
+        if sf:
+            entry['source_files'] = sf
+        nested = s.get('subspecs', [])
+        if nested:
+            entry['subspecs'] = normalize_subspecs(nested)
+        result.append(entry)
+    return result
+
 # 读取公有 Pod spec 文件（本地 trunk CDN 缓存）
 # trunk CDN 包含下过 pod install 的 pod，非全部，所以后面有兜底
 public_specs = {}
@@ -169,7 +186,7 @@ with open(public_specs_path) as f:
             language = 'Swift' if has_swift else 'OC'
             # 取最高版本（同名 pod 可能有多个版本缓存）
             if fn not in public_specs or parse_version(ver) > parse_version(public_specs[fn]['version']):
-                subspecs_list = d.get('subspecs', [])
+                subspecs_list = normalize_subspecs(d.get('subspecs', []))
                 public_specs[fn] = {
                     'pod': fn,
                     'version': ver,
@@ -229,7 +246,7 @@ if remaining and use_fallback:
                         sv = d.get('swift_version', '')
                         has_swift = bool(sv)
                     language = 'Swift' if has_swift else 'OC'
-                    subspecs_list = d.get('subspecs', [])
+                    subspecs_list = normalize_subspecs(d.get('subspecs', []))
                     public_specs[name] = {
                         'pod': name,
                         'version': ver,
@@ -333,6 +350,7 @@ def parse_podspec(path):
             summary_sub = sm.group(1) if sm else ''
             if not summary_sub and sname in subspec_comments:
                 summary_sub = subspec_comments[sname]
+
             subspecs.append({'name': path, 'summary': summary_sub})
             i += 1
             continue
