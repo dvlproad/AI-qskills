@@ -1,6 +1,6 @@
 ---
 name: normalize-ios-project
-version: 0.4.0
+version: 0.5.1
 description: |
   规范化 iOS 项目的文件归属和 ObjC/Swift 混编结构，检查并修复 Demo 文件归属、Swift pod 依赖方向等问题。
   触发场景：
@@ -237,6 +237,48 @@ description: |
 
 ---
 
+### 检查 6.5：Tab 图片完整性
+
+**检查目的**：MainViewController 中 tabBarModels 设置了 title 和 classEntry，但可能遗漏了 normalImage，导致 tab 无图标。
+
+**检查方法**：在 TSPopupMainViewController（或其他 MainViewController）中搜索 `CQDMTabBarModel`，检查每个 model 是否都设置了 `normalImage`。
+
+**规范**：每个 tabBarModel 必须设置 `normalImage`（图标资源来自 `CQDemoResource` 的 `icons8-*` 系列）。
+
+**不规范时的修复步骤**：
+
+1. **确认依赖**：podspec 中需添加 `s.dependency "CQDemoResource/Images"`，对应头文件 `#import <CQDemoResource/UIImage+CQDemoResource.h>`
+2. **添加 import**：在 MainViewController.m 中添加 `#import <CQDemoResource/UIImage+CQDemoResource.h>`
+3. **import 顺序规范**：`<>` 引用按以下顺序排列：
+   - 第三方库（如 Masonry）
+   - CQDemoKit
+   - CQDemoResource
+   - CQDemoProtocol
+   - 主库（如 CJPopupAction）
+   - TSDemo_（Demo pod）
+4. **补充 normalImage**
+   ```objc
+   // ObjC
+   tabBarModel.normalImage = [UIImage cqresource_imageNamed:@"icons8-menu"];
+   ```
+   ```swift
+   // Swift
+   model.normalImage = UIImage.cqresource_imageNamed("icons8-menu")
+   ```
+
+5. **可用图标参考**（CQDemoResource/Images 中的 `icons8-*` 系列）：
+   - `icons8-menu` — 菜单
+   - `icons8-folder` — 文件夹
+   - `icons8-settings` — 设置
+   - `icons8-calendar` — 日历
+   - `icons8-home` — 首页
+
+6. **编译验证**
+
+**无需修复时**：跳过，进入下一项检查。
+
+---
+
 ### 检查 7：XIB 加载 Bundle 修正
 
 **检查目的**：Demo 文件移到 pod 后，xib 资源从 mainBundle 移到了 pod 的 framework bundle，`[NSBundle mainBundle]` 加载会崩溃。
@@ -346,6 +388,7 @@ description: |
 | 启动后页面为空 | `NSClassFromString` 返回 nil（ObjC 类误加模块前缀） | 移除前缀：`NSClassFromString(@"ClassName")` |
 | xib 加载崩溃 | pod 中 xib 不在 mainBundle | 改用 `[NSBundle bundleForClass:[self class]]` |
 | storyboard 启动冲突 | Info.plist 仍有 `UIMainStoryboardFile`，与 UIWindow+RootSetting 冲突 | 移除 `UIMainStoryboardFile` 键值 |
+| Tab 无图标 | tabBarModel 未设置 `normalImage` | 补充 `normalImage = [UIImage cqresource_imageNamed:@"icons8-xxx"]` |
 
 ---
 
