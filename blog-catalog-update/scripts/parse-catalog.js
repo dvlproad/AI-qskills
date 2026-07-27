@@ -567,6 +567,7 @@ function main() {
     }
 
     if (!post.title) {
+      post.title = `⚠️ 缺少title: ${relPath}`;
       untitled.push(relPath);
     }
 

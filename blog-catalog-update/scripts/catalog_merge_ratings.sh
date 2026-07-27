@@ -139,13 +139,15 @@ jq -s --argjson manual "$MANUAL_MAP" '
   {catalog: (.[0].catalog | walk(
     if type == "object" then
       if has("url") then
-        # 文章级：匹配 rating 注入
-        (
+        # 文章级：匹配 rating 注入（跳过无 title 的条目）
+        (if has("title") then
           $by_url[.url] //                                    # 1. URL 精确匹配
           $by_title[$manual[.title] // ""] //                  # 2. 手动映射
           ($by_title[.title] // null) as $t |                  # 3. title 匹配（限同分类）
           if $t and (.url / "/")[0] == ($t.path / "/")[0] then $t else null end
-        ) as $match |
+        else
+          $by_url[.url]                                      # 无 title 时只走 URL 匹配
+        end) as $match |
         if $match then
           . + {rating: $match.total, scores: $match.scores}
         else .

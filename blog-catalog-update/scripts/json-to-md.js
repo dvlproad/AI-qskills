@@ -96,6 +96,17 @@ const SECTION_CONFIG = [
   { category: '代码管理', showChapterNum: false, depth2Config: { showHeader: true, showHeaderNum: false } },
 ];
 const SECTION_MAP = new Map(SECTION_CONFIG.map(c => [c.category, c]));
+
+// 显示名映射：目录名 → 显示名（不改变 catalog 结构，只影响渲染）
+const DISPLAY_NAME = {
+  '工具实用': '实用工具',
+  '工具开发': '开发工具',
+  '工具编程': '编程工具',
+};
+
+function getDisplayName(type) {
+  return DISPLAY_NAME[type] || type;
+}
 let titleSecMismatches = [];
 
 function arabicToChineseNum(s) {
@@ -498,7 +509,7 @@ function renderCatalogToMd(catalog) {
   const lines = [];
   for (const section of catalog) {
     if (section.hidden) continue;
-    lines.push(`## ${section.type}`);
+    lines.push(`## ${getDisplayName(section.type)}`);
     let chapterNum = 1;
     for (const child of (section.children || [])) {
       if (SECTION_MAP.get(section.type)?.showChapterNum !== false) {
