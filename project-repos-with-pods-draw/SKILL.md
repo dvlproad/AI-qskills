@@ -43,18 +43,18 @@ description: |
 
 **0.3、重新生成 `repos_with_pods.json`**
 
-确定 `repos_all.json`、`pods_all.json` 的路径（优先 `项目列表/dvlproad项目列表/data/`）。若存在 `skills_all.json` 则一并传入：
+确定 `repos_all.json`、`pods_all.json`、`skills_all.json` 的路径（优先 `项目列表/dvlproad项目列表/data/`）。
+
+> ⚠️ **必须**检查同一目录下是否存在 `skills_all.json`，存在则一并传入，不可忽略。
 
 ```bash
+# 有 skills_all.json 时：
 sh scripts/repos_json_append_pods.sh \
   --repos <repos_all.json路径> \
   --pods "<pods_all.json路径>,<skills_all.json路径>" \
   --output <repos_with_pods.json路径>
-```
 
-无 `skills_all.json` 时省略即可：
-
-```bash
+# 无 skills_all.json 时：
 sh scripts/repos_json_append_pods.sh \
   --repos <repos_all.json路径> \
   --pods <pods_all.json路径> \
