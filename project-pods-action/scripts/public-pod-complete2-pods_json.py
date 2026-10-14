@@ -128,6 +128,9 @@ def merge_into_pods_json(pods_path, new_entry):
     found = False
     for i, entry in enumerate(all_pods):
         if entry.get('pod') == pod_name:
+            # 保留原有发布属性（source/visibility），避免硬编码覆盖（单条更新不改变发布渠道）
+            new_entry['source'] = entry.get('source', new_entry['source'])
+            new_entry['visibility'] = entry.get('visibility', new_entry['visibility'])
             all_pods[i] = new_entry
             print(f"✅ 更新 {pod_name} v{new_entry['version']}")
             found = True
