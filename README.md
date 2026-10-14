@@ -81,6 +81,7 @@ graph LR
 | -------------------------------------- | ------------------------------ | ------------ | ----------------- |
 | [life-reply-crush](./life-reply-crush) | 生成幽默撩人、有情绪张力的回复 | `crush: xxx` | crush: 今天忙啥呢 |
 | [life-emoji-idiom](./life-emoji-idiom) | 根据emoji符号猜成语            | "猜成语"     | 🙄🐯🧧🏮              |
+| [life-travel-guide](./life-travel-guide) | 按《北京旅游》方法生成旅游攻略文档 | "写一份 xx 旅游攻略" | xx旅游.md |
 
 
 
@@ -235,6 +236,7 @@ flowchart TD
 - `dev-fw-setting-ai-models`
 - `life-emoji-idiom`
 - `life-reply-crush`
+- `life-travel-guide`
 - `opencode-sessions-manager`
 
 ## 踩坑记录
@@ -260,6 +262,9 @@ flowchart TD
 ## 版本记录
 
 更多版本记录想看每个 SKILL 内部的版本记录
+
+### 0.0.10 (2026-10-14)
+- 新增 [life-travel-guide](./life-travel-guide): 按《北京旅游》攻略的结构与方法生成旅游攻略文档（待办表、交通深链、酒店对比、每日行程、门票预约表）
 
 ### 0.0.9 (2026-05-21)
 - **坑**: `dvlproad项目列表.html` renderRepoTable pod 子行缺少 `<tr>` 开标签，有 Pod 的 repo 后所有行 HTML 结构破碎
