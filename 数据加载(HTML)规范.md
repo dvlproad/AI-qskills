@@ -243,6 +243,21 @@ echo 'window.DATA = ' > data/catalog_with_ratings.js && cat "data/catalog_with_r
 cd ~/Project/dvlproadHexo/source/_posts/总目录 && echo 'window.DATA = ' > data/catalog_with_ratings.js && cat "data/catalog_with_ratings.json" >> data/catalog_with_ratings.js && /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome "file://$(pwd)/总目录.html?showAll=true"
 ```
 
+##### 复杂场景：多个 JSON → 一个 JS（Node 构建脚本）
+
+单 JSON 直接拼接用上面的 `echo/cat` 即可；以下情况改用 Node 构建脚本：
+
+- **多个 JSON 聚合成一个 .js**：以目录为数据源（如 `data/北京信息/` 下按 scenes、交通、餐饮分子目录）
+- **需要确定性排序**：目录/文件名排序，保证每次生成顺序一致
+
+命令形态（可参数化后放入 qtool GUI）：
+
+```bash
+cd ~/Project/dvlproadHexo/source/_posts/Architecture架构/通用业务规范 && node data/build-scenes.js 北京 && /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome "file://$(pwd)/旅游攻略助手.html?showAll=true"
+```
+
+- 实战示例：`dvlproadHexo/source/_posts/Architecture架构/通用业务规范/data/build-scenes.js`（北京信息/ 下 scenes+交通+餐饮 38 个 JSON → scenes-data-beijing.js；用法 `node data/build-scenes.js 北京|南京`）
+
 如何在 qtool 里增加这段 JSON（command）?
 
 在 qtool 菜单 JSON（如 `qtool_menu_public.json`）中新增 `command` action：
@@ -257,7 +272,7 @@ cd ~/Project/dvlproadHexo/source/_posts/总目录 && echo 'window.DATA = ' > dat
 {
     "des": "打开 旅游攻略助手.html(北京)",
     "key": "打开 旅游攻略助手.html(北京)",
-    "command": "cd ~/Project/dvlproadHexo/source/_posts/Architecture架构/通用业务规范 && echo 'window.SCENES_DATA = ' > data/trip-beijing-data.js && cat 'data/trip-beijing-data.json' >> data/trip-beijing-data.js && echo 'window.DATA = ' > data/trip-data.js && cat '行程安排(11.01-11.06).json' >> data/trip-data.js && /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome \"file://$(pwd)/旅游攻略助手.html?showAll=true\""
+    "command": "cd ~/Project/dvlproadHexo/source/_posts/Architecture架构/通用业务规范 && node data/build-scenes.js 北京 && echo 'window.DATA = ' > data/trip-data.js && cat 'data/北京行程安排(11.01-11.06).json' >> data/trip-data.js && /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome \"file://$(pwd)/旅游攻略助手.html?showAll=true\""
 }
 ```
 
