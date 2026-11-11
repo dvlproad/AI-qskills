@@ -227,6 +227,40 @@ cat data/data.json >> data/data.js
 
 HTML 中 `startApp()` 会根据 `window.DATA` 变量读取数据。
 
+#### 从 JSON 自动创建出 JS（通过命令，可进一步将命令放在qtool GUI中）
+
+命令为：
+
+```bash
+echo 'window.DATA = ' > data/catalog_with_ratings.js && cat "data/catalog_with_ratings.json" >> data/catalog_with_ratings.js
+```
+
+- 若通过 qtool GUI 触发打开 HTML（如 qtool 的 `command` action 直接执行 shell 命令），需先生成 `.js`
+- 生成的 `.js` 可以**①直接在html中使用，如window.SCENES_DATA**，**②也可以供 Phase 2 用。**
+- 打开的时候，可以增加 `?showAll=true` 等参数来筛选只获取某些数据：
+
+```bash
+cd ~/Project/dvlproadHexo/source/_posts/总目录 && echo 'window.DATA = ' > data/catalog_with_ratings.js && cat "data/catalog_with_ratings.json" >> data/catalog_with_ratings.js && /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome "file://$(pwd)/总目录.html?showAll=true"
+```
+
+如何在 qtool 里增加这段 JSON（command）?
+
+在 qtool 菜单 JSON（如 `qtool_menu_public.json`）中新增 `command` action：
+
+```json
+{
+    "des": "打开 总目录.html(本地所有)",
+    "key": "打开 总目录.html(本地所有)",
+    "command": "cd ~/Project/dvlproadHexo/source/_posts/总目录 && echo 'window.DATA = ' > data/catalog_with_ratings.js && cat 'data/catalog_with_ratings.json' >> data/catalog_with_ratings.js && /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome \"file://$(pwd)/总目录.html?showAll=true\""
+}
+或
+{
+    "des": "打开 旅游攻略助手.html(北京)",
+    "key": "打开 旅游攻略助手.html(北京)",
+    "command": "cd ~/Project/dvlproadHexo/source/_posts/Architecture架构/通用业务规范 && echo 'window.SCENES_DATA = ' > data/trip-beijing-data.js && cat 'data/trip-beijing-data.json' >> data/trip-beijing-data.js && echo 'window.DATA = ' > data/trip-data.js && cat '行程安排(11.01-11.06).json' >> data/trip-data.js && /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome \"file://$(pwd)/旅游攻略助手.html?showAll=true\""
+}
+```
+
 ### 本地临时测试
 - 无需额外文件
 - 打开 HTML → 看到默认数据界面 → 选择 `data.json` 文件 → 渲染完整数据
