@@ -1,9 +1,11 @@
 ---
 name: record-to-hexo-blog
-version: 0.0.10
+version: 0.0.11
 description: |
   将内容写入 hexo 博客 — 根据内容匹配合适分类，按规范创建博客文章
-  触发场景：被 record-router 路由至此
+  触发场景：
+  - 被 record-router 路由至此
+  - 用户要求写/修正博客文章链接、内链、引用另一篇博客
 ---
 
 # Record to Hexo Blog — 博客写入规范
@@ -14,6 +16,7 @@ description: |
 
 - **被 record-router 路由"写博客"任务时** → 走写作流程
 - **用户输入"整理博客" / "博客归类" / "移动博客文章" 等明确含"博客"关键词的指令时** → 走归类整理流程
+- **用户要求写/修正博客链接时** → 只执行「博客链接规范」，不新建/移动文章
 
 ## 博客结构参考
 
@@ -43,6 +46,18 @@ description: |
 - 流程对比：[《流程对比规范.md》](../流程对比规范.md)
 - 独立 HTML 文件处理：[《normalize-blog-style》](../normalize-blog-style/SKILL.md)
 
+## 博客链接规范
+
+适用于写作、整理和链接修正。用户只要求写/修正链接时，只执行本节，不执行 A/B 流程。
+
+- 博客文章之间互链：完整 URL `https://dvlproad.github.io/<文章标题>/`
+- 提及非本项目中的文件（Skill、规范文档等）：HTTP 链接，禁止本地绝对路径
+  - AI-qskills Skill：`[AI-qskills 中的 xxx](https://github.com/dvlproad/AI-qskills/blob/main/xxx/SKILL.md)`
+  - 其他仓库文件：该仓库对应的 HTTP 链接
+- 同一仓库下的非文章文件（README、规范文档、脚本）：相对路径
+- 不使用 `/文章标题/` 这种站内根相对路径；它在本地预览、其他站点或非本站上下文中会被误认为文件路径
+- 链接文字使用文章标题或文件名，不要只贴 URL
+
 ## 写作流程（A）
 
 → A1: 分类判断 → A2: 新建文件 → A3: 写入 front matter → A4: 添加 more 截断 → A5: 新增总目录 → A6: 目录索引 README → A7: 独立 HTML 文件（如有）→ A8: 用户确认
@@ -50,6 +65,10 @@ description: |
 ## 归类整理流程（B）
 
 → B1: 分类判断 → B2: 移动/重命名 → B3: 更新 front matter → B4: 添加 more 截断 → B5: 修改总目录 → B6: 目录索引 README → B7: 独立 HTML 文件（如有）→ B8: 用户确认
+
+## 链接修正流程（C）
+
+→ C1: 确认目标文章标题/permalink → C2: 替换为完整 URL → C3: 检查链接文字 → C4: 用户确认
 
 ## 流程细则
 
@@ -77,10 +96,7 @@ description: |
 ### 撰写风格
 - 简洁，附代码/命令
 - 记录核心知识和关键要点
-- 提及非本项目中的文件（Skill、规范文档等）时使用 HTTP 链接，禁止用本地绝对路径。
-  - 如引用 AI-qskills 中的 Skill，格式：[AI-qskills 中的 xxx](https://github.com/dvlproad/AI-qskills/blob/main/xxx/SKILL.md)
-  - 如引用其他仓库中的文件，使用该仓库对应的 HTTP 链接
-  - 如引用同一仓库下的其他目录，可使用相对路径
+- 链接写法统一见「博客链接规范」；禁止使用本地绝对路径
 - Skill 引用放在读者理解「方案是什么」之后、文章收尾之前。读者先了解问题与方案，再得知去哪里获取，自然引导行动。不要放在开头（读者还没理解背景）或末尾收尾后才出现
 - 不写无意义的废话
 
@@ -104,6 +120,8 @@ description: |
 ```
 
 ## 版本记录
+
+### 0.0.11 (2026-11-15): 新增「写/修正博客链接」触发与完整 URL 规范；链接修正只处理链接
 
 ### 0.0.10 (2026-05-20): 新增 A4/B4 添加 more 截断，改写首页摘要控制规范
 
