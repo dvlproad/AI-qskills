@@ -50,12 +50,15 @@ description: |
 
 适用于写作、整理和链接修正。用户只要求写/修正链接时，只执行本节，不执行 A/B 流程。
 
-- 博客文章之间互链：完整 URL `https://dvlproad.github.io/<文章标题>/`
+- 博客文章之间互链：完整 URL `https://dvlproad.github.io/<文章路径>/`
+  - `<文章路径>` = 文章在 `source/_posts/` 下的目录路径 + 文件名（不含 `.md`），必须包含父目录
+  - 例：`source/_posts/Architecture架构/基础规范/请求规范/请求规范_JS.md` → `https://dvlproad.github.io/Architecture架构/基础规范/请求规范/请求规范_JS/`
+  - 路径以 `总目录.md` 的链接或 `总目录/data/catalog.json` 的 `url` 字段为准
 - 提及非本项目中的文件（Skill、规范文档等）：HTTP 链接，禁止本地绝对路径
   - AI-qskills Skill：`[AI-qskills 中的 xxx](https://github.com/dvlproad/AI-qskills/blob/main/xxx/SKILL.md)`
   - 其他仓库文件：该仓库对应的 HTTP 链接
 - 同一仓库下的非文章文件（README、规范文档、脚本）：相对路径
-- 不使用 `/文章标题/` 这种站内根相对路径；它在本地预览、其他站点或非本站上下文中会被误认为文件路径
+- 不使用 `/文章标题/` 这种根相对路径；它缺少父目录，且在本地预览、其他站点或非本站上下文中会被误认为文件路径
 - 链接文字使用文章标题或文件名，不要只贴 URL
 
 ## 写作流程（A）
